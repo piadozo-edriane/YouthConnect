@@ -55,7 +55,7 @@
 
             <div *ngFor="let notification of paginatedNotifications"
                 class="notification-row"
-                [class.unread]="!isRead(notification)"
+                [class.unread]="!notification.isRead"
                 (click)="markAsRead(notification)">
 
                 <!-- Type indicator bar -->
@@ -76,11 +76,11 @@
                         <span class="notif-time">{{ getTimeAgo(notification.createdAt) }}</span>
                     </div>
                     <p class="notif-subtitle">{{ getNotificationSubtitle(notification) }}</p>
-                    <p class="notif-message">{{ notification.updateText }}</p>
+                    <p class="notif-message">{{ notification.message || notification.updateText }}</p>
                 </div>
 
                 <!-- Unread dot -->
-                <div class="unread-dot" *ngIf="!isRead(notification)"></div>
+                <div class="unread-dot" *ngIf="!notification.isRead"></div>
             </div>
         </div>
 

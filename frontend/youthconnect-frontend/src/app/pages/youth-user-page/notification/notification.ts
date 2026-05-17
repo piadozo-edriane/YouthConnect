@@ -1,10 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NotificationService, NotificationResponse } from '../../../services/notification.service';
 import { EventService, EventResponse } from '../../../services/event.service';
 import { AuthService } from '../../../services/auth.service';
-import { forkJoin } from 'rxjs';
+import { Subject, interval } from 'rxjs';
+import { takeUntil, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-notification',
@@ -12,7 +13,7 @@ import { forkJoin } from 'rxjs';
   templateUrl: './notification.html',
   styleUrl: './notification.scss',
 })
-export class NotificationPage implements OnInit {
+export class NotificationPage implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
   private eventService = inject(EventService);
@@ -24,222 +25,124 @@ export class NotificationPage implements OnInit {
   errorMessage = '';
   youthId: number = 0;
   userId: number = 0;
-  readNotifications: Set<number> = new Set();
 
   // Search & pagination
   searchQuery = '';
   currentPage = 1;
   itemsPerPage = 10;
 
+  // Auto-refresh
+  private destroy$ = new Subject<void>();
+  private refreshInterval = 30000; // Refresh every 30 seconds
+
   ngOnInit(): void {
     const user = this.authService.getCurrentUser();
     if (user && user.youthId && user.userId) {
       this.youthId = user.youthId;
       this.userId = user.userId;
-      this.loadReadNotificationsFromStorage();
+      this.removeLegacyNotificationStorage();
       this.loadNotifications();
+
+      // Set up auto-refresh
+      this.setupAutoRefresh();
     } else {
       this.errorMessage = 'Unable to load user information';
     }
   }
 
-  private loadEventStatusCache(): Record<number, string> {
-    const storageKey = `eventStatus_${this.youthId}`;
-    const stored = localStorage.getItem(storageKey);
-    if (!stored) {
-      return {};
+  /**
+   * Remove legacy localStorage keys used by the old notification system.
+   */
+  private removeLegacyNotificationStorage(): void {
+    if (!this.youthId) {
+      return;
     }
 
-    try {
-      return JSON.parse(stored);
-    } catch (error) {
-      console.error('Error loading event status cache:', error);
-      return {};
-    }
+    const legacyKeys = [
+      `eventNotifications_${this.youthId}`,
+      `newEventNotified_${this.youthId}`,
+      `eventStatus_${this.youthId}`,
+      `readNotifications_${this.youthId}`
+    ];
+
+    legacyKeys.forEach(key => localStorage.removeItem(key));
   }
 
-  private loadEventNotificationsFromStorage(): NotificationResponse[] {
-    const storageKey = `eventNotifications_${this.youthId}`;
-    const stored = localStorage.getItem(storageKey);
-    if (!stored) {
-      return [];
-    }
-
-    try {
-      return JSON.parse(stored);
-    } catch (error) {
-      console.error('Error loading event notifications from storage:', error);
-      return [];
-    }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  private saveEventNotificationsToStorage(notifs: NotificationResponse[]): void {
-    const storageKey = `eventNotifications_${this.youthId}`;
-    localStorage.setItem(storageKey, JSON.stringify(notifs));
+  /**
+   * Set up auto-refresh of notifications
+   */
+  private setupAutoRefresh(): void {
+    interval(this.refreshInterval)
+      .pipe(
+        switchMap(() => this.notificationService.getNotificationsByUserId(this.userId)),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (notifications) => {
+          this.notifications = notifications.sort((a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          this.updateUnreadCount();
+        },
+        error: (error) => {
+          console.error('Error during auto-refresh:', error);
+        }
+      });
   }
 
-  private loadNewEventCache(): Record<number, boolean> {
-    const storageKey = `newEventNotified_${this.youthId}`;
-    const stored = localStorage.getItem(storageKey);
-    if (!stored) {
-      return {};
-    }
-
-    try {
-      return JSON.parse(stored);
-    } catch (error) {
-      console.error('Error loading new event cache:', error);
-      return {};
-    }
-  }
-
-  private saveNewEventCache(cache: Record<number, boolean>): void {
-    const storageKey = `newEventNotified_${this.youthId}`;
-    localStorage.setItem(storageKey, JSON.stringify(cache));
-  }
-
-  private saveEventStatusCache(cache: Record<number, string>): void {
-    const storageKey = `eventStatus_${this.youthId}`;
-    localStorage.setItem(storageKey, JSON.stringify(cache));
-  }
-
-  private hashStringToInt(value: string): number {
-    let hash = 0;
-    for (let i = 0; i < value.length; i += 1) {
-      hash = (hash << 5) - hash + value.charCodeAt(i);
-      hash |= 0;
-    }
-    return Math.abs(hash);
-  }
-
-  loadReadNotificationsFromStorage(): void {
-    const storageKey = `readNotifications_${this.youthId}`;
-    const stored = localStorage.getItem(storageKey);
-    if (stored) {
-      try {
-        const readIds = JSON.parse(stored);
-        this.readNotifications = new Set(readIds);
-      } catch (error) {
-        console.error('Error loading read notifications from storage:', error);
-      }
-    }
-  }
-
-  saveReadNotificationsToStorage(): void {
-    const storageKey = `readNotifications_${this.youthId}`;
-    const readIds = Array.from(this.readNotifications);
-    localStorage.setItem(storageKey, JSON.stringify(readIds));
-  }
-
+  /**
+   * Load all notifications from backend
+   */
   loadNotifications(): void {
     this.isLoading = true;
-    
-    // Fetch both concern notifications and event notifications
-    forkJoin({
-      concernNotifications: this.notificationService.getNotificationsByYouthId(this.youthId),
-      events: this.eventService.getAllEvents(),
-      rsvps: this.eventService.getOwnRsvps(this.userId)
-    }).subscribe({
-      next: (result) => {
-        // Combine concern notifications with event notifications
-        const concernNotifs = result.concernNotifications;
-        const rsvpedEventIds = new Set(result.rsvps.map(r => r.eventId));
-        const rsvpedEvents = result.events.filter(event => rsvpedEventIds.has(event.eventId));
+    this.errorMessage = '';
 
-        const statusCache = this.loadEventStatusCache();
-        const newEventCache = this.loadNewEventCache();
-        const storedEventNotifs = this.loadEventNotificationsFromStorage();
-        const storedIds = new Set(storedEventNotifs.map(n => n.updateId));
-        const eventNotifs: NotificationResponse[] = [];
-
-        result.events.forEach(event => {
-          if (!newEventCache[event.eventId]) {
-            const createdAt = event.createdAt;
-            const hashSource = `${event.eventId}|new|${createdAt}`;
-            const updateId = this.hashStringToInt(hashSource);
-            eventNotifs.push({
-              updateId,
-              eventId: event.eventId,
-              eventTitle: event.title,
-              eventDate: event.eventDate,
-              eventLocation: event.location,
-              eventStatus: event.status,
-              updateText: `New event: ${event.title}`,
-              updatedByAdminName: 'SK Official',
-              createdAt,
-              notificationType: 'event' as const
-            });
-            newEventCache[event.eventId] = true;
-          }
-        });
-
-        rsvpedEvents.forEach(event => {
-          const previousStatus = statusCache[event.eventId];
-          const currentStatus = event.status;
-          const statusChanged = !previousStatus || previousStatus !== currentStatus;
-          const createdAt = event.updatedAt ?? event.createdAt;
-
-          if (statusChanged) {
-            const hashSource = `${event.eventId}|${currentStatus}|${createdAt}`;
-            const updateId = this.hashStringToInt(hashSource);
-            eventNotifs.push({
-              updateId,
-              eventId: event.eventId,
-              eventTitle: event.title,
-              eventDate: event.eventDate,
-              eventLocation: event.location,
-              eventStatus: currentStatus,
-              updateText: `Status changed to ${currentStatus}`,
-              updatedByAdminName: 'SK Official',
-              createdAt,
-              notificationType: 'event' as const
-            });
-          }
-
-          statusCache[event.eventId] = currentStatus;
-        });
-
-        const newUniqueNotifs = eventNotifs.filter(n => !storedIds.has(n.updateId));
-        const mergedEventNotifs = [...storedEventNotifs, ...newUniqueNotifs];
-
-        this.saveNewEventCache(newEventCache);
-        this.saveEventStatusCache(statusCache);
-        this.saveEventNotificationsToStorage(mergedEventNotifs);
-        
-        // Combine and sort by date (newest first)
-        this.notifications = [...concernNotifs, ...mergedEventNotifs].sort((a, b) => 
+    this.notificationService.getNotificationsByUserId(this.userId).subscribe({
+      next: (notifications) => {
+        this.notifications = notifications.sort((a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
-        
         this.isLoading = false;
         this.updateUnreadCount();
       },
       error: (error) => {
         console.error('Error loading notifications:', error);
-        this.errorMessage = 'Failed to load notifications';
+        this.errorMessage = 'Failed to load notifications. Please try again.';
         this.isLoading = false;
       }
     });
   }
 
+  /**
+   * Refresh unread count from backend
+   */
   updateUnreadCount(): void {
-    const unreadCount = this.notifications.filter(n => !this.isRead(n)).length;
-    this.notificationService.updateUnreadCount(unreadCount);
+    this.notificationService.refreshUnreadCount();
   }
 
   get filteredNotifications(): NotificationResponse[] {
     let list = this.notifications;
+
+    // Filter by read/unread status
     if (this.activeFilter === 'unread') {
-      list = list.filter(n => !this.isRead(n));
+      list = list.filter(n => !n.isRead);
     }
+
+    // Filter by search query
     if (this.searchQuery.trim()) {
       const q = this.searchQuery.trim().toLowerCase();
       list = list.filter(n =>
-        this.getNotificationTitle(n).toLowerCase().includes(q) ||
-        this.getNotificationSubtitle(n).toLowerCase().includes(q) ||
-        (n.updateText ?? '').toLowerCase().includes(q)
+        (n.title ?? '').toLowerCase().includes(q) ||
+        (n.message ?? '').toLowerCase().includes(q) ||
+        (n.type ?? '').toLowerCase().includes(q)
       );
     }
+
     return list;
   }
 
@@ -253,7 +156,7 @@ export class NotificationPage implements OnInit {
   }
 
   get unreadCount(): number {
-    return this.notifications.filter(n => !this.isRead(n)).length;
+    return this.notifications.filter(n => !n.isRead).length;
   }
 
   onSearchChange(event: Event): void {
@@ -261,7 +164,7 @@ export class NotificationPage implements OnInit {
     this.currentPage = 1;
   }
 
-  setFilter(filter: 'all' | 'unread') {
+  setFilter(filter: 'all' | 'unread'): void {
     this.activeFilter = filter;
     this.currentPage = 1;
   }
@@ -290,56 +193,106 @@ export class NotificationPage implements OnInit {
     return pages;
   }
 
-  isRead(notification: NotificationResponse): boolean {
-    return this.readNotifications.has(notification.updateId);
+  /**
+   * Mark a single notification as read
+   */
+  markAsRead(notification: NotificationResponse): void {
+    // Always navigate for concern or event notifications. If unread, mark as read first.
+    const navigateForNotification = () => {
+      if (notification.type === 'NEW_EVENT' && notification.relatedEventId) {
+        sessionStorage.setItem('highlightEventId', notification.relatedEventId.toString());
+        this.router.navigate(['/youth/events']);
+      } else if (notification.type === 'CONCERN_UPDATE' && notification.relatedConcernId) {
+        this.router.navigate(['/youth/concerns', notification.relatedConcernId]);
+      }
+    };
+
+    if (!notification.isRead && notification.notificationId) {
+      this.notificationService.markNotificationAsRead(notification.notificationId).subscribe({
+        next: () => {
+          notification.isRead = true;
+          notification.readAt = new Date().toISOString();
+          this.updateUnreadCount();
+          navigateForNotification();
+        },
+        error: (error) => {
+          console.error('Error marking notification as read:', error);
+          // Still navigate even if marking failed
+          navigateForNotification();
+        }
+      });
+    } else {
+      navigateForNotification();
+    }
   }
 
-  markAsRead(notification: NotificationResponse) {
-    if (!this.isRead(notification)) {
-      this.readNotifications.add(notification.updateId);
-      this.saveReadNotificationsToStorage();
-      this.updateUnreadCount();
-    }
-    
-    // Navigate to event page if it's an event notification
-    if (notification.notificationType === 'event' && notification.eventId) {
-      // Store the event ID in session storage so the event page can highlight it
-      sessionStorage.setItem('highlightEventId', notification.eventId.toString());
-      this.router.navigate(['/youth/events']);
-    }
+  /**
+   * Mark all notifications as read
+   */
+  markAllAsRead(): void {
+    this.notificationService.markAllAsRead(this.userId).subscribe({
+      next: () => {
+        this.notifications.forEach(n => {
+          n.isRead = true;
+          n.readAt = new Date().toISOString();
+        });
+        this.updateUnreadCount();
+      },
+      error: (error) => {
+        console.error('Error marking all as read:', error);
+      }
+    });
   }
 
+  /**
+   * Get notification icon based on type
+   */
   getNotificationIcon(notification: NotificationResponse): string {
-    if (notification.notificationType === 'event') {
-      return 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z';
+    switch (notification.type) {
+      case 'NEW_EVENT':
+        return 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z';
+      case 'EVENT_STATUS':
+        return 'M13 10V3L4 14h7v7l9-11h-7z';
+      case 'CONCERN_UPDATE':
+        return 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z';
+      default:
+        return 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9';
     }
-    return 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z';
   }
 
+  /**
+   * Get notification title
+   */
   getNotificationTitle(notification: NotificationResponse): string {
-    if (notification.notificationType === 'event') {
-      return `Event Update: ${notification.eventTitle}`;
-    }
-    return `${notification.updatedByAdminName || 'SK Official'} replied to your concern`;
+    return notification.title || 'Notification';
   }
 
+  /**
+   * Get notification subtitle/details
+   */
   getNotificationSubtitle(notification: NotificationResponse): string {
-    if (notification.notificationType === 'event') {
-      const eventDate = new Date(notification.eventDate!);
-      const statusText = notification.eventStatus ?? 'Upcoming';
-      return `Status: ${statusText} • ${eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} at ${notification.eventLocation}`;
-    }
-    return `Re: ${notification.concernTitle}`;
+    return notification.message || '';
   }
 
+  /**
+   * Get notification color for styling
+   */
   getNotificationColor(notification: NotificationResponse): 'red' | 'blue' | 'yellow' {
-    if (notification.notificationType === 'event') {
-      return 'yellow';
+    switch (notification.type) {
+      case 'NEW_EVENT':
+        return 'yellow';
+      case 'EVENT_STATUS':
+        return 'blue';
+      case 'CONCERN_UPDATE':
+        return 'red';
+      default:
+        return 'blue';
     }
-    const colors: ('red' | 'blue')[] = ['red', 'blue'];
-    return colors[notification.updateId % 2];
   }
 
+  /**
+   * Format time ago string
+   */
   getTimeAgo(dateString: string): string {
     const date = new Date(dateString);
     const now = new Date();
@@ -353,3 +306,4 @@ export class NotificationPage implements OnInit {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 }
+

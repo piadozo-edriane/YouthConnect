@@ -33,7 +33,7 @@ export class YouthDashboardService {
             concerns: this.concernService.getOwnConcerns(youthId),
             events: this.eventService.getAllEvents(),
             rsvps: this.eventService.getOwnRsvps(userId),
-            notifications: this.notificationService.getNotificationsByYouthId(youthId)
+            notifications: this.notificationService.getNotificationsByUserId(userId)
         }).pipe(
             map(result => {
                 const rsvpedEventIds = new Set(result.rsvps.map(r => r.eventId));
