@@ -176,6 +176,58 @@ export class YouthProfiling implements OnInit {
     });
   }
 
+  private normalizeStatus(status?: string | null): string {
+    return (status ?? '').trim().toLowerCase();
+  }
+
+  private toApprovalStatus(status?: string | null): 'pending' | 'approved' | 'rejected' {
+    const normalized = this.normalizeStatus(status);
+    if (normalized === 'approved' || normalized === 'rejected' || normalized === 'pending') {
+      return normalized;
+    }
+    return 'pending';
+  }
+
+  isPendingProfile(profile: YouthMemberListItem): boolean {
+    return this.normalizeStatus(profile.status) === 'pending';
+  }
+
+  isRejectedProfile(profile: YouthMemberListItem): boolean {
+    return this.normalizeStatus(profile.status) === 'rejected';
+  }
+
+  isApprovedProfile(profile: YouthMemberListItem): boolean {
+    return this.normalizeStatus(profile.status) === 'approved';
+  }
+
+  isDeactivatedProfile(profile: YouthMemberListItem): boolean {
+    return this.isApprovedProfile(profile) && profile.isActive === false;
+  }
+
+  isActiveApprovedProfile(profile: YouthMemberListItem): boolean {
+    return this.isApprovedProfile(profile) && profile.isActive === true;
+  }
+
+  getApprovalStatusLabel(profile: YouthMemberListItem): string {
+    if (this.isPendingProfile(profile)) {
+      return 'Pending';
+    }
+
+    if (this.isRejectedProfile(profile)) {
+      return 'Rejected';
+    }
+
+    if (this.isDeactivatedProfile(profile)) {
+      return 'Deactivated';
+    }
+
+    if (this.isApprovedProfile(profile)) {
+      return 'Approved';
+    }
+
+    return 'Unknown';
+  }
+
   loadYouthProfiles(): void {
     this.isLoading = true;
     this.errorMessage = '';
@@ -193,13 +245,14 @@ export class YouthProfiling implements OnInit {
               email: user.email,
               roleId: user.roleId,
               isActive: user.isActive ?? true,
-              status: user.status ?? 'pending'
+              status: this.toApprovalStatus(user.status)
             }
           ])
         );
 
         this.youthProfiles = profiles.map((profile: any) => {
           const matchingUser = userByYouthIdMap.get(profile.youthId);
+          const normalizedStatus = this.toApprovalStatus(matchingUser?.status);
 
           return {
             userId: matchingUser?.userId || 0,
@@ -212,7 +265,7 @@ export class YouthProfiling implements OnInit {
             contactNumber: profile.contactNumber,
             civilStatus: profile.civilStatus as CivilStatus,
             isActive: matchingUser?.isActive ?? (profile.isActive !== undefined ? profile.isActive : true),
-            status: matchingUser?.status ?? (profile.status ?? 'pending'),
+            status: normalizedStatus,
             createdAt: matchingUser?.createdAt || profile.createdAt,
             middleName: profile.middleName || null,
             suffix: profile.suffix || null,
@@ -271,16 +324,16 @@ export class YouthProfiling implements OnInit {
 
     switch (this.activeTab) {
       case 'active':
-        profiles = this.youthProfiles.filter(p => p.status === 'approved' && p.isActive === true);
+        profiles = this.youthProfiles.filter((profile) => this.isActiveApprovedProfile(profile));
         break;
       case 'inactive':
-        profiles = this.youthProfiles.filter(p => p.isActive === false);
+        profiles = this.youthProfiles.filter((profile) => this.isDeactivatedProfile(profile));
         break;
       case 'pending':
-        profiles = this.youthProfiles.filter(p => p.status === 'pending');
+        profiles = this.youthProfiles.filter((profile) => this.isPendingProfile(profile));
         break;
       case 'rejected':
-        profiles = this.youthProfiles.filter(p => p.status === 'rejected');
+        profiles = this.youthProfiles.filter((profile) => this.isRejectedProfile(profile));
         break;
     }
 
@@ -300,29 +353,29 @@ export class YouthProfiling implements OnInit {
   }
 
   get activeCount(): number {
-    return this.youthProfiles.filter(p => p.status === 'approved' && p.isActive === true).length;
+    return this.youthProfiles.filter((profile) => this.isActiveApprovedProfile(profile)).length;
   }
 
   get inactiveCount(): number {
-    return this.youthProfiles.filter(p => p.isActive === false).length;
+    return this.youthProfiles.filter((profile) => this.isDeactivatedProfile(profile)).length;
   }
 
   get approvalProfiles(): YouthMemberListItem[] {
     return this.youthProfiles.filter((profile) => {
       if (this.approvalFilter === 'approved') {
-        return profile.status === 'approved';
+        return this.isActiveApprovedProfile(profile);
       }
 
       if (this.approvalFilter === 'pending') {
-        return profile.status === 'pending';
+        return this.isPendingProfile(profile);
       }
 
       if (this.approvalFilter === 'rejected') {
-        return profile.status === 'rejected';
+        return this.isRejectedProfile(profile);
       }
 
       if (this.approvalFilter === 'deactivated') {
-        return profile.isActive === false;
+        return this.isDeactivatedProfile(profile);
       }
 
       return true;
@@ -347,19 +400,19 @@ export class YouthProfiling implements OnInit {
   }
 
   get deactivatedCount(): number {
-    return this.youthProfiles.filter(profile => profile.isActive === false).length;
+    return this.youthProfiles.filter((profile) => this.isDeactivatedProfile(profile)).length;
   }
 
   get pendingCount(): number {
-    return this.youthProfiles.filter(profile => profile.status === 'pending').length;
+    return this.youthProfiles.filter((profile) => this.isPendingProfile(profile)).length;
   }
 
   get approvedCount(): number {
-    return this.youthProfiles.filter(profile => profile.status === 'approved').length;
+    return this.youthProfiles.filter((profile) => this.isApprovedProfile(profile)).length;
   }
 
   get rejectedCount(): number {
-    return this.youthProfiles.filter(profile => profile.status === 'rejected').length;
+    return this.youthProfiles.filter((profile) => this.isRejectedProfile(profile)).length;
   }
 
   get allCount(): number {
@@ -489,26 +542,27 @@ export class YouthProfiling implements OnInit {
     approvalRequest$.subscribe({
       next: (updatedUser) => {
         const updatedIsActive = updatedUser.isActive ?? updatedUser.active ?? true;
+        const normalizedStatus = this.toApprovalStatus(updatedUser.status);
 
         this.userAccountByUserId.set(updatedUser.userId, {
           email: updatedUser.email,
           roleId: updatedUser.roleId,
           isActive: updatedIsActive,
-          status: updatedUser.status ?? 'pending'
+          status: normalizedStatus
         });
 
         this.youthProfiles = this.youthProfiles.map((item) =>
           item.userId === updatedUser.userId
             ? {
               ...item,
-              status: updatedUser.status ?? 'pending',
+              status: normalizedStatus,
               isActive: updatedIsActive,
               email: updatedUser.email
             }
             : item
         );
 
-        this.filteredProfiles = (updatedUser.status ?? 'pending') === 'approved' && updatedIsActive === true
+        this.filteredProfiles = normalizedStatus === 'approved' && updatedIsActive === true
           ? [
             ...this.filteredProfiles.filter((item) => item.userId !== updatedUser.userId),
             {
@@ -522,7 +576,7 @@ export class YouthProfiling implements OnInit {
               contactNumber: profile.contactNumber,
               civilStatus: profile.civilStatus,
               isActive: updatedIsActive,
-              status: updatedUser.status ?? 'pending',
+              status: normalizedStatus,
               createdAt: profile.createdAt,
               middleName: profile.middleName,
               suffix: profile.suffix,
@@ -604,19 +658,20 @@ export class YouthProfiling implements OnInit {
     this.youthMemberManagementService.rejectUser(this.rejectingUserId, this.rejectionReason).subscribe({
       next: (updatedUser) => {
         const updatedIsActive = updatedUser.isActive ?? false;
+        const normalizedStatus = this.toApprovalStatus(updatedUser.status);
 
         this.userAccountByUserId.set(updatedUser.userId, {
           email: updatedUser.email,
           roleId: updatedUser.roleId,
           isActive: updatedIsActive,
-          status: updatedUser.status ?? 'pending'
+          status: normalizedStatus
         });
 
         this.youthProfiles = this.youthProfiles.map((item) =>
           item.userId === updatedUser.userId
             ? {
               ...item,
-              status: updatedUser.status ?? 'pending',
+              status: normalizedStatus,
               isActive: updatedIsActive,
               email: updatedUser.email
             }
@@ -1112,26 +1167,27 @@ export class YouthProfiling implements OnInit {
       this.youthMemberManagementService.approveUser(this.selectedProfile.userId, adminId).subscribe({
         next: (updatedUser) => {
           const updatedIsActive = updatedUser.isActive ?? true;
+          const normalizedStatus = this.toApprovalStatus(updatedUser.status);
 
           this.userAccountByUserId.set(updatedUser.userId, {
             email: updatedUser.email,
             roleId: updatedUser.roleId,
             isActive: updatedIsActive,
-            status: updatedUser.status ?? 'pending'
+            status: normalizedStatus
           });
 
           this.youthProfiles = this.youthProfiles.map((item) =>
             item.userId === updatedUser.userId
               ? {
                 ...item,
-                status: updatedUser.status ?? 'pending',
+                status: normalizedStatus,
                 isActive: updatedIsActive,
                 email: updatedUser.email
               }
               : item
           );
 
-          this.filteredProfiles = (updatedUser.status ?? 'pending') === 'approved' && updatedIsActive === true
+          this.filteredProfiles = normalizedStatus === 'approved' && updatedIsActive === true
             ? [
               ...this.filteredProfiles.filter((item) => item.userId !== updatedUser.userId),
               {
@@ -1145,7 +1201,7 @@ export class YouthProfiling implements OnInit {
                 contactNumber: this.selectedProfile!.contactNumber,
                 civilStatus: this.selectedProfile!.civilStatus,
                 isActive: updatedIsActive,
-                status: updatedUser.status ?? 'pending',
+                status: normalizedStatus,
                 createdAt: this.selectedProfile!.createdAt,
                 middleName: this.selectedProfile!.middleName,
                 suffix: this.selectedProfile!.suffix,

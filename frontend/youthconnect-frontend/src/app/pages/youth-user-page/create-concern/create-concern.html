@@ -56,7 +56,7 @@
                 <p>{{ concerns.length === 0 ? 'No concerns yet. Create your first concern!' : 'No concerns match your filters.' }}</p>
             </div>
 
-            <div *ngFor="let concern of paginatedConcerns" class="concern-card" (click)="openConcernDetails(concern)">
+            <div *ngFor="let concern of paginatedConcerns" class="concern-card" (click)="viewConcern(concern)">
                 <div class="card-header">
                     <div class="card-title-group">
                         <h3>{{ concern.title }}</h3>

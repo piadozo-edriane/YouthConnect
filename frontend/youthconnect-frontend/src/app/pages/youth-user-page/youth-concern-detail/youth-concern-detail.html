@@ -1,0 +1,87 @@
+<div class="update-concern-root">
+    <div class="update-concern-container">
+
+        <!-- Back Button -->
+        <button class="back-button" (click)="goBack()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+        </button>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoading && !concern" class="loading-indicator">
+            <p>Loading concern details...</p>
+        </div>
+
+        <!-- Main Content Layout -->
+        <div *ngIf="!isLoading && concern" class="content-layout">
+
+            <!-- LEFT SIDE: Concern Details -->
+            <div class="concern-card">
+                <h2 class="concern-title">{{ concern.title }}</h2>
+
+                <div class="concern-badges">
+                    <span class="badge badge-type">{{ getConcernTypeDisplay(concern.typeOfConcern) }}</span>
+                    <span class="badge badge-status" [ngClass]="'status-' + getStatusClass(concern.status)">
+                        {{ getStatusLabel(concern.status) }}
+                    </span>
+                </div>
+
+                <div class="concern-info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Submitted:</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-value">{{ formatDate(concern.createdAt) }}</span>
+                    </div>
+                    <div class="info-item" *ngIf="concern.updatedAt">
+                        <span class="info-label">Last Updated:</span>
+                    </div>
+                    <div class="info-item" *ngIf="concern.updatedAt">
+                        <span class="info-value">{{ formatDate(concern.updatedAt) }}</span>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="concern-description">
+                    <div class="description-label">Description:</div>
+                    <div class="description-text">{{ concern.description }}</div>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE: Update History -->
+            <div class="right-column">
+                <div class="right-card">
+
+                    <div class="history-section">
+                        <h3 class="section-title">Updates from SK Officials</h3>
+                        <div class="history-divider"></div>
+                        <div class="history-container">
+                            <div *ngIf="isLoadingUpdates" class="history-loading">
+                                Loading updates...
+                            </div>
+                            <div *ngIf="!isLoadingUpdates && updateLoadError" class="history-error">
+                                {{ updateLoadError }}
+                            </div>
+                            <div *ngIf="!isLoadingUpdates && !updateLoadError && concernUpdates.length === 0" class="history-empty">
+                                No updates yet. An SK official will respond to your concern soon.
+                            </div>
+                            <div *ngFor="let update of concernUpdates" class="update-item">
+                                <div class="update-header">
+                                    <span class="update-status-badge" [ngClass]="'status-' + getStatusClass(update.status)">
+                                        {{ getStatusLabel(update.status).toUpperCase() }}
+                                    </span>
+                                    <span class="update-date">{{ formatDateShort(update.createdAt) }}</span>
+                                </div>
+                                <div class="update-message">{{ update.updateText }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
