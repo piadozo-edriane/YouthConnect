@@ -17,6 +17,7 @@ export class CreateConcern implements OnInit, AfterViewInit {
   private concernService = inject(ConcernService);
   private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   showModal = false;
   showDeleteModal = false;
