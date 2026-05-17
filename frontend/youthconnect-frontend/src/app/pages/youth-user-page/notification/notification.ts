@@ -26,6 +26,11 @@ export class NotificationPage implements OnInit {
   userId: number = 0;
   readNotifications: Set<number> = new Set();
 
+  // Search & pagination
+  searchQuery = '';
+  currentPage = 1;
+  itemsPerPage = 10;
+
   ngOnInit(): void {
     const user = this.authService.getCurrentUser();
     if (user && user.youthId && user.userId) {
@@ -223,14 +228,66 @@ export class NotificationPage implements OnInit {
   }
 
   get filteredNotifications(): NotificationResponse[] {
+    let list = this.notifications;
     if (this.activeFilter === 'unread') {
-      return this.notifications.filter(n => !this.isRead(n));
+      list = list.filter(n => !this.isRead(n));
     }
-    return this.notifications;
+    if (this.searchQuery.trim()) {
+      const q = this.searchQuery.trim().toLowerCase();
+      list = list.filter(n =>
+        this.getNotificationTitle(n).toLowerCase().includes(q) ||
+        this.getNotificationSubtitle(n).toLowerCase().includes(q) ||
+        (n.updateText ?? '').toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }
+
+  get paginatedNotifications(): NotificationResponse[] {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    return this.filteredNotifications.slice(start, start + this.itemsPerPage);
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredNotifications.length / this.itemsPerPage));
+  }
+
+  get unreadCount(): number {
+    return this.notifications.filter(n => !this.isRead(n)).length;
+  }
+
+  onSearchChange(event: Event): void {
+    this.searchQuery = (event.target as HTMLInputElement).value;
+    this.currentPage = 1;
   }
 
   setFilter(filter: 'all' | 'unread') {
     this.activeFilter = filter;
+    this.currentPage = 1;
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) this.currentPage--;
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) this.currentPage++;
+  }
+
+  goToPage(page: number): void {
+    this.currentPage = page;
+  }
+
+  getPageNumbers(): number[] {
+    const total = this.totalPages;
+    const current = this.currentPage;
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const pages: number[] = [1];
+    if (current > 3) pages.push(-1);
+    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
+    if (current < total - 2) pages.push(-1);
+    pages.push(total);
+    return pages;
   }
 
   isRead(notification: NotificationResponse): boolean {
