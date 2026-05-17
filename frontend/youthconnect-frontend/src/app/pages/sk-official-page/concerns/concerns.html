@@ -49,7 +49,7 @@
                 <p>{{ searchTerm ? 'No concerns match your search.' : 'No concerns found.' }}</p>
             </div>
 
-            <div *ngFor="let concern of filteredConcerns" class="concern-card">
+            <div *ngFor="let concern of filteredConcerns" class="concern-card" (click)="updateConcern(concern)">
                 <div class="card-header">
                     <div class="header-content">
                         <h3>{{ concern.title }}</h3>
@@ -77,10 +77,9 @@
                 <div class="card-footer">
                     <button 
                         class="action-btn response-btn" 
-                        (click)="updateConcern(concern)"
-                        [disabled]="!canSendResponse(concern.status)"
-                        [title]="concern.status === 'CLOSED' ? 'This concern is closed and cannot be modified' : 'Send a response to this concern'">
-                        Update Status
+                        (click)="updateConcern(concern); $event.stopPropagation()"
+                        [title]="concern.status === 'CLOSED' ? 'View this closed concern' : 'Send a response to this concern'">
+                        {{ concern.status === 'CLOSED' ? 'View Concern' : 'Update Status' }}
                     </button>
                 </div>
             </div>

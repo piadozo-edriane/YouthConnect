@@ -1,6 +1,7 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ConcernService, ConcernResponse, ConcernUpdate } from '../../../services/concern.service';
 import { AuthService } from '../../../services/auth.service';
 
@@ -10,10 +11,11 @@ import { AuthService } from '../../../services/auth.service';
   templateUrl: './create-concern.html',
   styleUrl: './create-concern.scss',
 })
-export class CreateConcern implements OnInit {
+export class CreateConcern implements OnInit, AfterViewInit {
   private fb = inject(FormBuilder);
   private concernService = inject(ConcernService);
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   showModal = false;
   showDeleteModal = false;
@@ -80,6 +82,43 @@ export class CreateConcern implements OnInit {
     } else {
       this.errorMessage = 'Unable to load user information';
     }
+  }
+
+  ngAfterViewInit(): void {
+    this.setupScrollIndicators();
+  }
+
+  setupScrollIndicators(): void {
+    setTimeout(() => {
+      const modalBodyWrappers = document.querySelectorAll('.modal-body-wrapper');
+
+      modalBodyWrappers.forEach((wrapper) => {
+        const element = wrapper as HTMLElement;
+
+        const updateScrollIndicators = () => {
+          const canScrollUp = element.scrollTop > 10;
+          const canScrollDown = element.scrollTop < element.scrollHeight - element.clientHeight - 10;
+
+          if (canScrollUp) {
+            element.classList.add('can-scroll-up');
+          } else {
+            element.classList.remove('can-scroll-up');
+          }
+
+          if (canScrollDown) {
+            element.classList.add('can-scroll-down');
+          } else {
+            element.classList.remove('can-scroll-down');
+          }
+        };
+
+        element.addEventListener('scroll', updateScrollIndicators);
+        updateScrollIndicators();
+
+        const resizeObserver = new ResizeObserver(updateScrollIndicators);
+        resizeObserver.observe(element);
+      });
+    }, 100);
   }
 
   loadConcerns(): void {
@@ -207,11 +246,16 @@ export class CreateConcern implements OnInit {
     this.applyFilters();
   }
 
+  viewConcern(concern: ConcernResponse): void {
+    this.router.navigate(['/youth/concern', concern.concernId]);
+  }
+
   openModal() {
     this.showModal = true;
     this.editingConcernId = null;
     this.concernForm.reset();
     this.errorMessage = '';
+    setTimeout(() => this.setupScrollIndicators(), 100);
   }
 
   openConcernDetails(concern: ConcernResponse): void {
@@ -219,6 +263,7 @@ export class CreateConcern implements OnInit {
     this.showDetailsModal = true;
     this.updateLoadError = '';
     this.loadConcernUpdates(concern.concernId);
+    setTimeout(() => this.setupScrollIndicators(), 100);
   }
 
   closeModal() {
@@ -372,6 +417,7 @@ export class CreateConcern implements OnInit {
     this.showModal = true;
     this.errorMessage = '';
     console.log('Editing concern:', concern);
+    setTimeout(() => this.setupScrollIndicators(), 100);
   }
 
   deleteConcern(concern: ConcernResponse) {
