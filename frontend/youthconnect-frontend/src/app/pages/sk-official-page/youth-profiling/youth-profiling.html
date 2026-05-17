@@ -185,11 +185,10 @@
       <article class="approval-card" *ngFor="let profile of paginatedApprovalProfiles">
         <div class="approval-card-head">
           <h3>{{ profile.firstName }} {{ profile.lastName }}</h3>
-          <span class="approval-status" [class.pending]="profile.status === 'pending'"
-            [class.approved]="profile.status === 'approved'" [class.rejected]="profile.status === 'rejected'"
-            [class.deactivated]="!profile.isActive">
-            {{ !profile.isActive ? 'Deactivated' : (profile.status === 'approved' ? 'Approved' : (profile.status ===
-            'rejected' ? 'Rejected' : 'Pending')) }}
+          <span class="approval-status" [class.pending]="isPendingProfile(profile)"
+            [class.approved]="isActiveApprovedProfile(profile)" [class.rejected]="isRejectedProfile(profile)"
+            [class.deactivated]="isDeactivatedProfile(profile)">
+            {{ getApprovalStatusLabel(profile) }}
           </span>
         </div>
 
@@ -202,19 +201,19 @@
           </button>
           <div class="action-buttons-right">
             <!-- Pending: Show Approve & Reject -->
-            <button *ngIf="profile.status === 'pending' && profile.isActive" type="button" class="btn-approve"
+            <button *ngIf="isPendingProfile(profile)" type="button" class="btn-approve"
               [disabled]="updatingApprovalUserId !== null" (click)="setRegistrationApproval(profile, true)">
               {{ updatingApprovalUserId === profile.userId && updatingApprovalAction === 'approve' ? 'Approving...' :
               'Approve' }}
             </button>
-            <button *ngIf="profile.status === 'pending' && profile.isActive" type="button" class="btn-reject"
+            <button *ngIf="isPendingProfile(profile)" type="button" class="btn-reject"
               [disabled]="updatingApprovalUserId !== null" (click)="rejectRegistration(profile)">
               {{ updatingApprovalUserId === profile.userId && updatingApprovalAction === 'reject' ? 'Rejecting...' :
               'Reject' }}
             </button>
 
             <!-- Deactivated: Show Reactivate -->
-            <button *ngIf="!profile.isActive" type="button" class="btn-reactivate-panel"
+            <button *ngIf="isDeactivatedProfile(profile)" type="button" class="btn-reactivate-panel"
               [disabled]="updatingApprovalUserId !== null" (click)="reactivateFromPanel(profile)">
               {{ updatingApprovalUserId === profile.userId && updatingApprovalAction === 'reactivate' ?
               'Reactivating...' : 'Reactivate' }}
