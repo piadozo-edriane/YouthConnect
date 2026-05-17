@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ConcernService, ConcernResponse, ConcernUpdate } from '../../../services/concern.service';
 import { AuthService } from '../../../services/auth.service';
 
@@ -14,6 +15,7 @@ export class CreateConcern implements OnInit, AfterViewInit {
   private fb = inject(FormBuilder);
   private concernService = inject(ConcernService);
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   showModal = false;
   showDeleteModal = false;
@@ -242,6 +244,10 @@ export class CreateConcern implements OnInit, AfterViewInit {
     this.selectedStatusFilter = 'ALL';
     this.selectedTypeFilter = 'ALL';
     this.applyFilters();
+  }
+
+  viewConcern(concern: ConcernResponse): void {
+    this.router.navigate(['/youth/concern', concern.concernId]);
   }
 
   openModal() {
