@@ -34,7 +34,6 @@ export class Dashboard implements OnInit {
   upcomingEvents: EventResponse[] = [];
   notifications: NotificationResponse[] = [];
   notificationFilter: 'all' | 'unread' = 'all';
-  readNotifications: Set<number> = new Set();
 
   ngOnInit(): void {
     const user = this.authService.getCurrentUser();
@@ -51,21 +50,7 @@ export class Dashboard implements OnInit {
         .map(part => part.charAt(0).toUpperCase() + part.slice(1))
         .join(' ');
 
-      this.loadReadNotificationsFromStorage();
       this.loadDashboardData();
-    }
-  }
-
-  loadReadNotificationsFromStorage(): void {
-    const storageKey = `readNotifications_${this.youthId}`;
-    const stored = localStorage.getItem(storageKey);
-    if (stored) {
-      try {
-        const readIds = JSON.parse(stored);
-        this.readNotifications = new Set(readIds);
-      } catch (error) {
-        console.error('Error loading read notifications from storage:', error);
-      }
     }
   }
 
@@ -100,13 +85,13 @@ export class Dashboard implements OnInit {
 
   get filteredNotifications(): NotificationResponse[] {
     if (this.notificationFilter === 'unread') {
-      return this.notifications.filter(n => !this.isNotificationRead(n));
+      return this.notifications.filter(n => !n.isRead);
     }
     return this.notifications;
   }
 
   isNotificationRead(notification: NotificationResponse): boolean {
-    return this.readNotifications.has(notification.updateId);
+    return Boolean(notification.isRead);
   }
 
   createConcern() {

@@ -44,6 +44,10 @@ public class EventServiceImpl implements EventService {
     @Autowired
     private com.youthconnect.youthconnect_id.repositories.YouthProfileRepo youthProfileRepo;
 
+    @Autowired
+    private com.youthconnect.youthconnect_id.services.NotificationService notificationService;
+
+
     //Helpers
     private EventResponse toEventResponse(Event event, long rsvpCount) {
         long expectedCount = userRepo.countByIsActiveTrue();
@@ -123,7 +127,10 @@ public class EventServiceImpl implements EventService {
             String formattedDate = event.getEventDate() != null ? 
                 event.getEventDate().toString() : "TBA";
             
-            // Send emails asynchronously in background
+            // Create DATABASE notifications
+            notificationService.createNewEventNotification(event.getEventId(), event.getTitle());
+            
+            // Also send emails asynchronously in background
             emailService.sendNewEventNotificationsAsync(
                 approvedUsers,
                 event.getTitle(),
@@ -187,11 +194,13 @@ public class EventServiceImpl implements EventService {
             
             // Get user objects from attendances
             List<com.youthconnect.youthconnect_id.models.User> registeredUsers = new java.util.ArrayList<>();
+            List<Integer> userIds = new java.util.ArrayList<>();
             for (EventAttendance attendance : attendances) {
                 com.youthconnect.youthconnect_id.models.User user = 
                     userRepo.findById(attendance.getUserId()).orElse(null);
                 if (user != null) {
                     registeredUsers.add(user);
+                    userIds.add(user.getUserId());
                 }
             }
             
@@ -204,7 +213,10 @@ public class EventServiceImpl implements EventService {
             String formattedDate = event.getEventDate() != null ? 
                 event.getEventDate().toString() : "TBA";
             
-            // Send emails asynchronously in background
+            // Create DATABASE notifications
+            notificationService.createEventStatusNotification(event.getEventId(), event.getTitle(), newStatus, userIds);
+            
+            // Also send emails asynchronously in background
             emailService.sendEventStatusChangeNotificationsAsync(
                 registeredUsers,
                 event.getTitle(),

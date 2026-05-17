@@ -144,6 +144,12 @@ export const routes: Routes = [
                 title: 'Notifications - YouthConnect'
             },
             {
+                path: 'concerns/:concernId',
+                loadComponent: () =>
+                    import('./pages/youth-user-page/create-concern/create-concern').then(move => move.CreateConcern),
+                title: 'Concern - YouthConnect'
+            },
+            {
                 path: '', redirectTo: 'dashboard', pathMatch: 'full'
             },
 

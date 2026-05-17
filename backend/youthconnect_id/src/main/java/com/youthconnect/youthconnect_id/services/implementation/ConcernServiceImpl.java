@@ -21,6 +21,7 @@ import com.youthconnect.youthconnect_id.repositories.ConcernRepo;
 import com.youthconnect.youthconnect_id.repositories.ConcernUpdateRepo;
 import com.youthconnect.youthconnect_id.repositories.YouthProfileRepo;
 import com.youthconnect.youthconnect_id.services.ConcernService;
+import com.youthconnect.youthconnect_id.services.NotificationService;
 import com.youthconnect.youthconnect_id.models.YouthProfile;
 
 @Service
@@ -34,6 +35,9 @@ public class ConcernServiceImpl implements ConcernService {
 
     @Autowired
     private YouthProfileRepo youthProfileRepo;
+
+    @Autowired
+    private NotificationService notificationService;
 
     // ── Helper ────────────────────────────────────────────
     private ConcernResponse toResponse(Concern concern) {
@@ -191,7 +195,20 @@ public class ConcernServiceImpl implements ConcernService {
         update.setUpdateText(request.getUpdateText());
         update.setStatus(updateStatus);
         update.setCreatedAt(LocalDateTime.now());
-        concernUpdateRepo.save(update);
+        ConcernUpdate savedUpdate = concernUpdateRepo.save(update);
+
+        String notificationMessage = String.format(
+            "Your concern status has been updated to %s. Message from SK Official: %s",
+            updateStatus.name(),
+            request.getUpdateText().trim()
+        );
+
+        notificationService.createConcernUpdateNotification(
+            concernId,
+            concern.getYouthId(),
+            updateStatus.name(),
+            request.getUpdateText().trim()
+        );
 
         // Optionally update status at the same time
         if (request.getStatus() != null) {

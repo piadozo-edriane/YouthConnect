@@ -24,6 +24,8 @@ export class YouthSidebar implements OnInit {
         const user = this.authService.getCurrentUser();
         this.userEmail = user?.email || 'user@example.com';
 
+        this.notificationService.refreshUnreadCount();
+
         this.notificationService.unreadCount$.subscribe(count => {
             this.unreadNotificationCount = count;
         });

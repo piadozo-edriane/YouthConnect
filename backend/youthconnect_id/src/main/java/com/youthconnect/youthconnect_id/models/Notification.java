@@ -1,36 +1,69 @@
-package com.youthconnect.youthconnect_id.dto;
+package com.youthconnect.youthconnect_id.models;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
-public class NotificationResponse {
-    // Notification fields
+@Entity
+@Table(name = "tbl_notification")
+public class Notification {
+    public static final String TYPE_NEW_EVENT = "NEW_EVENT";
+    public static final String TYPE_EVENT_STATUS = "EVENT_STATUS";
+    public static final String TYPE_CONCERN_UPDATE = "CONCERN_UPDATE";
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "notification_id")
     private int notificationId;
+
+    @Column(name = "user_id", nullable = false)
     private int userId;
+
+    @Column(name = "youth_id", nullable = false)
     private int youthId;
+
+    @Column(name = "title", nullable = false, length = 200)
     private String title;
+
+    @Column(name = "message", columnDefinition = "TEXT")
     private String message;
+
+    @Column(name = "type", nullable = false, length = 50)
     private String type;
+
+    @Column(name = "related_event_id")
     private Integer relatedEventId;
+
+    @Column(name = "related_concern_id")
     private Integer relatedConcernId;
-    @JsonProperty("isRead")
-    @JsonAlias({"read"})
-    private boolean isRead;
+
+    @Column(name = "is_read", nullable = false)
+    private boolean isRead = false;
+
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "read_at")
     private LocalDateTime readAt;
 
-    // Legacy concern fields (for backward compatibility)
-    private int updateId;
-    private int concernId;
-    private String concernTitle;
-    private String updateText;
-    private String updatedByAdminName;
+    public Notification() {}
 
-    public NotificationResponse() {}
+    public Notification(int userId, int youthId, String title, String message, String type) {
+        this.userId = userId;
+        this.youthId = youthId;
+        this.title = title;
+        this.message = message;
+        this.type = type;
+        this.isRead = false;
+        this.createdAt = LocalDateTime.now();
+    }
 
-    // Getters and Setters for notification fields
+    // Getters and Setters
     public int getNotificationId() {
         return notificationId;
     }
@@ -95,12 +128,10 @@ public class NotificationResponse {
         this.relatedConcernId = relatedConcernId;
     }
 
-    @JsonProperty("isRead")
     public boolean isRead() {
         return isRead;
     }
 
-    @JsonProperty("isRead")
     public void setRead(boolean isRead) {
         this.isRead = isRead;
     }
@@ -120,46 +151,4 @@ public class NotificationResponse {
     public void setReadAt(LocalDateTime readAt) {
         this.readAt = readAt;
     }
-
-    // Legacy concern getters and setters
-    public int getUpdateId() {
-        return updateId;
-    }
-
-    public void setUpdateId(int updateId) {
-        this.updateId = updateId;
-    }
-
-    public int getConcernId() {
-        return concernId;
-    }
-
-    public void setConcernId(int concernId) {
-        this.concernId = concernId;
-    }
-
-    public String getConcernTitle() {
-        return concernTitle;
-    }
-
-    public void setConcernTitle(String concernTitle) {
-        this.concernTitle = concernTitle;
-    }
-
-    public String getUpdateText() {
-        return updateText;
-    }
-
-    public void setUpdateText(String updateText) {
-        this.updateText = updateText;
-    }
-
-    public String getUpdatedByAdminName() {
-        return updatedByAdminName;
-    }
-
-    public void setUpdatedByAdminName(String updatedByAdminName) {
-        this.updatedByAdminName = updatedByAdminName;
-    }
 }
-

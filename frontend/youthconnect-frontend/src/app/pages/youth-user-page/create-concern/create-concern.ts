@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { ConcernService, ConcernResponse, ConcernUpdate } from '../../../services/concern.service';
 import { AuthService } from '../../../services/auth.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-create-concern',
@@ -15,6 +16,7 @@ export class CreateConcern implements OnInit, AfterViewInit {
   private fb = inject(FormBuilder);
   private concernService = inject(ConcernService);
   private authService = inject(AuthService);
+  private route = inject(ActivatedRoute);
   private router = inject(Router);
 
   showModal = false;
@@ -78,7 +80,38 @@ export class CreateConcern implements OnInit, AfterViewInit {
     const user = this.authService.getCurrentUser();
     if (user && user.youthId) {
       this.youthId = user.youthId;
-      this.loadConcerns();
+      // Listen for route params (supports navigating into this component with a concernId)
+      this.route.paramMap.subscribe(params => {
+        const param = params.get('concernId');
+        const cId = param ? Number(param) : null;
+        // Load concerns first
+        this.loadConcerns();
+        // If route param specifies a concern, auto-open it after loading
+        if (cId) {
+          const autoOpenConcern = () => {
+            if (this.concerns && this.concerns.length) {
+              const found = this.concerns.find(c => c.concernId === cId);
+              if (found) {
+                // Immediately open the details modal for this concern
+                this.openConcernDetails(found);
+                console.log(`Auto-opened concern with ID ${cId}`);
+                return true;
+              }
+            }
+            return false;
+          };
+
+          // Retry until concern is found (waits for async concerns loading)
+          const attemptOpen = (retries = 0) => {
+            if (!autoOpenConcern() && retries < 15) {
+              setTimeout(() => attemptOpen(retries + 1), 100);
+            } else if (retries >= 15) {
+              console.warn(`Could not find concern with ID ${cId} to auto-open`);
+            }
+          };
+          attemptOpen();
+        }
+      });
     } else {
       this.errorMessage = 'Unable to load user information';
     }
@@ -128,6 +161,7 @@ export class CreateConcern implements OnInit, AfterViewInit {
         this.concerns = concerns;
         this.applyFilters();
         this.isLoading = false;
+        // If route param exists, trigger expansion (route subscriber handles retries)
       },
       error: (error) => {
         console.error('Error loading concerns:', error);
