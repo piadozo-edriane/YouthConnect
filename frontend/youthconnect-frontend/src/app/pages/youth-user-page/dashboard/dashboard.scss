@@ -1,10 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-html, body, :host, .dashboard-container {
+html,
+body,
+:host,
+.dashboard-container {
   font-family: 'Poppins', Arial, Helvetica, sans-serif !important;
 }
 
-html, body, :host, .dashboard-container {
+html,
+body,
+:host,
+.dashboard-container {
   background-color: #f3f3f3 !important;
   min-height: 100vh;
 }
@@ -57,9 +63,12 @@ html, body, :host, .dashboard-container {
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -414,6 +423,7 @@ html, body, :host, .dashboard-container {
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -425,6 +435,7 @@ html, body, :host, .dashboard-container {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -454,8 +465,19 @@ html, body, :host, .dashboard-container {
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
+  .dashboard-root {
+    height: auto;
+    min-height: 100vh;
+    max-height: none;
+    overflow: visible;
+  }
+
   .dashboard-container {
     padding: 20px 15px;
+    overflow: visible;
+    height: auto;
+    min-height: 100vh;
+    padding-bottom: 80px; // Extra space for bottom navigation
   }
 
   .dashboard-header {
@@ -526,7 +548,13 @@ html, body, :host, .dashboard-container {
   }
 
   .content-card {
-    height: auto;
+    height: 400px;
+    max-height: 50vh;
+  }
+
+  .card-content {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .card-header {
@@ -608,8 +636,19 @@ html, body, :host, .dashboard-container {
 
 /* Small Mobile */
 @media (max-width: 480px) {
+  .dashboard-root {
+    height: auto;
+    min-height: 100vh;
+    max-height: none;
+    overflow: visible;
+  }
+
   .dashboard-container {
     padding: 15px 10px;
+    overflow: visible;
+    height: auto;
+    min-height: 100vh;
+    padding-bottom: 80px; // Extra space for bottom navigation
   }
 
   .dashboard-header {
@@ -673,7 +712,13 @@ html, body, :host, .dashboard-container {
   }
 
   .content-card {
-    height: auto;
+    height: 350px;
+    max-height: 45vh;
+  }
+
+  .card-content {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .card-header {
