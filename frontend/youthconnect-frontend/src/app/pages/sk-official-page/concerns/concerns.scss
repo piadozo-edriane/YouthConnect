@@ -1,10 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
-html, body, :host, .concerns-container {
+html,
+body,
+:host,
+.concerns-container {
   font-family: 'Poppins', Arial, Helvetica, sans-serif !important;
 }
 
-html, body, :host, .concerns-container {
+html,
+body,
+:host,
+.concerns-container {
   background-color: #f2f2f2 !important;
   min-height: 100vh;
 }
@@ -113,12 +119,14 @@ html, body, :host, .concerns-container {
   align-items: center;
   gap: 10px;
   width: 400px;
+  max-width: 100%;
   flex-shrink: 0;
   background: #fff;
   border: 1.5px solid #e0e0e0;
   border-radius: 999px;
   padding: 10px 20px;
   transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 
   &:focus-within {
     border-color: #bbb;
@@ -157,7 +165,7 @@ html, body, :host, .concerns-container {
   background: #fff;
   border-radius: 14px;
   border: 1px solid #cfcfcf;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.14);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.14);
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: flex;
@@ -167,7 +175,7 @@ html, body, :host, .concerns-container {
 }
 
 .concern-card:hover {
-  box-shadow: 0 12px 28px rgba(0,0,0,0.22);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
   transform: translateY(-6px) scale(1.02);
 }
 
@@ -314,7 +322,8 @@ html, body, :host, .concerns-container {
   background: white;
   border-radius: 8px;
   width: 100%;
-  max-width: 600px;
+  max-width: 750px;
+  min-width: 500px;
   max-height: 90vh;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   overflow: hidden;
@@ -336,8 +345,14 @@ html, body, :host, .concerns-container {
 }
 
 @media (max-width: 600px) {
+  .modal-overlay {
+    padding: 8px;
+  }
+
   .modal-content {
-    max-width: 95vw;
+    width: calc(100vw - 16px);
+    max-width: 100%;
+    min-width: unset !important;
     max-height: 95vh;
   }
 }
@@ -347,6 +362,7 @@ html, body, :host, .concerns-container {
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -586,6 +602,7 @@ html, body, :host, .concerns-container {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -778,6 +795,7 @@ select:disabled {
   }
 
   .action-bar {
+    width: 100%;
     flex-direction: column;
     gap: 12px;
   }
@@ -815,6 +833,7 @@ select:disabled {
   }
 
   .action-bar {
+    width: 100%;
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
@@ -849,8 +868,14 @@ select:disabled {
     padding: 10px 10px 12px;
   }
 
+  .modal-overlay {
+    padding: 12px;
+  }
+
   .modal-content {
-    max-width: 98%;
+    width: calc(100vw - 24px);
+    max-width: 100%;
+    min-width: unset !important;
     max-height: 80vh;
     border-radius: 12px;
   }
@@ -969,8 +994,14 @@ select:disabled {
     padding: 9px 10px;
   }
 
+  .modal-overlay {
+    padding: 8px;
+  }
+
   .modal-content {
-    max-width: 98%;
+    width: calc(100vw - 16px);
+    max-width: 100%;
+    min-width: unset !important;
     max-height: 75vh;
     border-radius: 12px;
   }
@@ -1141,8 +1172,14 @@ select:disabled {
     padding: 8px 10px;
   }
 
+  .modal-overlay {
+    padding: 8px;
+  }
+
   .modal-content {
-    max-width: 98%;
+    width: calc(100vw - 16px);
+    max-width: 100%;
+    min-width: unset !important;
     max-height: 70vh;
     border-radius: 12px;
   }

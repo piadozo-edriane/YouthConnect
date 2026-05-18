@@ -1,10 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
-html, body, :host, .tasks-container {
+html,
+body,
+:host,
+.tasks-container {
   font-family: 'Poppins', Arial, Helvetica, sans-serif !important;
 }
 
-html, body, :host, .tasks-container {
+html,
+body,
+:host,
+.tasks-container {
   background-color: #f2f2f2 !important;
   min-height: 100vh;
 }
@@ -344,13 +350,20 @@ html, body, :host, .tasks-container {
 
 .btn-edit {
   color: #0052cc;
-  img { filter: none; }
+
+  img {
+    filter: none;
+  }
+
   margin-left: 30px;
 }
 
 .btn-deactivate {
   color: #CE1127;
-  img { filter: none; }
+
+  img {
+    filter: none;
+  }
 }
 
 .btn-task-action {
@@ -457,6 +470,7 @@ html, body, :host, .tasks-container {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -485,6 +499,7 @@ html, body, :host, .tasks-container {
     opacity: 0;
     transform: scale(0.9) translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -497,19 +512,19 @@ html, body, :host, .tasks-container {
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
-  
+
   &::-webkit-scrollbar {
     width: 8px;
   }
-  
+
   &::-webkit-scrollbar-track {
     background: #f5f5f5;
   }
-  
+
   &::-webkit-scrollbar-thumb {
     background: #c0c0c0;
     border-radius: 4px;
-    
+
     &:hover {
       background: #a0a0a0;
     }
@@ -552,7 +567,8 @@ html, body, :host, .tasks-container {
   padding: 20px 24px;
 }
 
-.modal-header, .modal-footer {
+.modal-header,
+.modal-footer {
   flex-shrink: 0;
 }
 
@@ -569,6 +585,7 @@ html, body, :host, .tasks-container {
     opacity: 0;
     transform: scale(0.9) translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -693,16 +710,16 @@ select.form-input {
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 36px;
-  
+
   &:invalid,
   &[value=""] {
     color: #aaa;
   }
-  
+
   option {
     color: #333;
   }
-  
+
   option[value=""] {
     color: #aaa;
   }
@@ -916,7 +933,7 @@ select.form-input.ng-invalid.ng-touched {
 .details-close-btn {
   font-size: 20px;
   padding: 6px 8px;
-  
+
   &:hover {
     transform: rotate(90deg);
   }
@@ -928,19 +945,19 @@ select.form-input.ng-invalid.ng-touched {
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
-  
+
   &::-webkit-scrollbar {
     width: 8px;
   }
-  
+
   &::-webkit-scrollbar-track {
     background: #f5f5f5;
   }
-  
+
   &::-webkit-scrollbar-thumb {
     background: #c0c0c0;
     border-radius: 4px;
-    
+
     &:hover {
       background: #a0a0a0;
     }
@@ -1024,7 +1041,7 @@ select.form-input.ng-invalid.ng-touched {
 
   &.details-btn-in-progress {
     background-color: #0d43aa;
-    
+
     &:hover {
       background-color: #0a3589;
       box-shadow: 0 4px 8px rgba(13, 67, 170, 0.3);
@@ -1033,7 +1050,7 @@ select.form-input.ng-invalid.ng-touched {
 
   &.details-btn-mark-done {
     background-color: #0b6d38;
-    
+
     &:hover {
       background-color: #095529;
       box-shadow: 0 4px 8px rgba(11, 109, 56, 0.3);
@@ -1147,6 +1164,7 @@ select.form-input.ng-invalid.ng-touched {
   }
 
   .action-bar {
+    width: 100%;
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
@@ -1155,8 +1173,9 @@ select.form-input.ng-invalid.ng-touched {
   .search-group {
     width: 100%;
     min-width: 0;
-    max-width: none;
+    max-width: 100%;
     flex: 1 1 auto;
+    box-sizing: border-box;
   }
 
   .search-input {
