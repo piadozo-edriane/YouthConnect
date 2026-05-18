@@ -25,9 +25,9 @@ export class Dashboard implements OnInit {
   errorMessage = '';
 
   stats = [
-    { label: 'My Concern', value: 0, color: 'yellow' },
     { label: 'Upcoming events', value: 0, color: 'blue' },
     { label: 'Events Joined', value: 0, color: 'red' },
+    { label: 'My Concern', value: 0, color: 'yellow' },
     { label: 'Resolved Concern', value: 0, color: 'gray' }
   ];
 
@@ -133,12 +133,12 @@ export class Dashboard implements OnInit {
   }
 
   getStatClass(index: number): string {
-    const classes = ['yellow-border', 'blue-border', 'red-border', 'gray-border'];
-    return classes[index] || 'yellow-border';
+    const classes = ['red-border', 'red-border', 'red-border', 'red-border'];
+    return classes[index] || 'red-border';
   }
 
   getItemColor(index: number): string {
-    const colors = ['red', 'blue', 'yellow', 'gray'];
+    const colors = ['red', 'red', 'red', 'red'];
     return colors[index % colors.length];
   }
 
