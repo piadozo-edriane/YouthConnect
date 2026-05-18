@@ -934,6 +934,7 @@ body,
   }
 
   .search-section {
+    width: 100%;
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
@@ -942,8 +943,9 @@ body,
   .search-group {
     width: 100%;
     min-width: 0;
-    max-width: none;
+    max-width: 100%;
     flex: 1 1 auto;
+    box-sizing: border-box;
   }
 
   .search-input {
