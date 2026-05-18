@@ -1,10 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
-html, body, :host, .concern-container {
+html,
+body,
+:host,
+.concern-container {
   font-family: 'Poppins', Arial, Helvetica, sans-serif !important;
 }
 
-html, body, :host, .concern-container {
+html,
+body,
+:host,
+.concern-container {
   background-color: #f2f2f2 !important;
   min-height: 100vh;
 }
@@ -137,12 +143,14 @@ html, body, :host, .concern-container {
   align-items: center;
   gap: 10px;
   width: 400px;
+  max-width: 100%;
   flex-shrink: 0;
   background: #fff;
   border: 1.5px solid #e0e0e0;
   border-radius: 999px;
   padding: 10px 20px;
   transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 
   &:focus-within {
     border-color: #bbb;
@@ -282,7 +290,8 @@ html, body, :host, .concern-container {
   flex-shrink: 0;
 }
 
-.edit-btn, .delete-btn {
+.edit-btn,
+.delete-btn {
   background: none;
   border: none;
   font-size: 14px;
@@ -331,7 +340,8 @@ html, body, :host, .concern-container {
   }
 }
 
-.edit-btn:active:not(:disabled), .delete-btn:active:not(:disabled) {
+.edit-btn:active:not(:disabled),
+.delete-btn:active:not(:disabled) {
   transform: scale(0.95) rotate(0deg);
   transition: all 0.1s ease;
 }
@@ -348,7 +358,8 @@ html, body, :host, .concern-container {
   }
 }
 
-.edit-btn:disabled, .delete-btn:disabled {
+.edit-btn:disabled,
+.delete-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
@@ -431,8 +442,15 @@ html, body, :host, .concern-container {
 }
 
 @keyframes pillFadeIn {
-  from { opacity: 0; transform: scale(0.8); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 // ─── Loading & Empty States ───────────────────────────────────────────────────
@@ -531,8 +549,13 @@ html, body, :host, .concern-container {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 // ─── Modal Content ────────────────────────────────────────────────────────────
@@ -561,8 +584,15 @@ html, body, :host, .concern-container {
 }
 
 @keyframes modalSlideIn {
-  from { opacity: 0; transform: scale(0.95) translateY(-20px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 // ─── Modal Header ─────────────────────────────────────────────────────────────
@@ -781,8 +811,15 @@ html, body, :host, .concern-container {
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 // ─── Modal Footer ─────────────────────────────────────────────────────────────
@@ -976,8 +1013,15 @@ html, body, :host, .concern-container {
 // ─── Toast Animation ──────────────────────────────────────────────────────────
 
 @keyframes toastSlideIn {
-  from { opacity: 0; transform: translateY(-8px) translateX(12px); }
-  to   { opacity: 1; transform: translateY(0) translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px) translateX(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(0);
+  }
 }
 
 // ─── Responsive ───────────────────────────────────────────────────────────────
@@ -997,6 +1041,7 @@ html, body, :host, .concern-container {
   .action-bar {
     flex-direction: column;
     gap: 12px;
+    width: 100%;
   }
 
   .search-group {
@@ -1011,6 +1056,11 @@ html, body, :host, .concern-container {
       flex: 1;
       min-width: 120px;
     }
+  }
+
+  .add-concern-btn {
+    width: 100%;
+    margin-left: 0;
   }
 }
 
@@ -1034,6 +1084,24 @@ html, body, :host, .concern-container {
 }
 
 @media (max-width: 600px) {
+  .concern-container {
+    padding: 16px;
+  }
+
+  .concerns-list {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .header-section {
+    padding: 12px 16px;
+    margin-bottom: 20px;
+
+    .header-content h1 {
+      font-size: 24px;
+    }
+  }
+
   .modal-overlay {
     padding: 10px;
     align-items: flex-start;
