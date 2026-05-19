@@ -22,20 +22,20 @@
     <!-- Stats Cards Section -->
     <div class="stats-section">
         <div class="stat-card blue-border">
-            <p class="stat-label">YOUTH MEMBERS</p>
-            <p class="stat-number">{{ youthMembersCount }}</p>
-        </div>
-        <div class="stat-card red-border">
-            <p class="stat-label">EVENTS</p>
+            <p class="stat-label">UPCOMING EVENTS</p>
             <p class="stat-number">{{ eventsCount }}</p>
         </div>
-        <div class="stat-card yellow-border">
-            <p class="stat-label">CONCERNS</p>
+        <div class="stat-card blue-border">
+            <p class="stat-label">PENDING TASKS</p>
+            <p class="stat-number">{{ tasksCount }}</p>
+        </div>
+        <div class="stat-card blue-border">
+            <p class="stat-label">OPEN CONCERNS</p>
             <p class="stat-number">{{ concernsCount }}</p>
         </div>
-        <div class="stat-card gray-border">
-            <p class="stat-label">TASKS</p>
-            <p class="stat-number">{{ tasksCount }}</p>
+        <div class="stat-card blue-border">
+            <p class="stat-label">YOUTH MEMBERS</p>
+            <p class="stat-number">{{ youthMembersCount }}</p>
         </div>
     </div>
 
@@ -45,7 +45,7 @@
         <!-- Events -->
         <div class="content-card">
             <div class="card-header" (click)="navigateToEvents()" style="cursor: pointer;">
-                <h2>Events</h2>
+                <h2>Upcoming Events</h2>
                 <span class="view-all">{{ eventsCount }} ➜</span>
             </div>
             <div class="card-content">
@@ -69,7 +69,7 @@
         <!-- Tasks -->
         <div class="content-card">
             <div class="card-header" (click)="navigateToTasks()" style="cursor: pointer;">
-                <h2>Tasks</h2>
+                <h2>Pending Tasks</h2>
                 <span class="view-all">{{ tasksCount }} ➜</span>
             </div>
             <div class="card-content">

@@ -1,5 +1,6 @@
 <div class="dashboard-root">
     <div class="dashboard-container">
+
         <!-- Error Message -->
         <div class="error-banner" *ngIf="errorMessage">
             <p>{{ errorMessage }}</p>
@@ -10,79 +11,78 @@
             <p>Loading dashboard...</p>
         </div>
 
-        <div *ngIf="!isLoading">
-            <!-- Header Section -->
-            <div class="dashboard-header">
-                <div class="greeting-area">
-                    <h1>Welcome, {{ userName }}!</h1>
-                    <p>{{ userEmail }}</p>
+        <!-- Header Section -->
+        <div class="dashboard-header" *ngIf="!isLoading">
+            <div class="greeting-area">
+                <h1>Welcome, {{ userName }}!</h1>
+                <p>{{ userEmail }}</p>
+            </div>
+            <div class="user-profile-badge">
+                <div class="profile-circle">
+                    <span class="initials">{{ getInitials() }}</span>
                 </div>
-                <div class="user-profile-badge">
-                    <div class="profile-circle">
-                        <span class="initials">{{ getInitials() }}</span>
+                <div class="profile-details">
+                    <p class="profile-name">{{ userName }}</p>
+                    <p class="profile-email">{{ userEmail }}</p>
+                    <p class="profile-role">Youth Member</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-section" *ngIf="!isLoading">
+            <div class="stat-card" *ngFor="let stat of stats; let i = index"
+                 [ngClass]="getStatClass(i)">
+                <p class="stat-label">{{ stat.label }}</p>
+                <p class="stat-number">{{ stat.value }}</p>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-section" *ngIf="!isLoading">
+            <!-- Upcoming Events -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Upcoming Events</h2>
+                    <span class="view-all" (click)="browseEvents()">{{ upcomingEvents.length }} ➜</span>
+                </div>
+                <div class="card-content">
+                    <div class="item-card" *ngFor="let event of upcomingEvents"
+                         (click)="viewEvent(event)">
+                        <div class="item-header">
+                            <h3>{{ event.title }}</h3>
+                            <span class="item-date">{{ formatEventDate(event.eventDate) }}</span>
+                        </div>
+                        <p class="item-description">{{ event.description }}</p>
+                        <p class="item-location">{{ event.location }}</p>
                     </div>
-                    <div class="profile-details">
-                        <p class="profile-name">{{ userName }}</p>
-                        <p class="profile-email">{{ userEmail }}</p>
-                        <p class="profile-role">Youth Member</p>
+                    <div *ngIf="upcomingEvents.length === 0" class="no-data-message">
+                        <p>No upcoming events</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Stats Cards -->
-            <div class="stats-section">
-                <div class="stat-card" *ngFor="let stat of stats; let i = index" 
-                     [ngClass]="getStatClass(i)">
-                    <p class="stat-label">{{ stat.label }}</p>
-                    <p class="stat-number">{{ stat.value }}</p>
+            <!-- Notifications -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Notifications</h2>
+                    <span class="view-all">{{ filteredNotifications.length }} ➜</span>
                 </div>
-            </div>
-
-            <!-- Content Grid -->
-            <div class="content-section">
-                <!-- Upcoming Events -->
-                <div class="content-card">
-                    <div class="card-header">
-                        <h2>Events</h2>
-                        <span class="view-all" (click)="browseEvents()">{{ upcomingEvents.length }} ➜</span>
+                <div class="card-content">
+                    <div class="notification-item" *ngFor="let notification of filteredNotifications">
+                        <div class="notification-header">
+                            <span class="notification-title">{{ notification.updatedByAdminName || 'SK Official' }}</span>
+                            <span class="notification-time">Due: {{ getTimeAgo(notification.createdAt) }}</span>
+                        </div>
+                        <div class="notification-message">{{ notification.updateText }}</div>
+                        <span class="unread-badge" *ngIf="!isNotificationRead(notification)">UNREAD</span>
                     </div>
-                    <div class="card-content">
-                        <div class="item-card" *ngFor="let event of upcomingEvents"
-                             (click)="viewEvent(event)">
-                            <div class="item-header">
-                                <h3>{{ event.title }}</h3>
-                                <span class="item-date">{{ formatEventDate(event.eventDate) }}</span>
-                            </div>
-                            <p class="item-description">{{ event.description }}</p>
-                            <p class="item-location">{{ event.location }}</p>
-                        </div>
-                        <div *ngIf="upcomingEvents.length === 0" class="no-data-message">
-                            <p>No upcoming events</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Notifications -->
-                <div class="content-card">
-                    <div class="card-header">
-                        <h2>Notifications</h2>
-                        <span class="view-all">{{ filteredNotifications.length }} ➜</span>
-                    </div>
-                    <div class="card-content">
-                        <div class="notification-item" *ngFor="let notification of filteredNotifications">
-                            <div class="notification-header">
-                                <span class="notification-title">{{ notification.updatedByAdminName || 'SK Official' }}</span>
-                                <span class="notification-time">Due: {{ getTimeAgo(notification.createdAt) }}</span>
-                            </div>
-                            <div class="notification-message">{{ notification.updateText }}</div>
-                            <span class="unread-badge" *ngIf="!isNotificationRead(notification)">UNREAD</span>
-                        </div>
-                        <div *ngIf="filteredNotifications.length === 0" class="no-data-message">
-                            <p>No notifications yet</p>
-                        </div>
+                    <div *ngIf="filteredNotifications.length === 0" class="no-data-message">
+                        <p>No notifications yet</p>
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
