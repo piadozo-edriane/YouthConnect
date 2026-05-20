@@ -17,6 +17,7 @@ import com.youthconnect.youthconnect_id.dto.EventRequest;
 import com.youthconnect.youthconnect_id.dto.EventResponse;
 import com.youthconnect.youthconnect_id.dto.MarkAttendanceRequest;
 import com.youthconnect.youthconnect_id.dto.RsvpRequest;
+import com.youthconnect.youthconnect_id.dto.UpdateAttendanceStatusRequest;
 import com.youthconnect.youthconnect_id.models.Event;
 import com.youthconnect.youthconnect_id.models.EventAttendance;
 import com.youthconnect.youthconnect_id.repositories.EventAttendanceRepo;
@@ -85,6 +86,7 @@ public class EventServiceImpl implements EventService {
         response.setEventId(attendance.getEventId());
         response.setUserId(attendance.getUserId());
         response.setAttended(attendance.isAttended());
+        response.setApprovalStatus(attendance.getApprovalStatus() != null ? attendance.getApprovalStatus() : "pending");
         response.setRegisteredAt(attendance.getRegisteredAt());
         response.setAttendedAt(attendance.getAttendedAt());
         return response;
@@ -326,5 +328,24 @@ public class EventServiceImpl implements EventService {
                 .stream()
                 .map(this::toAttendanceResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public AttendanceResponse updateAttendanceStatus(int eventId, int attendanceId, UpdateAttendanceStatusRequest request) {
+        EventAttendance attendance = eventAttendanceRepo.findById(attendanceId)
+                .orElseThrow(() -> new RuntimeException("Attendance record not found"));
+
+        if (attendance.getEventId() != eventId) {
+            throw new RuntimeException("Attendance record does not belong to this event");
+        }
+
+        String status = request.getApprovalStatus();
+        if (!"approved".equalsIgnoreCase(status) && !"rejected".equalsIgnoreCase(status) && !"pending".equalsIgnoreCase(status)) {
+            throw new RuntimeException("Invalid approval status. Must be 'approved', 'rejected', or 'pending'");
+        }
+
+        attendance.setApprovalStatus(status.toLowerCase());
+        return toAttendanceResponse(eventAttendanceRepo.save(attendance));
     }
 }

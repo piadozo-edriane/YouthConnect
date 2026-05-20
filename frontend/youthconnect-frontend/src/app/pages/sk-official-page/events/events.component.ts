@@ -715,26 +715,26 @@ export class EventsComponent implements OnInit {
     });
   }
 
-  getRsvpPercentage(event: EventResponse): number {
+  getJoinPercentage(event: EventResponse): number {
     const expectedCount = event.expectedCount || 0;
-    const rsvpCount = event.rsvpCount || 0;
+    const joinCount = event.rsvpCount || 0;
     
     if (expectedCount === 0) {
       return 0;
     }
     
-    return Math.round((rsvpCount / expectedCount) * 100);
+    return Math.round((joinCount / expectedCount) * 100);
   }
 
   getRemainingCount(event: EventResponse): number {
     const expectedCount = event.expectedCount || 0;
-    const rsvpCount = event.rsvpCount || 0;
+    const joinCount = event.rsvpCount || 0;
     
-    return Math.max(0, expectedCount - rsvpCount);
+    return Math.max(0, expectedCount - joinCount);
   }
 
-  getRsvpStrokeDasharray(event: EventResponse): string {
-    const percentage = this.getRsvpPercentage(event);
+  getJoinStrokeDasharray(event: EventResponse): string {
+    const percentage = this.getJoinPercentage(event);
     const circumference = 2 * Math.PI * 80; // 2πr where r=80
     const filledLength = (percentage / 100) * circumference;
     const emptyLength = circumference - filledLength;

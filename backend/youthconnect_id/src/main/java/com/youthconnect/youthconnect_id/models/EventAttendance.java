@@ -26,6 +26,9 @@ public class EventAttendance {
     @Column(name = "is_attended", nullable = false)
     private boolean isAttended = false;
 
+    @Column(name = "approval_status", nullable = false)
+    private String approvalStatus = "pending";
+
     @Column(name = "registered_at", nullable = false)
     private LocalDateTime registeredAt;
 
@@ -64,6 +67,14 @@ public class EventAttendance {
 
     public void setAttended(boolean attended) {
         isAttended = attended;
+    }
+
+    public String getApprovalStatus() {
+        return approvalStatus;
+    }
+
+    public void setApprovalStatus(String approvalStatus) {
+        this.approvalStatus = approvalStatus;
     }
 
     public LocalDateTime getRegisteredAt() {

@@ -199,135 +199,155 @@ body,
 
 .event-card {
   background: #fff;
-  border-radius: 14px;
-  border: 1px solid #cfcfcf;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.14);
+  border-radius: 16px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
   overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: flex;
   flex-direction: column;
-  height: 100%;
-  position: relative;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
 
   &:hover {
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
-    transform: translateY(-6px) scale(1.02);
-  }
-
-  &:active {
-    transform: translateY(-2px) scale(0.98);
-    transition: all 0.1s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.13);
+    transform: translateY(-3px);
   }
 
   &.highlight-event {
     animation: highlightPulse 2s ease-in-out;
-    box-shadow: 0 0 0 4px rgba(0, 82, 204, 0.4), 0 8px 24px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.35), 0 6px 20px rgba(0, 0, 0, 0.12);
   }
 }
 
 @keyframes highlightPulse {
-
-  0%,
-  100% {
-    box-shadow: 0 0 0 4px rgba(0, 82, 204, 0.4), 0 8px 24px rgba(0, 0, 0, 0.2);
-  }
-
-  50% {
-    box-shadow: 0 0 0 8px rgba(0, 82, 204, 0.6), 0 12px 32px rgba(0, 0, 0, 0.3);
-  }
+  0%, 100% { box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.35), 0 6px 20px rgba(0, 0, 0, 0.12); }
+  50%       { box-shadow: 0 0 0 6px rgba(0, 82, 204, 0.5),  0 10px 28px rgba(0, 0, 0, 0.18); }
 }
+
+// ─── Card Header ─────────────────────────────────────────────────────────────
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 22px;
-  border-bottom: 2px solid #cfcfcf;
-  gap: 12px;
-  flex-wrap: wrap;
-
-  .card-title-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex: 1;
-    min-width: 0;
-
-    h3 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin: 0;
-      color: #111;
-      line-height: 1.2;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex: 1;
-      min-width: 0;
-    }
-  }
-
-  .card-badges {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-    flex-wrap: wrap;
-  }
+  padding: 20px 24px;
+  border-bottom: 1px solid #ebebeb;
+  gap: 14px;
 }
 
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+  color: #111;
+  line-height: 1.25;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ─── Card Body ────────────────────────────────────────────────────────────────
+
 .card-body {
-  padding: 20px 22px 16px;
+  padding: 22px 24px 20px;
   display: flex;
   flex-direction: column;
   flex: 1;
+  gap: 16px;
 }
 
 .description {
-  font-size: 0.9rem;
-  color: #1d1d1d;
-  margin: 0 0 16px;
-  line-height: 1.4;
-  white-space: nowrap;
+  font-size: 0.95rem;
+  color: #555;
+  margin: 0;
+  line-height: 1.5;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .event-meta {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  flex: 1;
+  gap: 12px;
 }
 
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
-  color: #111;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: #222;
   font-weight: 500;
 
   svg {
     flex-shrink: 0;
-    color: #666;
+    color: #555;
   }
 }
 
 .meta-label {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: #666;
-  letter-spacing: 0.5px;
+  color: #555;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
 }
 
-// ─── Card Actions ─────────────────────────────────────────────────────────────
+// ─── Approval Status Bar ──────────────────────────────────────────────────────
+
+.approval-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  box-sizing: border-box;
+
+  &.approval-status-bar--pending {
+    background: #fef9e7;
+    color: #b45309;
+  }
+
+  &.approval-status-bar--approved {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  &.approval-status-bar--rejected {
+    background: #fee2e2;
+    color: #7f1d1d;
+  }
+}
+
+// ─── Card Footer ─────────────────────────────────────────────────────────────
+
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px 18px;
+  border-top: 1px solid #ebebeb;
+}
+
+// When rejected: card-body acts as the last section, so give it a bottom border
+.card--rejected .card-body {
+  border-bottom: 1px solid #ebebeb;
+  padding-bottom: 20px;
+}
+
+// ─── Card Actions (legacy) ────────────────────────────────────────────────────
 
 .card-actions {
   display: flex;
   gap: 10px;
   align-items: center;
-  margin-top: 16px;
   padding-top: 12px;
   border-top: 1px solid #e8e8e8;
   flex-wrap: wrap;
@@ -339,80 +359,44 @@ body,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 14px;
+  padding: 7px 16px;
   border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   line-height: 1;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  animation: pillFadeIn 0.5s ease;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .rsvp-joined-pill {
   display: inline-flex;
   align-items: center;
-  padding: 6px 14px;
+  padding: 7px 16px;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 700;
   background: #d1fae5;
   color: #065f46;
   white-space: nowrap;
-  animation: pillFadeIn 0.5s ease;
 }
 
-.status-upcoming {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.status-open {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.status-closed {
-  background: #fee2e2;
-  color: #7f1d1d;
-}
-
-.status-ongoing {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.status-completed {
-  background: #e5e7eb;
-  color: #374151;
-}
-
-.status-cancelled {
-  background: #fee2e2;
-  color: #7f1d1d;
-}
-
-.status-default {
-  background: #f3f4f6;
-  color: #6b7280;
-}
+.status-upcoming  { background: #fef3c7; color: #92400e; }
+.status-open      { background: #d1fae5; color: #065f46; }
+.status-closed    { background: #fee2e2; color: #7f1d1d; }
+.status-ongoing   { background: #dbeafe; color: #1e40af; }
+.status-completed { background: #e5e7eb; color: #374151; }
+.status-cancelled { background: #fee2e2; color: #7f1d1d; }
+.status-default   { background: #f3f4f6; color: #6b7280; }
 
 @keyframes pillFadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 // ─── RSVP / Cancel Buttons ────────────────────────────────────────────────────
 
 .btn-rsvp {
-  padding: 10px 22px;
+  padding: 10px 50px;
   background-color: #a4151a;
   color: white;
   border: none;
@@ -426,7 +410,7 @@ body,
 
   &:hover:not(:disabled) {
     background-color: #89171b;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
     box-shadow: 0 4px 10px rgba(164, 21, 26, 0.3);
   }
 
@@ -439,20 +423,15 @@ body,
   &.btn-rsvp-disabled {
     background-color: #9ca3af;
     cursor: not-allowed;
-
-    &:hover {
-      background-color: #9ca3af;
-      transform: none;
-      box-shadow: none;
-    }
+    &:hover { background-color: #9ca3af; transform: none; box-shadow: none; }
   }
 }
 
 .btn-cancel-rsvp {
-  padding: 10px 22px;
-  background: white;
-  color: #333;
-  border: 1px solid #ddd;
+  padding: 10px 40px;
+  background: #fff;
+  color: #222;
+  border: 1.5px solid #d0d0d0;
   border-radius: 999px;
   font-size: 13px;
   font-weight: 600;
@@ -463,8 +442,8 @@ body,
 
   &:hover:not(:disabled) {
     background-color: #f5f5f5;
-    border-color: #bbb;
-    transform: translateY(-2px);
+    border-color: #aaa;
+    transform: translateY(-1px);
   }
 
   &:disabled {

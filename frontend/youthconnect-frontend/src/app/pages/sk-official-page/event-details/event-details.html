@@ -1,23 +1,30 @@
 <div class="event-details-root">
+
+    <!-- Toast Notifications -->
+    <div class="notification-stack">
+        <div *ngFor="let notification of notifications" class="toast-notification"
+            [ngClass]="notification.type === 'success' ? 'toast-success' : 'toast-error'">
+            {{ notification.message }}
+        </div>
+    </div>
+
     <div class="event-details-container">
         <div class="details-top-bar">
             <button class="back-btn" (click)="goBack()">← Back to Events</button>
             <div class="details-actions" *ngIf="selectedEvent">
-                <button
-                    class="details-edit-btn"
-                    (click)="editEvent(selectedEvent)"
-                    title="Edit event"
+                <button class="details-edit-btn" (click)="editEvent(selectedEvent)" title="Edit event"
                     [disabled]="isEditDisabled(selectedEvent.status)">
                     <img src="../../assets/sk-official-events-icons/edit.svg" alt="Edit" width="20" height="20">
                     <span>Edit</span>
                 </button>
-                <button
-                    class="details-delete-btn"
-                    (click)="deleteEvent(selectedEvent)"
-                    title="Delete event"
+                <button class="details-delete-btn" (click)="deleteEvent(selectedEvent)" title="Delete event"
                     [disabled]="isEventOngoing(selectedEvent.status)">
                     <img src="../../assets/sk-official-events-icons/delete.svg" alt="Delete" width="20" height="20">
                     <span>Delete</span>
+                </button>
+                <button class="btn-approval-panel" (click)="openApprovalPanel()">
+                    Attendee Approval
+                    <span class="notification-badge" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
                 </button>
             </div>
         </div>
@@ -31,6 +38,7 @@
         </div>
 
         <div *ngIf="selectedEvent" class="event-details-grid">
+            <!-- Left Card: Event Info -->
             <div class="details-card details-card-main">
                 <div class="details-header">
                     <div class="details-title-wrapper">
@@ -57,18 +65,30 @@
                     </div>
 
                     <div class="detail-info-row">
-                        <img src="../../assets/sk-official-events-icons/calendar.svg" alt="RSVPs" width="16" height="16">
-                        <span class="detail-info-label">RSVPs:</span>
-                        <span class="detail-info-value">
-                            {{ selectedEvent.rsvpCount || 0 }} RSVP{{ (selectedEvent.rsvpCount || 0) === 1 ? '' : 's' }}
-                        </span>
+                        <img src="../../assets/sk-official-events-icons/calendar.svg" alt="Joined" width="16" height="16">
+                        <span class="detail-info-label">JOINED:</span>
+                        <span class="detail-info-value">{{ selectedEvent.rsvpCount || 0 }} Joined</span>
+                    </div>
+
+                    <!-- Attendee Summary Chips -->
+                    <div class="attendee-summary" *ngIf="!isLoadingAttendees">
+                        <div class="summary-chip pending-chip">
+                            <span class="chip-count">{{ pendingCount }}</span>
+                            <span class="chip-label">Pending</span>
+                        </div>
+                        <div class="summary-chip approved-chip">
+                            <span class="chip-count">{{ approvedCount }}</span>
+                            <span class="chip-label">Approved</span>
+                        </div>
+                        <div class="summary-chip rejected-chip">
+                            <span class="chip-count">{{ rejectedCount }}</span>
+                            <span class="chip-label">Rejected</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="details-status-bar">
-                    <button
-                        class="details-status-btn"
-                        [ngClass]="getStatusActionClass(selectedEvent.status)"
+                    <button class="details-status-btn" [ngClass]="getStatusActionClass(selectedEvent.status)"
                         [disabled]="isStatusActionDisabled(selectedEvent.status)"
                         (click)="updateEventStatus(selectedEvent)">
                         {{ getStatusActionLabel(selectedEvent.status) }}
@@ -76,84 +96,67 @@
                 </div>
             </div>
 
+            <!-- Right Card: Chart + Approved Attendees -->
             <div class="details-card details-card-side">
                 <div class="details-card-body">
                     <div class="rsvp-chart-section">
-                    <h4 class="chart-title">RSVP Overview</h4>
-                    <div class="chart-container">
-                        <div class="donut-chart">
-                            <svg viewBox="0 0 200 200" class="donut-svg">
-                                <circle
-                                    cx="100"
-                                    cy="100"
-                                    r="85"
-                                    fill="none"
-                                    stroke="#e8e8e8"
-                                    stroke-width="30"
-                                />
-                                <circle
-                                    cx="100"
-                                    cy="100"
-                                    r="85"
-                                    fill="none"
-                                    stroke="#0052cc"
-                                    stroke-width="30"
-                                    [attr.stroke-dasharray]="getRsvpStrokeDasharray(selectedEvent)"
-                                    stroke-dashoffset="133.5"
-                                    transform="rotate(-90 100 100)"
-                                    class="rsvp-segment"
-                                />
-                            </svg>
-                            <div class="chart-center-text">
-                                <div class="percentage">{{ getRsvpPercentage(selectedEvent) }}%</div>
-                                <div class="label">RSVP'd</div>
+                        <h4 class="chart-title">Join Overview</h4>
+                        <div class="chart-container">
+                            <div class="donut-chart">
+                                <svg viewBox="0 0 200 200" class="donut-svg">
+                                    <circle cx="100" cy="100" r="85" fill="none" stroke="#e8e8e8" stroke-width="30" />
+                                    <circle cx="100" cy="100" r="85" fill="none" stroke="#0052cc" stroke-width="30"
+                                        [attr.stroke-dasharray]="getJoinStrokeDasharray(selectedEvent)"
+                                        stroke-dashoffset="133.5" transform="rotate(-90 100 100)"
+                                        class="rsvp-segment" />
+                                </svg>
+                                <div class="chart-center-text">
+                                    <div class="percentage">{{ getJoinPercentage(selectedEvent) }}%</div>
+                                    <div class="label">Joined</div>
+                                </div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color rsvp-color"></span>
+                                    <span class="legend-label">Joined: {{ selectedEvent.rsvpCount || 0 }}</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color remaining-color"></span>
+                                    <span class="legend-label">Remaining: {{ getRemainingCount(selectedEvent) }}</span>
+                                </div>
+                                <div class="legend-item total">
+                                    <span class="legend-label">Expected Total: {{ selectedEvent.expectedCount || 0 }}</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="chart-legend">
-                            <div class="legend-item">
-                                <span class="legend-color rsvp-color"></span>
-                                <span class="legend-label">RSVP: {{ selectedEvent.rsvpCount || 0 }}</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-color remaining-color"></span>
-                                <span class="legend-label">Remaining: {{ getRemainingCount(selectedEvent) }}</span>
-                            </div>
-                            <div class="legend-item total">
-                                <span class="legend-label">Expected Total: {{ selectedEvent.expectedCount || 0 }}</span>
-                            </div>
-                        </div>
-                    </div>
                     </div>
 
+                    <!-- Approved Attendees List -->
                     <div class="attendees-section">
-                        <h4 class="attendees-title">RSVP'd Attendees ({{ eventAttendees.length }})</h4>
+                        <h4 class="attendees-title">
+                            Approved Attendees
+                            <span class="attendees-count-badge">{{ approvedCount }}</span>
+                        </h4>
 
                         <div *ngIf="isLoadingAttendees" class="attendees-loading">
                             <p>Loading attendees...</p>
                         </div>
 
-                        <div *ngIf="!isLoadingAttendees && eventAttendees.length > 0" class="attendees-list">
-                            <div
-                                *ngFor="let attendee of pagedEventAttendees; let i = index"
-                                class="attendee-item"
-                                (click)="openAttendeeDetailsModal(attendee)"
-                                [class.clickable]="attendee.youthId !== 0">
-                                <div class="attendee-number">{{ ((attendeesPage - 1) * attendeesPageSize) + i + 1 }}</div>
+                        <div *ngIf="!isLoadingAttendees && approvedCount > 0" class="attendees-list">
+                            <div *ngFor="let attendee of approvedAttendees; let i = index"
+                                class="attendee-item clickable"
+                                (click)="openAttendeeDetailsModal(attendee)">
+                                <div class="attendee-number">{{ i + 1 }}</div>
                                 <div class="attendee-info">
                                     <div class="attendee-name">{{ attendee.name }}</div>
                                     <div class="attendee-email">{{ attendee.email }}</div>
                                 </div>
+                                <span class="attendee-status-badge approved">Approved</span>
                             </div>
                         </div>
 
-                        <div *ngIf="totalAttendeePages > 1" class="attendees-pagination">
-                            <button class="pagination-btn" (click)="prevAttendeePage()" [disabled]="attendeesPage === 1">Prev</button>
-                            <span class="pagination-indicator">Page {{ attendeesPage }} of {{ totalAttendeePages }}</span>
-                            <button class="pagination-btn" (click)="nextAttendeePage()" [disabled]="attendeesPage === totalAttendeePages">Next</button>
-                        </div>
-
-                        <div *ngIf="!isLoadingAttendees && eventAttendees.length === 0" class="attendees-empty">
-                            <p>No one has RSVP'd yet.</p>
+                        <div *ngIf="!isLoadingAttendees && approvedCount === 0" class="attendees-empty">
+                            <p>No approved attendees yet.</p>
                         </div>
                     </div>
                 </div>
@@ -161,6 +164,162 @@
         </div>
     </div>
 
+    <!-- Approval Panel Backdrop -->
+    <div class="approval-panel-backdrop" *ngIf="isApprovalPanelOpen" (click)="closeApprovalPanel()"></div>
+
+    <!-- Approval Panel -->
+    <aside class="approval-panel" [class.open]="isApprovalPanelOpen" [attr.aria-hidden]="!isApprovalPanelOpen">
+        <div class="approval-panel-header">
+            <div>
+                <h2>Attendee Approval</h2>
+                <p>Review and manage event attendance requests</p>
+            </div>
+            <button class="close-btn" type="button" (click)="closeApprovalPanel()" aria-label="Close">&times;</button>
+        </div>
+
+        <!-- Filter Chips -->
+        <div class="approval-filter-group">
+            <button type="button" class="filter-chip" [class.active]="approvalFilter === 'pending'"
+                (click)="setApprovalFilter('pending')">
+                Pending
+                <span class="filter-count" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
+            </button>
+            <button type="button" class="filter-chip" [class.active]="approvalFilter === 'approved'"
+                (click)="setApprovalFilter('approved')">
+                Approved
+            </button>
+            <button type="button" class="filter-chip" [class.active]="approvalFilter === 'rejected'"
+                (click)="setApprovalFilter('rejected')">
+                Rejected
+            </button>
+        </div>
+
+        <!-- Search -->
+        <div class="approval-search-section">
+            <input type="text" class="approval-search-input" placeholder="Search by name, email, or contact"
+                [(ngModel)]="approvalSearchQuery" (input)="approvalCurrentPage = 1" />
+        </div>
+
+        <!-- Messages -->
+        <div *ngIf="approvalError" class="approval-alert approval-alert-error">{{ approvalError }}</div>
+        <div *ngIf="approvalMessage" class="approval-alert approval-alert-success">{{ approvalMessage }}</div>
+
+        <!-- Attendee Cards -->
+        <div class="approval-list" *ngIf="paginatedApprovalAttendees.length > 0; else noApprovalRows">
+            <article class="approval-card" *ngFor="let attendee of paginatedApprovalAttendees">
+                <div class="approval-card-head">
+                    <h3>{{ attendee.name }}</h3>
+                    <span class="approval-status"
+                        [class.pending]="attendee.approvalStatus === 'pending'"
+                        [class.approved]="attendee.approvalStatus === 'approved'"
+                        [class.rejected]="attendee.approvalStatus === 'rejected'">
+                        {{ attendee.approvalStatus | titlecase }}
+                    </span>
+                </div>
+                <p class="approval-meta">{{ attendee.email }}</p>
+                <p class="approval-meta">Contact: {{ attendee.contactNumber }}</p>
+
+                <div class="approval-actions">
+                    <button type="button" class="btn-see-details" (click)="openAttendeeDetailsModal(attendee)">
+                        See Details
+                    </button>
+                    <div class="action-buttons-right">
+                        <!-- Pending: Approve & Reject -->
+                        <ng-container *ngIf="attendee.approvalStatus === 'pending'">
+                            <button type="button" class="btn-approve"
+                                [disabled]="updatingAttendanceId !== null"
+                                (click)="approveAttendee(attendee)">
+                                {{ updatingAttendanceId === attendee.attendanceId && updatingAction === 'approve' ? 'Approving...' : 'Approve' }}
+                            </button>
+                            <button type="button" class="btn-reject"
+                                [disabled]="updatingAttendanceId !== null"
+                                (click)="openRejectModal(attendee)">
+                                Reject
+                            </button>
+                        </ng-container>
+                        <!-- Approved: can reject -->
+                        <ng-container *ngIf="attendee.approvalStatus === 'approved'">
+                            <button type="button" class="btn-reject"
+                                [disabled]="updatingAttendanceId !== null"
+                                (click)="openRejectModal(attendee)">
+                                Reject
+                            </button>
+                        </ng-container>
+                        <!-- Rejected: can approve -->
+                        <ng-container *ngIf="attendee.approvalStatus === 'rejected'">
+                            <button type="button" class="btn-approve"
+                                [disabled]="updatingAttendanceId !== null"
+                                (click)="approveAttendee(attendee)">
+                                {{ updatingAttendanceId === attendee.attendanceId && updatingAction === 'approve' ? 'Approving...' : 'Approve' }}
+                            </button>
+                        </ng-container>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <!-- Pagination -->
+        <div class="approval-pagination" *ngIf="filteredApprovalAttendees.length > approvalItemsPerPage">
+            <button class="pagination-btn" (click)="previousApprovalPage()" [disabled]="approvalCurrentPage === 1">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+                </svg>
+            </button>
+            <div class="pagination-numbers">
+                <button *ngFor="let page of approvalPageNumbers" class="pagination-number"
+                    [class.active]="page === approvalCurrentPage" (click)="goToApprovalPage(page)">
+                    {{ page }}
+                </button>
+            </div>
+            <button class="pagination-btn" (click)="nextApprovalPage()"
+                [disabled]="approvalCurrentPage === approvalTotalPages">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                </svg>
+            </button>
+        </div>
+
+        <ng-template #noApprovalRows>
+            <div class="approval-empty-state">
+                <p>No attendees found for this filter.</p>
+            </div>
+        </ng-template>
+    </aside>
+
+    <!-- Rejection Modal -->
+    <div class="modal-overlay" *ngIf="isRejectModalOpen">
+        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Reject Attendee</h2>
+                    <p class="modal-subtitle">Rejecting {{ rejectingAttendee?.name }}'s attendance request</p>
+                </div>
+                <button class="close-btn" (click)="closeRejectModal()">✕</button>
+            </div>
+            <div class="modal-body-wrapper">
+                <div *ngIf="approvalError" class="modal-alert alert-error">{{ approvalError }}</div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Note (optional)</label>
+                        <textarea [(ngModel)]="rejectionNote" rows="4"
+                            placeholder="Provide an optional note for this rejection..."
+                            class="form-control"
+                            [disabled]="updatingAttendanceId !== null"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" (click)="closeRejectModal()"
+                    [disabled]="updatingAttendanceId !== null">Cancel</button>
+                <button type="button" class="btn-reject-confirm" (click)="confirmRejectAttendee()"
+                    [disabled]="updatingAttendanceId !== null">
+                    {{ updatingAttendanceId !== null ? 'Rejecting...' : 'Confirm Rejection' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendee Details Modal -->
     <div class="modal-overlay" *ngIf="isAttendeeDetailsModalOpen && selectedAttendeeProfile">
         <div class="modal-content modal-attendee-details" (click)="$event.stopPropagation()">
             <div class="modal-header">
@@ -168,12 +327,19 @@
                     <h2 class="modal-title">Attendee Details</h2>
                     <p class="modal-subtitle">Complete attendee information overview</p>
                 </div>
-                <button class="close-btn" (click)="closeAttendeeDetailsModal()">✕</button>
+                <div class="modal-header-actions">
+                    <span class="approval-status modal-status-badge"
+                        [class.pending]="selectedAttendeeProfile?.approvalStatus === 'pending'"
+                        [class.approved]="selectedAttendeeProfile?.approvalStatus === 'approved'"
+                        [class.rejected]="selectedAttendeeProfile?.approvalStatus === 'rejected'">
+                        {{ (selectedAttendeeProfile?.approvalStatus || 'pending') | uppercase }}
+                    </span>
+                    <button class="close-btn" (click)="closeAttendeeDetailsModal()">✕</button>
+                </div>
             </div>
 
             <div class="modal-body-wrapper">
                 <div class="scroll-indicator scroll-indicator-top"></div>
-
                 <div class="modal-body">
                     <div class="details-section">
                         <h3 class="section-title">Personal Information</h3>
@@ -181,7 +347,10 @@
                             <div class="detail-item full-width">
                                 <span class="detail-label">Full Name:</span>
                                 <span class="detail-value detail-value-bold">
-                                    {{ selectedAttendeeProfile?.firstName }} {{ selectedAttendeeProfile?.middleName || '' }} {{ selectedAttendeeProfile?.lastName }} {{ selectedAttendeeProfile?.suffix || '' }}
+                                    {{ selectedAttendeeProfile?.firstName }}
+                                    {{ selectedAttendeeProfile?.middleName || '' }}
+                                    {{ selectedAttendeeProfile?.lastName }}
+                                    {{ selectedAttendeeProfile?.suffix || '' }}
                                 </span>
                             </div>
                             <div class="detail-item">
@@ -221,9 +390,9 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="scroll-indicator scroll-indicator-bottom"></div>
             </div>
         </div>
     </div>
+
 </div>

@@ -19,6 +19,7 @@ import com.youthconnect.youthconnect_id.dto.AttendanceResponse;
 import com.youthconnect.youthconnect_id.dto.EventRequest;
 import com.youthconnect.youthconnect_id.dto.EventResponse;
 import com.youthconnect.youthconnect_id.dto.MarkAttendanceRequest;
+import com.youthconnect.youthconnect_id.dto.UpdateAttendanceStatusRequest;
 import com.youthconnect.youthconnect_id.services.EventService;
 
 @RestController
@@ -91,6 +92,19 @@ public class SkOfficialEventController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed: " + e.getMessage());
+        }
+    }
+
+    @PatchMapping("/{eventId}/rsvp/{attendanceId}/status")
+    public ResponseEntity<?> updateAttendanceStatus(@PathVariable int eventId,
+            @PathVariable int attendanceId,
+            @RequestBody UpdateAttendanceStatusRequest request) {
+        try {
+            AttendanceResponse response = eventService.updateAttendanceStatus(eventId, attendanceId, request);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed: " + e.getMessage());
         }
     }
 }
