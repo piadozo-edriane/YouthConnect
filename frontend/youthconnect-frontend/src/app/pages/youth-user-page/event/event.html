@@ -61,8 +61,16 @@
                         <span class="status-pill" [ngClass]="getStatusBadgeClass(event.status)">
                             {{ event.status }}
                         </span>
-                        <span class="rsvp-joined-pill" *ngIf="isJoined(event.eventId)">
-                            ✓ Joined
+                        <span class="rsvp-joined-pill"
+                            *ngIf="isJoined(event.eventId)"
+                            [ngClass]="{
+                                'approval-pending':  getJoinApprovalStatus(event.eventId) === 'pending',
+                                'approval-approved': getJoinApprovalStatus(event.eventId) === 'approved',
+                                'approval-rejected': getJoinApprovalStatus(event.eventId) === 'rejected'
+                            }">
+                            <span *ngIf="getJoinApprovalStatus(event.eventId) === 'pending'">⏳ Pending Approval</span>
+                            <span *ngIf="getJoinApprovalStatus(event.eventId) === 'approved'">✓ Approved</span>
+                            <span *ngIf="getJoinApprovalStatus(event.eventId) === 'rejected'">✕ Rejected</span>
                         </span>
                     </div>
                 </div>
@@ -96,11 +104,24 @@
                             *ngIf="!isJoined(event.eventId)">
                             {{ isEventCompleted(event) ? 'Completed' : (isEventOngoing(event) ? 'Ongoing' : 'Join Now') }}
                         </button>
-                        <button class="btn-cancel-rsvp" *ngIf="canCancelJoin(event)"
+                        <button class="btn-cancel-rsvp"
+                            *ngIf="canCancelJoin(event)"
                             (click)="cancelJoin(event)"
                             [disabled]="isLoading">
                             Cancel Join
                         </button>
+                        <span class="join-status-note"
+                            *ngIf="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'pending'">
+                            Waiting for SK approval
+                        </span>
+                        <span class="join-status-note join-status-note--approved"
+                            *ngIf="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'approved'">
+                            You're approved to attend
+                        </span>
+                        <span class="join-status-note join-status-note--rejected"
+                            *ngIf="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'rejected'">
+                            Your request was rejected
+                        </span>
                     </div>
                 </div>
             </div>

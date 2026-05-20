@@ -360,6 +360,21 @@ body,
   color: #065f46;
   white-space: nowrap;
   animation: pillFadeIn 0.5s ease;
+
+  &.approval-pending {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  &.approval-approved {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  &.approval-rejected {
+    background: #fee2e2;
+    color: #7f1d1d;
+  }
 }
 
 .status-upcoming {
@@ -471,6 +486,28 @@ body,
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+  }
+}
+
+// ─── Join Status Note ─────────────────────────────────────────────────────────
+
+.join-status-note {
+  font-size: 12px;
+  font-weight: 600;
+  color: #92400e;
+  background: #fef3c7;
+  border-radius: 999px;
+  padding: 6px 14px;
+  white-space: nowrap;
+
+  &.join-status-note--approved {
+    color: #065f46;
+    background: #d1fae5;
+  }
+
+  &.join-status-note--rejected {
+    color: #7f1d1d;
+    background: #fee2e2;
   }
 }
 

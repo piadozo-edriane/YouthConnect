@@ -25,6 +25,7 @@ export class EventPage implements OnInit {
     filteredEvents: EventResponse[] = [];
     paginatedEvents: EventResponse[] = [];
     joinedEventIds: Set<number> = new Set();
+    joinApprovalStatus: Map<number, 'pending' | 'approved' | 'rejected'> = new Map();
     searchQuery = '';
     selectedStatusFilter: string = 'ALL';
     highlightedEventId: number | null = null;
@@ -70,6 +71,9 @@ export class EventPage implements OnInit {
             next: (result) => {
                 this.events = result.events;
                 this.joinedEventIds = new Set(result.rsvps.map(r => r.eventId));
+                this.joinApprovalStatus = new Map(
+                    result.rsvps.map(r => [r.eventId, (r.approvalStatus || 'pending') as 'pending' | 'approved' | 'rejected'])
+                );
                 this.applyFilters();
                 this.isLoading = false;
                 
@@ -196,6 +200,12 @@ export class EventPage implements OnInit {
         return this.joinedEventIds.has(eventId);
     }
 
+    getJoinApprovalStatus(eventId: number): 'pending' | 'approved' | 'rejected' | null {
+        return this.joinedEventIds.has(eventId)
+            ? (this.joinApprovalStatus.get(eventId) || 'pending')
+            : null;
+    }
+
     isEventOngoing(event: EventResponse): boolean {
         return event.status === 'Ongoing';
     }
@@ -221,6 +231,7 @@ export class EventPage implements OnInit {
         this.eventService.rsvpEvent({ eventId: event.eventId, userId: this.userId }).subscribe({
             next: () => {
                 this.joinedEventIds.add(event.eventId);
+                this.joinApprovalStatus.set(event.eventId, 'pending');
                 this.selectedEvent = event;
                 this.showJoinModal = true;
                 this.showSuccessToast('Successfully joined the event!');
@@ -247,6 +258,7 @@ export class EventPage implements OnInit {
         this.eventService.cancelRsvp(event.eventId, this.userId).subscribe({
             next: () => {
                 this.joinedEventIds.delete(event.eventId);
+                this.joinApprovalStatus.delete(event.eventId);
                 this.showSuccessToast('Successfully left the event.');
                 this.isLoading = false;
             },

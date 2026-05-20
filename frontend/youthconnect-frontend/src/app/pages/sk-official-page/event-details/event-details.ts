@@ -1,13 +1,25 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import { EventService, EventResponse } from '../../../services/event.service';
+import { EventService, EventResponse, AttendanceResponse } from '../../../services/event.service';
 import { YouthMemberManagementService } from '../../../services/youth-member-management.service';
+
+export interface AttendeeRecord {
+  attendanceId: number;
+  userId: number;
+  youthId: number;
+  name: string;
+  email: string;
+  contactNumber: string;
+  approvalStatus: 'pending' | 'approved' | 'rejected';
+  registeredAt: string;
+}
 
 @Component({
   selector: 'app-event-details-page',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './event-details.html',
   styleUrl: './event-details.scss',
   standalone: true
@@ -19,14 +31,36 @@ export class EventDetailsPage implements OnInit {
   private router = inject(Router);
 
   selectedEvent: EventResponse | null = null;
-  eventAttendees: Array<{ name: string; email: string; userId: number; youthId: number }> = [];
   isLoading = false;
   isLoadingAttendees = false;
   errorMessage = '';
+
+  // All attendee records (raw, with approvalStatus)
+  allAttendees: AttendeeRecord[] = [];
+
+  // Approval panel
+  isApprovalPanelOpen = false;
+  approvalFilter: 'pending' | 'approved' | 'rejected' = 'pending';
+  approvalSearchQuery = '';
+  approvalCurrentPage = 1;
+  approvalItemsPerPage = 10;
+  updatingAttendanceId: number | null = null;
+  updatingAction: 'approve' | 'reject' | null = null;
+  approvalMessage = '';
+  approvalError = '';
+
+  // Rejection modal
+  isRejectModalOpen = false;
+  rejectingAttendee: AttendeeRecord | null = null;
+  rejectionNote = '';
+
+  // Attendee details modal
   isAttendeeDetailsModalOpen = false;
   selectedAttendeeProfile: any = null;
-  attendeesPageSize = 10;
-  attendeesPage = 1;
+
+  // Toast notifications
+  notifications: { id: number; message: string; type: 'success' | 'error' }[] = [];
+  private notificationCounter = 0;
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(() => {
@@ -39,15 +73,11 @@ export class EventDetailsPage implements OnInit {
   }
 
   editEvent(event: EventResponse): void {
-    this.router.navigate(['/sk-official/events'], {
-      queryParams: { edit: event.eventId }
-    });
+    this.router.navigate(['/sk-official/events'], { queryParams: { edit: event.eventId } });
   }
 
   deleteEvent(event: EventResponse): void {
-    this.router.navigate(['/sk-official/events'], {
-      queryParams: { delete: event.eventId }
-    });
+    this.router.navigate(['/sk-official/events'], { queryParams: { delete: event.eventId } });
   }
 
   loadEventDetails(): void {
@@ -70,7 +100,6 @@ export class EventDetailsPage implements OnInit {
           this.isLoading = false;
           return;
         }
-
         this.selectedEvent = {
           ...event,
           expectedCount: event.expectedCount ?? (event.rsvpCount || 0)
@@ -89,8 +118,7 @@ export class EventDetailsPage implements OnInit {
 
   loadEventAttendees(eventId: number): void {
     this.isLoadingAttendees = true;
-    this.eventAttendees = [];
-    this.attendeesPage = 1;
+    this.allAttendees = [];
 
     forkJoin({
       rsvps: this.eventService.getEventRsvps(eventId),
@@ -98,22 +126,29 @@ export class EventDetailsPage implements OnInit {
       users: this.youthMemberService.getUsers()
     }).subscribe({
       next: ({ rsvps, profiles, users }) => {
-        const userToYouthMap = new Map(users.map(user => [user.userId, user.youthId]));
-        const profileMap = new Map(profiles.map(profile => [profile.youthId, profile]));
+        const userToYouthMap = new Map(users.map(u => [u.userId, u.youthId]));
+        const profileMap = new Map(profiles.map(p => [p.youthId, p]));
+        const userMap = new Map(users.map(u => [u.userId, u]));
 
-        this.eventAttendees = rsvps.map(rsvp => {
-          const youthId = userToYouthMap.get(rsvp.userId);
+        this.allAttendees = rsvps.map(rsvp => {
+          const youthId = userToYouthMap.get(rsvp.userId) || 0;
           const profile = youthId ? profileMap.get(youthId) : null;
-          const user = users.find(u => u.userId === rsvp.userId);
-
-          const name = profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : 'Unknown User';
+          const user = userMap.get(rsvp.userId);
+          const name = profile
+            ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim()
+            : 'Unknown User';
           const email = user?.email || 'No email';
+          const contactNumber = profile?.contactNumber || 'N/A';
 
           return {
+            attendanceId: rsvp.attendanceId,
+            userId: rsvp.userId,
+            youthId,
             name,
             email,
-            userId: rsvp.userId,
-            youthId: youthId || 0
+            contactNumber,
+            approvalStatus: (rsvp.approvalStatus || 'pending') as 'pending' | 'approved' | 'rejected',
+            registeredAt: rsvp.registeredAt
           };
         });
 
@@ -126,31 +161,168 @@ export class EventDetailsPage implements OnInit {
     });
   }
 
-  get totalAttendeePages(): number {
-    return Math.max(1, Math.ceil(this.eventAttendees.length / this.attendeesPageSize));
+  // ─── Counts ───────────────────────────────────────────────────────────────
+
+  get pendingCount(): number {
+    return this.allAttendees.filter(a => a.approvalStatus === 'pending').length;
   }
 
-  get pagedEventAttendees(): Array<{ name: string; email: string; userId: number; youthId: number }> {
-    const startIndex = (this.attendeesPage - 1) * this.attendeesPageSize;
-    return this.eventAttendees.slice(startIndex, startIndex + this.attendeesPageSize);
+  get approvedCount(): number {
+    return this.allAttendees.filter(a => a.approvalStatus === 'approved').length;
   }
 
-  nextAttendeePage(): void {
-    if (this.attendeesPage < this.totalAttendeePages) {
-      this.attendeesPage += 1;
+  get rejectedCount(): number {
+    return this.allAttendees.filter(a => a.approvalStatus === 'rejected').length;
+  }
+
+  get approvedAttendees(): AttendeeRecord[] {
+    return this.allAttendees.filter(a => a.approvalStatus === 'approved');
+  }
+
+  // ─── Approval Panel ───────────────────────────────────────────────────────
+
+  openApprovalPanel(): void {
+    this.isApprovalPanelOpen = true;
+    this.approvalFilter = 'pending';
+    this.approvalSearchQuery = '';
+    this.approvalCurrentPage = 1;
+    this.approvalError = '';
+    this.approvalMessage = '';
+  }
+
+  closeApprovalPanel(): void {
+    if (this.updatingAttendanceId !== null) return;
+    this.isApprovalPanelOpen = false;
+    this.approvalError = '';
+    this.approvalMessage = '';
+  }
+
+  setApprovalFilter(filter: 'pending' | 'approved' | 'rejected'): void {
+    this.approvalFilter = filter;
+    this.approvalSearchQuery = '';
+    this.approvalCurrentPage = 1;
+  }
+
+  get filteredApprovalAttendees(): AttendeeRecord[] {
+    let list = this.allAttendees.filter(a => a.approvalStatus === this.approvalFilter);
+    if (this.approvalSearchQuery.trim()) {
+      const q = this.approvalSearchQuery.toLowerCase();
+      list = list.filter(a =>
+        a.name.toLowerCase().includes(q) ||
+        a.email.toLowerCase().includes(q) ||
+        a.contactNumber.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }
+
+  get paginatedApprovalAttendees(): AttendeeRecord[] {
+    const start = (this.approvalCurrentPage - 1) * this.approvalItemsPerPage;
+    return this.filteredApprovalAttendees.slice(start, start + this.approvalItemsPerPage);
+  }
+
+  get approvalTotalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredApprovalAttendees.length / this.approvalItemsPerPage));
+  }
+
+  get approvalPageNumbers(): number[] {
+    return Array.from({ length: this.approvalTotalPages }, (_, i) => i + 1);
+  }
+
+  goToApprovalPage(page: number): void {
+    if (page >= 1 && page <= this.approvalTotalPages) {
+      this.approvalCurrentPage = page;
     }
   }
 
-  prevAttendeePage(): void {
-    if (this.attendeesPage > 1) {
-      this.attendeesPage -= 1;
-    }
+  nextApprovalPage(): void {
+    if (this.approvalCurrentPage < this.approvalTotalPages) this.approvalCurrentPage++;
   }
 
-  openAttendeeDetailsModal(attendee: any): void {
-    if (attendee.youthId === 0) {
-      return;
-    }
+  previousApprovalPage(): void {
+    if (this.approvalCurrentPage > 1) this.approvalCurrentPage--;
+  }
+
+  approveAttendee(attendee: AttendeeRecord): void {
+    if (!this.selectedEvent) return;
+    this.updatingAttendanceId = attendee.attendanceId;
+    this.updatingAction = 'approve';
+    this.approvalError = '';
+    this.approvalMessage = '';
+
+    this.eventService.updateAttendanceStatus(this.selectedEvent.eventId, attendee.attendanceId, 'approved').subscribe({
+      next: (updated) => {
+        this.allAttendees = this.allAttendees.map(a =>
+          a.attendanceId === attendee.attendanceId
+            ? { ...a, approvalStatus: updated.approvalStatus }
+            : a
+        );
+        this.approvalMessage = `${attendee.name} has been approved.`;
+        this.updatingAttendanceId = null;
+        this.updatingAction = null;
+        this.showNotification(`${attendee.name} approved successfully!`, 'success');
+        setTimeout(() => { this.approvalMessage = ''; }, 3000);
+      },
+      error: (error) => {
+        console.error('Error approving attendee:', error);
+        this.approvalError = 'Failed to approve attendee. Please try again.';
+        this.updatingAttendanceId = null;
+        this.updatingAction = null;
+        setTimeout(() => { this.approvalError = ''; }, 3000);
+      }
+    });
+  }
+
+  openRejectModal(attendee: AttendeeRecord): void {
+    this.rejectingAttendee = attendee;
+    this.rejectionNote = '';
+    this.isRejectModalOpen = true;
+  }
+
+  closeRejectModal(): void {
+    this.isRejectModalOpen = false;
+    this.rejectingAttendee = null;
+    this.rejectionNote = '';
+    this.updatingAttendanceId = null;
+    this.updatingAction = null;
+  }
+
+  confirmRejectAttendee(): void {
+    if (!this.rejectingAttendee || !this.selectedEvent) return;
+
+    this.updatingAttendanceId = this.rejectingAttendee.attendanceId;
+    this.updatingAction = 'reject';
+    this.approvalError = '';
+
+    this.eventService.updateAttendanceStatus(this.selectedEvent.eventId, this.rejectingAttendee.attendanceId, 'rejected').subscribe({
+      next: (updated) => {
+        const name = this.rejectingAttendee!.name;
+        this.allAttendees = this.allAttendees.map(a =>
+          a.attendanceId === this.rejectingAttendee!.attendanceId
+            ? { ...a, approvalStatus: updated.approvalStatus }
+            : a
+        );
+        this.approvalMessage = `${name} has been rejected.`;
+        this.updatingAttendanceId = null;
+        this.updatingAction = null;
+        this.showNotification(`${name} rejected successfully.`, 'success');
+        this.closeRejectModal();
+        setTimeout(() => { this.approvalMessage = ''; }, 3000);
+      },
+      error: (error) => {
+        console.error('Error rejecting attendee:', error);
+        this.approvalError = 'Failed to reject attendee. Please try again.';
+        this.updatingAttendanceId = null;
+        this.updatingAction = null;
+        setTimeout(() => { this.approvalError = ''; }, 3000);
+      }
+    });
+  }
+
+  // ─── Attendee Details Modal ───────────────────────────────────────────────
+
+  openAttendeeDetailsModal(attendee: AttendeeRecord): void {
+    if (attendee.youthId === 0) return;
 
     forkJoin({
       profiles: this.youthMemberService.getYouthProfiles(),
@@ -159,11 +331,11 @@ export class EventDetailsPage implements OnInit {
       next: ({ profiles, users }) => {
         const profile = profiles.find(p => p.youthId === attendee.youthId);
         const user = users.find(u => u.youthId === attendee.youthId);
-
         if (profile) {
           this.selectedAttendeeProfile = {
             ...profile,
-            email: user?.email || attendee.email || 'No email'
+            email: user?.email || attendee.email || 'No email',
+            approvalStatus: attendee.approvalStatus
           };
           this.isAttendeeDetailsModalOpen = true;
         }
@@ -179,73 +351,51 @@ export class EventDetailsPage implements OnInit {
     this.selectedAttendeeProfile = null;
   }
 
-  formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  // ─── Chart helpers ────────────────────────────────────────────────────────
+
+  getJoinPercentage(event: EventResponse): number {
+    const expectedCount = event.expectedCount || 0;
+    const joinCount = event.rsvpCount || 0;
+    if (expectedCount === 0) return 0;
+    return Math.round((joinCount / expectedCount) * 100);
   }
 
-  formatBirthday(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+  getRemainingCount(event: EventResponse): number {
+    const expectedCount = event.expectedCount || 0;
+    const joinCount = event.rsvpCount || 0;
+    return Math.max(0, expectedCount - joinCount);
   }
 
-  getAge(birthday: string): number {
-    const birthDate = new Date(birthday);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-
-    return age;
+  getJoinStrokeDasharray(event: EventResponse): string {
+    const percentage = this.getJoinPercentage(event);
+    const circumference = 2 * Math.PI * 85;
+    const filledLength = (percentage / 100) * circumference;
+    const emptyLength = circumference - filledLength;
+    return `${filledLength} ${emptyLength}`;
   }
+
+  // ─── Event status helpers ─────────────────────────────────────────────────
 
   isEventOngoing(status?: string): boolean {
     return (status || '').toLowerCase() === 'ongoing';
   }
 
   isEditDisabled(status?: string): boolean {
-    const normalizedStatus = (status || '').toLowerCase();
-    return normalizedStatus === 'ongoing' || normalizedStatus === 'completed';
+    const s = (status || '').toLowerCase();
+    return s === 'ongoing' || s === 'completed';
   }
 
   getStatusActionLabel(status?: string): string {
-    const normalizedStatus = (status || 'Upcoming').toLowerCase();
-
-    if (normalizedStatus === 'upcoming') {
-      return 'Set as Ongoing';
-    }
-
-    if (normalizedStatus === 'ongoing') {
-      return 'Set as Completed';
-    }
-
+    const s = (status || 'Upcoming').toLowerCase();
+    if (s === 'upcoming') return 'Set as Ongoing';
+    if (s === 'ongoing') return 'Set as Completed';
     return 'Completed';
   }
 
   getStatusActionClass(status?: string): string {
-    const normalizedStatus = (status || 'Upcoming').toLowerCase();
-
-    if (normalizedStatus === 'upcoming') {
-      return 'ongoing-action';
-    }
-
-    if (normalizedStatus === 'ongoing') {
-      return 'completed-action';
-    }
-
+    const s = (status || 'Upcoming').toLowerCase();
+    if (s === 'upcoming') return 'ongoing-action';
+    if (s === 'ongoing') return 'completed-action';
     return 'disabled-completed';
   }
 
@@ -254,9 +404,7 @@ export class EventDetailsPage implements OnInit {
   }
 
   updateEventStatus(event: EventResponse): void {
-    if (this.isStatusActionDisabled(event.status)) {
-      return;
-    }
+    if (this.isStatusActionDisabled(event.status)) return;
 
     const currentStatus = (event.status || 'Upcoming').toLowerCase();
     const nextStatus = currentStatus === 'upcoming' ? 'Ongoing' : 'Completed';
@@ -271,14 +419,10 @@ export class EventDetailsPage implements OnInit {
     };
 
     this.isLoading = true;
-
     this.eventService.editEvent(event.eventId, request).subscribe({
       next: () => {
         if (this.selectedEvent) {
-          this.selectedEvent = {
-            ...this.selectedEvent,
-            status: nextStatus
-          };
+          this.selectedEvent = { ...this.selectedEvent, status: nextStatus };
         }
         this.isLoading = false;
       },
@@ -289,30 +433,37 @@ export class EventDetailsPage implements OnInit {
     });
   }
 
-  getJoinPercentage(event: EventResponse): number {
-    const expectedCount = event.expectedCount || 0;
-    const joinCount = event.rsvpCount || 0;
+  // ─── Date helpers ─────────────────────────────────────────────────────────
 
-    if (expectedCount === 0) {
-      return 0;
-    }
-
-    return Math.round((joinCount / expectedCount) * 100);
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
   }
 
-  getRemainingCount(event: EventResponse): number {
-    const expectedCount = event.expectedCount || 0;
-    const joinCount = event.rsvpCount || 0;
-
-    return Math.max(0, expectedCount - joinCount);
+  formatBirthday(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
-  getJoinStrokeDasharray(event: EventResponse): string {
-    const percentage = this.getJoinPercentage(event);
-    const circumference = 2 * Math.PI * 85;
-    const filledLength = (percentage / 100) * circumference;
-    const emptyLength = circumference - filledLength;
+  getAge(birthday: string): number {
+    const birthDate = new Date(birthday);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
+    return age;
+  }
 
-    return `${filledLength} ${emptyLength}`;
+  // ─── Notifications ────────────────────────────────────────────────────────
+
+  private showNotification(message: string, type: 'success' | 'error' = 'success'): void {
+    const id = ++this.notificationCounter;
+    this.notifications = [...this.notifications, { id, message, type }];
+    setTimeout(() => {
+      this.notifications = this.notifications.filter(n => n.id !== id);
+    }, 3000);
   }
 }

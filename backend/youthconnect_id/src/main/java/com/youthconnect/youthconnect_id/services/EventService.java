@@ -7,6 +7,7 @@ import com.youthconnect.youthconnect_id.dto.EventRequest;
 import com.youthconnect.youthconnect_id.dto.EventResponse;
 import com.youthconnect.youthconnect_id.dto.MarkAttendanceRequest;
 import com.youthconnect.youthconnect_id.dto.RsvpRequest;
+import com.youthconnect.youthconnect_id.dto.UpdateAttendanceStatusRequest;
 
 public interface EventService {
     EventResponse createEvent(EventRequest request);
@@ -20,4 +21,5 @@ public interface EventService {
     void cancelRsvp(int eventId, int userId);
     List<AttendanceResponse> getOwnRsvps(int userId);
     List<AttendanceResponse> getEventRsvps(int eventId);
+    AttendanceResponse updateAttendanceStatus(int eventId, int attendanceId, UpdateAttendanceStatusRequest request);
 }

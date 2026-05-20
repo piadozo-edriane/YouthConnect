@@ -7,6 +7,7 @@ public class AttendanceResponse {
     private int eventId;
     private int userId;
     private boolean isAttended;
+    private String approvalStatus;
     private LocalDateTime registeredAt;
     private LocalDateTime attendedAt;
 
@@ -33,6 +34,12 @@ public class AttendanceResponse {
     }
     public void setAttended(boolean attended) {
         isAttended = attended; 
+    }
+    public String getApprovalStatus() {
+        return approvalStatus;
+    }
+    public void setApprovalStatus(String approvalStatus) {
+        this.approvalStatus = approvalStatus;
     }
     public LocalDateTime getRegisteredAt() {
         return registeredAt; 

@@ -27,6 +27,7 @@ export interface AttendanceResponse {
     eventId: number;
     userId: number;
     isAttended: boolean;
+    approvalStatus: 'pending' | 'approved' | 'rejected';
     registeredAt: string;
     attendedAt?: string;
 }
@@ -84,5 +85,9 @@ export class EventService {
 
     getEventRsvps(eventId: number): Observable<AttendanceResponse[]> {
         return this.http.get<AttendanceResponse[]>(`${this.skApiUrl}/${eventId}/rsvp`);
+    }
+
+    updateAttendanceStatus(eventId: number, attendanceId: number, approvalStatus: 'approved' | 'rejected' | 'pending'): Observable<AttendanceResponse> {
+        return this.http.patch<AttendanceResponse>(`${this.skApiUrl}/${eventId}/rsvp/${attendanceId}/status`, { approvalStatus });
     }
 }
