@@ -219,7 +219,10 @@ export class EventPage implements OnInit {
     }
 
     canCancelJoin(event: EventResponse): boolean {
-        return this.isJoined(event.eventId) && !this.isEventOngoing(event) && !this.isEventCompleted(event);
+        return this.isJoined(event.eventId)
+            && !this.isEventOngoing(event)
+            && !this.isEventCompleted(event)
+            && this.getJoinApprovalStatus(event.eventId) !== 'rejected';
     }
 
     joinEvent(event: EventResponse): void {
