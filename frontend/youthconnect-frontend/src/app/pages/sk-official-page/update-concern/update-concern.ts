@@ -225,6 +225,20 @@ export class UpdateConcern implements OnInit {
     return labelMap[status] || status;
   }
 
+  getSenderLabel(update: ConcernUpdate): string {
+    if (update.senderType === 'YOUTH') {
+      return update.senderName || 'Youth';
+    }
+    if (update.senderType === 'SK_OFFICIAL') {
+      return update.senderName || 'SK Official';
+    }
+    return update.senderName || 'System';
+  }
+
+  isYouthMessage(update: ConcernUpdate): boolean {
+    return update.senderType === 'YOUTH';
+  }
+
   private getDefaultStatus(status?: Concern['status']): Concern['status'] {
     if (status === 'OPEN') {
       return 'IN_PROGRESS';

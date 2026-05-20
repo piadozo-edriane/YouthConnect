@@ -8,9 +8,12 @@ public class ConcernUpdateResponse {
     private int updateId;
     private int concernId;
     private Integer updatedByAdminId;
+    private Integer youthId;
     private String updateText;
     private ConcernStatus status;
     private LocalDateTime createdAt;
+    private String senderType;
+    private String senderName;
 
     public int getUpdateId() {
         return updateId;
@@ -36,6 +39,14 @@ public class ConcernUpdateResponse {
         this.updatedByAdminId = updatedByAdminId;
     }
 
+    public Integer getYouthId() {
+        return youthId;
+    }
+
+    public void setYouthId(Integer youthId) {
+        this.youthId = youthId;
+    }
+
     public String getUpdateText() {
         return updateText;
     }
@@ -58,5 +69,21 @@ public class ConcernUpdateResponse {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getSenderType() {
+        return senderType;
+    }
+
+    public void setSenderType(String senderType) {
+        this.senderType = senderType;
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
     }
 }

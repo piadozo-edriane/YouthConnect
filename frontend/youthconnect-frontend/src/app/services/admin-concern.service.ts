@@ -20,9 +20,12 @@ export interface ConcernUpdate {
   updateId: number;
   concernId: number;
   updatedByAdminId?: number;
+  youthId?: number;
   updateText: string;
   status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
   createdAt: string;
+  senderType?: 'SK_OFFICIAL' | 'YOUTH' | 'SYSTEM';
+  senderName?: string;
 }
 
 export interface AdminConcernUpdateRequest {

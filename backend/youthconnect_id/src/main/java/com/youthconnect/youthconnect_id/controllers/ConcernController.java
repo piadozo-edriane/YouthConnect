@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.youthconnect.youthconnect_id.dto.ConcernRequest;
 import com.youthconnect.youthconnect_id.dto.ConcernResponse;
 import com.youthconnect.youthconnect_id.dto.ConcernUpdateRequest;
+import com.youthconnect.youthconnect_id.dto.YouthConcernReplyRequest;
 import com.youthconnect.youthconnect_id.ratelimit.RateLimit;
 import com.youthconnect.youthconnect_id.ratelimit.RateLimitType;
 import com.youthconnect.youthconnect_id.services.ConcernService;
@@ -67,6 +68,17 @@ public class ConcernController {
             return ResponseEntity.ok(concernService.getConcernUpdates(concernId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/{concernId}/updates/youth")
+    @RateLimit(type = RateLimitType.GENERAL_API, useIpAddress = false)
+    public ResponseEntity<?> addYouthReply(@PathVariable int concernId,
+            @RequestBody YouthConcernReplyRequest request) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(concernService.addYouthReply(concernId, request));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed: " + e.getMessage());
         }
     }
 
