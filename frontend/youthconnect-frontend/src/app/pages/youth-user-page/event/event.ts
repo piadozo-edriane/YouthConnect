@@ -14,7 +14,7 @@ export class EventPage implements OnInit {
     private eventService = inject(EventService);
     private authService = inject(AuthService);
 
-    showRsvpModal = false;
+    showJoinModal = false;
     selectedEvent: EventResponse | null = null;
     userId: number = 0;
     isLoading = false;
@@ -24,7 +24,7 @@ export class EventPage implements OnInit {
     events: EventResponse[] = [];
     filteredEvents: EventResponse[] = [];
     paginatedEvents: EventResponse[] = [];
-    rsvpedEventIds: Set<number> = new Set();
+    joinedEventIds: Set<number> = new Set();
     searchQuery = '';
     selectedStatusFilter: string = 'ALL';
     highlightedEventId: number | null = null;
@@ -69,7 +69,7 @@ export class EventPage implements OnInit {
         }).subscribe({
             next: (result) => {
                 this.events = result.events;
-                this.rsvpedEventIds = new Set(result.rsvps.map(r => r.eventId));
+                this.joinedEventIds = new Set(result.rsvps.map(r => r.eventId));
                 this.applyFilters();
                 this.isLoading = false;
                 
@@ -192,8 +192,8 @@ export class EventPage implements OnInit {
         }, 3000);
     }
 
-    isRsvped(eventId: number): boolean {
-        return this.rsvpedEventIds.has(eventId);
+    isJoined(eventId: number): boolean {
+        return this.joinedEventIds.has(eventId);
     }
 
     isEventOngoing(event: EventResponse): boolean {
@@ -204,62 +204,62 @@ export class EventPage implements OnInit {
         return event.status === 'Completed';
     }
 
-    canRsvp(event: EventResponse): boolean {
-        return !this.isEventOngoing(event) && !this.isEventCompleted(event) && !this.isRsvped(event.eventId);
+    canJoin(event: EventResponse): boolean {
+        return !this.isEventOngoing(event) && !this.isEventCompleted(event) && !this.isJoined(event.eventId);
     }
 
-    canCancelRsvp(event: EventResponse): boolean {
-        return this.isRsvped(event.eventId) && !this.isEventOngoing(event) && !this.isEventCompleted(event);
+    canCancelJoin(event: EventResponse): boolean {
+        return this.isJoined(event.eventId) && !this.isEventOngoing(event) && !this.isEventCompleted(event);
     }
 
-    rsvpEvent(event: EventResponse): void {
-        if (this.isRsvped(event.eventId) || this.isEventOngoing(event) || this.isEventCompleted(event)) {
+    joinEvent(event: EventResponse): void {
+        if (this.isJoined(event.eventId) || this.isEventOngoing(event) || this.isEventCompleted(event)) {
             return;
         }
 
         this.isLoading = true;
         this.eventService.rsvpEvent({ eventId: event.eventId, userId: this.userId }).subscribe({
             next: () => {
-                this.rsvpedEventIds.add(event.eventId);
+                this.joinedEventIds.add(event.eventId);
                 this.selectedEvent = event;
-                this.showRsvpModal = true;
-                this.showSuccessToast('Successfully RSVPed to event!');
+                this.showJoinModal = true;
+                this.showSuccessToast('Successfully joined the event!');
                 this.isLoading = false;
 
                 setTimeout(() => {
-                    this.closeRsvpModal();
+                    this.closeJoinModal();
                 }, 2500);
             },
             error: (error) => {
-                console.error('Error RSVPing event:', error);
-                this.errorMessage = 'Failed to RSVP for event';
+                console.error('Error joining event:', error);
+                this.errorMessage = 'Failed to join event';
                 this.isLoading = false;
             }
         });
     }
 
-    cancelRsvp(event: EventResponse): void {
-        if (!this.canCancelRsvp(event)) {
+    cancelJoin(event: EventResponse): void {
+        if (!this.canCancelJoin(event)) {
             return;
         }
 
         this.isLoading = true;
         this.eventService.cancelRsvp(event.eventId, this.userId).subscribe({
             next: () => {
-                this.rsvpedEventIds.delete(event.eventId);
-                this.showSuccessToast('RSVP cancelled successfully.');
+                this.joinedEventIds.delete(event.eventId);
+                this.showSuccessToast('Successfully left the event.');
                 this.isLoading = false;
             },
             error: (error) => {
-                console.error('Error cancelling RSVP:', error);
-                this.errorMessage = 'Failed to cancel RSVP';
+                console.error('Error leaving event:', error);
+                this.errorMessage = 'Failed to leave event';
                 this.isLoading = false;
             }
         });
     }
 
-    closeRsvpModal(): void {
-        this.showRsvpModal = false;
+    closeJoinModal(): void {
+        this.showJoinModal = false;
         this.selectedEvent = null;
     }
 

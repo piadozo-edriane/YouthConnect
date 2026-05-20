@@ -57,10 +57,10 @@
                     </div>
 
                     <div class="detail-info-row">
-                        <img src="../../assets/sk-official-events-icons/calendar.svg" alt="RSVPs" width="16" height="16">
-                        <span class="detail-info-label">RSVPs:</span>
+                        <img src="../../assets/sk-official-events-icons/calendar.svg" alt="Joined" width="16" height="16">
+                        <span class="detail-info-label">JOINED:</span>
                         <span class="detail-info-value">
-                            {{ selectedEvent.rsvpCount || 0 }} RSVP{{ (selectedEvent.rsvpCount || 0) === 1 ? '' : 's' }}
+                            {{ selectedEvent.rsvpCount || 0 }} Joined
                         </span>
                     </div>
                 </div>
@@ -79,7 +79,7 @@
             <div class="details-card details-card-side">
                 <div class="details-card-body">
                     <div class="rsvp-chart-section">
-                    <h4 class="chart-title">RSVP Overview</h4>
+                    <h4 class="chart-title">Join Overview</h4>
                     <div class="chart-container">
                         <div class="donut-chart">
                             <svg viewBox="0 0 200 200" class="donut-svg">
@@ -98,21 +98,21 @@
                                     fill="none"
                                     stroke="#0052cc"
                                     stroke-width="30"
-                                    [attr.stroke-dasharray]="getRsvpStrokeDasharray(selectedEvent)"
+                                    [attr.stroke-dasharray]="getJoinStrokeDasharray(selectedEvent)"
                                     stroke-dashoffset="133.5"
                                     transform="rotate(-90 100 100)"
                                     class="rsvp-segment"
                                 />
                             </svg>
                             <div class="chart-center-text">
-                                <div class="percentage">{{ getRsvpPercentage(selectedEvent) }}%</div>
-                                <div class="label">RSVP'd</div>
+                                <div class="percentage">{{ getJoinPercentage(selectedEvent) }}%</div>
+                                <div class="label">Joined</div>
                             </div>
                         </div>
                         <div class="chart-legend">
                             <div class="legend-item">
                                 <span class="legend-color rsvp-color"></span>
-                                <span class="legend-label">RSVP: {{ selectedEvent.rsvpCount || 0 }}</span>
+                                <span class="legend-label">Joined: {{ selectedEvent.rsvpCount || 0 }}</span>
                             </div>
                             <div class="legend-item">
                                 <span class="legend-color remaining-color"></span>
@@ -126,7 +126,7 @@
                     </div>
 
                     <div class="attendees-section">
-                        <h4 class="attendees-title">RSVP'd Attendees ({{ eventAttendees.length }})</h4>
+                        <h4 class="attendees-title">Joined Attendees ({{ eventAttendees.length }})</h4>
 
                         <div *ngIf="isLoadingAttendees" class="attendees-loading">
                             <p>Loading attendees...</p>
@@ -153,7 +153,7 @@
                         </div>
 
                         <div *ngIf="!isLoadingAttendees && eventAttendees.length === 0" class="attendees-empty">
-                            <p>No one has RSVP'd yet.</p>
+                            <p>No one has joined yet.</p>
                         </div>
                     </div>
                 </div>

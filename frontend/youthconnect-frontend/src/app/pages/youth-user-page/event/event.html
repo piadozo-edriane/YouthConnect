@@ -14,7 +14,7 @@
         <div class="header-section">
             <div class="header-content">
                 <h1>UPCOMING EVENTS</h1>
-                <p>Discover and RSVP to events created by SK administrators</p>
+                <p>Discover and join events created by SK administrators</p>
             </div>
         </div>
 
@@ -61,7 +61,7 @@
                         <span class="status-pill" [ngClass]="getStatusBadgeClass(event.status)">
                             {{ event.status }}
                         </span>
-                        <span class="rsvp-joined-pill" *ngIf="isRsvped(event.eventId)">
+                        <span class="rsvp-joined-pill" *ngIf="isJoined(event.eventId)">
                             ✓ Joined
                         </span>
                     </div>
@@ -91,15 +91,15 @@
                     <div class="card-actions">
                         <button class="btn-rsvp"
                             [class.btn-rsvp-disabled]="isEventOngoing(event) || isEventCompleted(event)"
-                            (click)="rsvpEvent(event)"
-                            [disabled]="isLoading || !canRsvp(event)"
-                            *ngIf="!isRsvped(event.eventId)">
-                            {{ isEventCompleted(event) ? 'Completed' : (isEventOngoing(event) ? 'Ongoing' : 'RSVP Now') }}
+                            (click)="joinEvent(event)"
+                            [disabled]="isLoading || !canJoin(event)"
+                            *ngIf="!isJoined(event.eventId)">
+                            {{ isEventCompleted(event) ? 'Completed' : (isEventOngoing(event) ? 'Ongoing' : 'Join Now') }}
                         </button>
-                        <button class="btn-cancel-rsvp" *ngIf="canCancelRsvp(event)"
-                            (click)="cancelRsvp(event)"
+                        <button class="btn-cancel-rsvp" *ngIf="canCancelJoin(event)"
+                            (click)="cancelJoin(event)"
                             [disabled]="isLoading">
-                            Cancel RSVP
+                            Cancel Join
                         </button>
                     </div>
                 </div>
@@ -128,15 +128,15 @@
     </div>
 </div>
 
-<!-- RSVP Confirmation Modal -->
-<div class="modal-overlay" *ngIf="showRsvpModal" (click)="closeRsvpModal()">
+<!-- Join Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showJoinModal" (click)="closeJoinModal()">
     <div class="modal-content modal-small" (click)="$event.stopPropagation()">
         <div class="modal-header">
             <div>
                 <h2 class="modal-title">You're In!</h2>
-                <p class="modal-subtitle">Thank you for your RSVP. See you at the event!</p>
+                <p class="modal-subtitle">Thank you for joining. See you at the event!</p>
             </div>
-            <button class="close-btn" (click)="closeRsvpModal()">✕</button>
+            <button class="close-btn" (click)="closeJoinModal()">✕</button>
         </div>
         <div class="modal-body-wrapper">
             <div class="modal-body rsvp-modal-body">
@@ -147,7 +147,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn-create" (click)="closeRsvpModal()">Done</button>
+            <button type="button" class="btn-create" (click)="closeJoinModal()">Done</button>
         </div>
     </div>
 </div>
