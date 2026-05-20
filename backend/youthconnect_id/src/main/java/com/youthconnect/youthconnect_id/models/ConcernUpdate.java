@@ -27,6 +27,9 @@ public class ConcernUpdate {
     @Column(name = "updated_by_admin_id")
     private Integer updatedByAdminId;
 
+    @Column(name = "updated_by_youth_id")
+    private Integer youthId;
+
     @Column(name = "update_text", nullable = false, columnDefinition = "TEXT")
     private String updateText;
 
@@ -61,6 +64,14 @@ public class ConcernUpdate {
 
     public void setUpdatedByAdminId(Integer updatedByAdminId) {
         this.updatedByAdminId = updatedByAdminId;
+    }
+
+    public Integer getYouthId() {
+        return youthId;
+    }
+
+    public void setYouthId(Integer youthId) {
+        this.youthId = youthId;
     }
 
     public String getUpdateText() {

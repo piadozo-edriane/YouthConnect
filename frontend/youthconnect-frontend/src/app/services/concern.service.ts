@@ -16,6 +16,11 @@ export interface ConcernUpdateRequest {
     description: string;
 }
 
+export interface YouthConcernReplyRequest {
+    youthId: number;
+    updateText: string;
+}
+
 export interface ConcernResponse {
     concernId: number;
     youthId: number;
@@ -31,9 +36,12 @@ export interface ConcernUpdate {
     updateId: number;
     concernId: number;
     updatedByAdminId?: number;
+    youthId?: number;
     updateText: string;
     status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
     createdAt: string;
+    senderType?: 'SK_OFFICIAL' | 'YOUTH' | 'SYSTEM';
+    senderName?: string;
 }
 
 @Injectable({
@@ -74,5 +82,9 @@ export class ConcernService {
 
     getConcernUpdates(concernId: number): Observable<ConcernUpdate[]> {
         return this.http.get<ConcernUpdate[]>(`${this.apiUrl}/${concernId}/updates`);
+    }
+
+    addYouthReply(concernId: number, request: YouthConcernReplyRequest): Observable<ConcernUpdate> {
+        return this.http.post<ConcernUpdate>(`${this.apiUrl}/${concernId}/updates/youth`, request);
     }
 }

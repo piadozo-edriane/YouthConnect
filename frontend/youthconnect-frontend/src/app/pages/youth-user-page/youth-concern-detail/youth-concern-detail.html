@@ -55,7 +55,7 @@
                 <div class="right-card">
 
                     <div class="history-section">
-                        <h3 class="section-title">Updates from SK Officials</h3>
+                        <h3 class="section-title">Conversation History</h3>
                         <div class="history-divider"></div>
                         <div class="history-container">
                             <div *ngIf="isLoadingUpdates" class="history-loading">
@@ -65,18 +65,50 @@
                                 {{ updateLoadError }}
                             </div>
                             <div *ngIf="!isLoadingUpdates && !updateLoadError && concernUpdates.length === 0" class="history-empty">
-                                No updates yet. An SK official will respond to your concern soon.
+                                No messages yet. Start the conversation below.
                             </div>
-                            <div *ngFor="let update of concernUpdates" class="update-item">
+                            <div *ngFor="let update of concernUpdates" class="update-item" [ngClass]="{ 'youth-message': isYouthMessage(update), 'admin-message': !isYouthMessage(update) }">
                                 <div class="update-header">
-                                    <span class="update-status-badge" [ngClass]="'status-' + getStatusClass(update.status)">
-                                        {{ getStatusLabel(update.status).toUpperCase() }}
-                                    </span>
+                                    <div class="update-sender">
+                                        <span class="sender-label" [ngClass]="{ 'sender-youth': isYouthMessage(update), 'sender-admin': !isYouthMessage(update) }">
+                                            {{ getSenderLabel(update) }}
+                                        </span>
+                                        <span class="update-status-badge" [ngClass]="'status-' + getStatusClass(update.status)">
+                                            {{ getStatusLabel(update.status).toUpperCase() }}
+                                        </span>
+                                    </div>
                                     <span class="update-date">{{ formatDateShort(update.createdAt) }}</span>
                                 </div>
                                 <div class="update-message">{{ update.updateText }}</div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-divider"></div>
+                        <form [formGroup]="replyForm">
+                            <div class="form-group">
+                                <div class="input-with-button">
+                                    <input
+                                        type="text"
+                                        class="form-input"
+                                        placeholder="Write a reply to the SK Official..."
+                                        formControlName="reply"
+                                        [disabled]="isSendingReply || concern.status === 'CLOSED'" />
+                                    <button
+                                        type="button"
+                                        class="btn-update"
+                                        (click)="sendReply()"
+                                        [disabled]="replyForm.invalid || isSendingReply || concern.status === 'CLOSED'">
+                                        {{ isSendingReply ? 'Sending...' : 'Send' }}
+                                    </button>
+                                </div>
+                                <div *ngIf="replyForm.get('reply')?.invalid && replyForm.get('reply')?.touched" class="error-message">
+                                    <span *ngIf="replyForm.get('reply')?.hasError('required')">Reply is required</span>
+                                    <span *ngIf="replyForm.get('reply')?.hasError('minlength')">Reply must be at least 5 characters</span>
+                                </div>
+                            </div>
+                        </form>
                     </div>
 
                 </div>

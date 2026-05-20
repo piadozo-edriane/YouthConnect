@@ -14,11 +14,14 @@ import com.youthconnect.youthconnect_id.dto.ConcernRequest;
 import com.youthconnect.youthconnect_id.dto.ConcernResponse;
 import com.youthconnect.youthconnect_id.dto.ConcernUpdateRequest;
 import com.youthconnect.youthconnect_id.dto.ConcernUpdateResponse;
+import com.youthconnect.youthconnect_id.dto.YouthConcernReplyRequest;
 import com.youthconnect.youthconnect_id.enums.ConcernStatus;
 import com.youthconnect.youthconnect_id.models.Concern;
 import com.youthconnect.youthconnect_id.models.ConcernUpdate;
+import com.youthconnect.youthconnect_id.models.SkOfficialsUser;
 import com.youthconnect.youthconnect_id.repositories.ConcernRepo;
 import com.youthconnect.youthconnect_id.repositories.ConcernUpdateRepo;
+import com.youthconnect.youthconnect_id.repositories.SkOfficialRepo;
 import com.youthconnect.youthconnect_id.repositories.YouthProfileRepo;
 import com.youthconnect.youthconnect_id.services.ConcernService;
 import com.youthconnect.youthconnect_id.services.NotificationService;
@@ -35,6 +38,9 @@ public class ConcernServiceImpl implements ConcernService {
 
     @Autowired
     private YouthProfileRepo youthProfileRepo;
+
+    @Autowired
+    private SkOfficialRepo skOfficialRepo;
 
     @Autowired
     private NotificationService notificationService;
@@ -85,6 +91,46 @@ public class ConcernServiceImpl implements ConcernService {
         if (currentStatus == ConcernStatus.OPEN && nextStatus != ConcernStatus.IN_PROGRESS) {
             throw new RuntimeException("OPEN concerns can only move to IN_PROGRESS");
         }
+    }
+
+    private ConcernUpdateResponse toUpdateResponse(ConcernUpdate update) {
+        ConcernUpdateResponse response = new ConcernUpdateResponse();
+        response.setUpdateId(update.getUpdateId());
+        response.setConcernId(update.getConcernId());
+        response.setUpdatedByAdminId(update.getUpdatedByAdminId());
+        response.setYouthId(update.getYouthId());
+        response.setUpdateText(update.getUpdateText());
+        response.setStatus(update.getStatus());
+        response.setCreatedAt(update.getCreatedAt());
+
+        if (update.getUpdatedByAdminId() != null) {
+            response.setSenderType("SK_OFFICIAL");
+            SkOfficialsUser official = skOfficialRepo.findById(update.getUpdatedByAdminId()).orElse(null);
+            if (official != null) {
+                String name = String.format("%s %s", 
+                    official.getFirstName() == null ? "" : official.getFirstName(),
+                    official.getLastName() == null ? "" : official.getLastName()).trim();
+                response.setSenderName(name.isEmpty() ? "SK Official" : name);
+            } else {
+                response.setSenderName("SK Official");
+            }
+        } else if (update.getYouthId() != null) {
+            response.setSenderType("YOUTH");
+            YouthProfile youth = youthProfileRepo.findById(update.getYouthId()).orElse(null);
+            if (youth != null) {
+                String name = String.format("%s %s", 
+                    youth.getFirstName() == null ? "" : youth.getFirstName(),
+                    youth.getLastName() == null ? "" : youth.getLastName()).trim();
+                response.setSenderName(name.isEmpty() ? "Youth" : name);
+            } else {
+                response.setSenderName("Youth");
+            }
+        } else {
+            response.setSenderType("SYSTEM");
+            response.setSenderName("System");
+        }
+
+        return response;
     }
 
     // ── Youth ─────────────────────────────────────────────
@@ -192,10 +238,11 @@ public class ConcernServiceImpl implements ConcernService {
         ConcernUpdate update = new ConcernUpdate();
         update.setConcernId(concernId);
         update.setUpdatedByAdminId(request.getAdminId());
+        update.setYouthId(null);
         update.setUpdateText(request.getUpdateText());
         update.setStatus(updateStatus);
         update.setCreatedAt(LocalDateTime.now());
-        ConcernUpdate savedUpdate = concernUpdateRepo.save(update);
+        concernUpdateRepo.save(update);
 
         String notificationMessage = String.format(
             "Your concern status has been updated to %s. Message from SK Official: %s",
@@ -219,21 +266,39 @@ public class ConcernServiceImpl implements ConcernService {
     }
 
     @Override
+    @Transactional
+    public ConcernUpdateResponse addYouthReply(int concernId, YouthConcernReplyRequest request) {
+        Concern concern = concernRepo.findById(concernId)
+                .orElseThrow(() -> new RuntimeException("Concern not found"));
+
+        if (concern.getStatus() == ConcernStatus.CLOSED) {
+            throw new RuntimeException("Closed concerns cannot be updated");
+        }
+
+        if (concern.getYouthId() != request.getYouthId()) {
+            throw new RuntimeException("Youth is not authorized to reply to this concern");
+        }
+
+        validateUpdateText(request.getUpdateText());
+
+        ConcernUpdate update = new ConcernUpdate();
+        update.setConcernId(concernId);
+        update.setUpdatedByAdminId(null);
+        update.setYouthId(request.getYouthId());
+        update.setUpdateText(request.getUpdateText());
+        update.setStatus(concern.getStatus());
+        update.setCreatedAt(LocalDateTime.now());
+
+        return toUpdateResponse(concernUpdateRepo.save(update));
+    }
+
+    @Override
     public List<ConcernUpdateResponse> getConcernUpdates(int concernId) {
         List<ConcernUpdate> updates = concernUpdateRepo.findByConcernIdOrderByCreatedAtDesc(concernId);
         Collections.reverse(updates);
 
         return updates.stream()
-                .map(update -> {
-                    ConcernUpdateResponse response = new ConcernUpdateResponse();
-                    response.setUpdateId(update.getUpdateId());
-                    response.setConcernId(update.getConcernId());
-                    response.setUpdatedByAdminId(update.getUpdatedByAdminId());
-                    response.setUpdateText(update.getUpdateText());
-                    response.setStatus(update.getStatus());
-                    response.setCreatedAt(update.getCreatedAt());
-                    return response;
-                })
+                .map(this::toUpdateResponse)
                 .collect(Collectors.toList());
     }
 }

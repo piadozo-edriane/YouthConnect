@@ -92,11 +92,16 @@
                             <div *ngIf="!isLoadingUpdates && !updateLoadError && concernUpdates.length === 0" class="history-empty">
                                 No updates yet.
                             </div>
-                            <div *ngFor="let update of concernUpdates" class="update-item">
+                            <div *ngFor="let update of concernUpdates" class="update-item" [ngClass]="{ 'youth-message': isYouthMessage(update), 'admin-message': !isYouthMessage(update) }">
                                 <div class="update-header">
-                                    <span class="update-status-badge" [ngClass]="'status-' + getStatusClass(update.status)">
-                                        {{ getStatusLabel(update.status).toUpperCase() }}
-                                    </span>
+                                    <div class="update-sender">
+                                        <span class="sender-label" [ngClass]="{ 'sender-youth': isYouthMessage(update), 'sender-admin': !isYouthMessage(update) }">
+                                            {{ getSenderLabel(update) }}
+                                        </span>
+                                        <span class="update-status-badge" [ngClass]="'status-' + getStatusClass(update.status)">
+                                            {{ getStatusLabel(update.status).toUpperCase() }}
+                                        </span>
+                                    </div>
                                     <span class="update-date">{{ formatDateShort(update.createdAt) }}</span>
                                 </div>
                                 <div class="update-message">{{ update.updateText }}</div>
