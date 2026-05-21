@@ -2,9 +2,15 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { interval, Subscription } from 'rxjs';
 
-interface SkOfficialSet {
-  images: string[];
+interface SkOfficial {
   name: string;
+  position: string;
+  image: string;
+}
+
+interface SkOfficialSet {
+  name: string;
+  officials: SkOfficial[];
 }
 
 @Component({
@@ -18,20 +24,52 @@ export class LeadersLandingPage implements OnInit, OnDestroy {
   skOfficialSets: SkOfficialSet[] = [
     {
       name: 'First Set',
-      images: [
-        '/assets/sk-official-1.png',
-        '/assets/sk-official-2.png',
-        '/assets/sk-official-3.png',
-        '/assets/sk-official-4.png',
+      officials: [
+        {
+          name: 'Yngrid Kurei Factuar',
+          position: 'SK Chairwoman',
+          image: '/assets/sk-official-1.png'
+        },
+        {
+          name: 'Jenny L. Dela Vega',
+          position: 'SK Kagawad',
+          image: '/assets/sk-official-2.png'
+        },
+        {
+          name: 'Aldwin C. Diroy',
+          position: 'SK Kagawad',
+          image: '/assets/sk-official-3.png'
+        },
+        {
+          name: 'Dana Verina A. Africa',
+          position: 'SK Kagawad',
+          image: '/assets/sk-official-4.png'
+        }
       ]
     },
     {
       name: 'Second Set',
-      images: [
-        '/assets/sk-official-5.png',
-        '/assets/sk-official-6.png',
-        '/assets/sk-official-7.png',
-        '/assets/sk-official-8.png'
+      officials: [
+        {
+          name: 'Princess Shed O. Sambo',
+          position: 'SK Kagawad',
+          image: '/assets/sk-official-5.png'
+        },
+        {
+          name: 'Leiyan O. Piadozo',
+          position: 'SK Kagawad',
+          image: '/assets/sk-official-6.png'
+        },
+        {
+          name: 'Sherradan Abdulla',
+          position: 'SK Treasurer',
+          image: '/assets/sk-official-7.png'
+        },
+        {
+          name: 'Erick Tan Baltazar',
+          position: 'SK Admin',
+          image: '/assets/sk-official-8.png'
+        }
       ]
     }
   ];
@@ -58,16 +96,13 @@ export class LeadersLandingPage implements OnInit, OnDestroy {
     });
   }
 
-
   nextImage(): void {
     this.currentSetIndex = (this.currentSetIndex + 1) % this.skOfficialSets.length;
   }
 
-
   prevImage(): void {
     this.currentSetIndex = (this.currentSetIndex - 1 + this.skOfficialSets.length) % this.skOfficialSets.length;
   }
-
 
   goToSet(index: number): void {
     if (index >= 0 && index < this.skOfficialSets.length) {
@@ -75,60 +110,20 @@ export class LeadersLandingPage implements OnInit, OnDestroy {
     }
   }
 
-
   get currentSkOfficialSet(): SkOfficialSet {
     return this.skOfficialSets[this.currentSetIndex];
   }
 
-
-  get official1Image(): string {
-    return this.currentSkOfficialSet.images[0];
+  get currentOfficials(): SkOfficial[] {
+    return this.currentSkOfficialSet.officials;
   }
 
-  get official2Image(): string {
-    return this.currentSkOfficialSet.images[1];
+  get desktopOfficials(): SkOfficial[] {
+    return this.currentOfficials.slice(0, 4);
   }
 
-  get official3Image(): string {
-    return this.currentSkOfficialSet.images[2];
-  }
-
-  get official4Image(): string {
-    return this.currentSkOfficialSet.images[3];
-  }
-
-  // Static images for mobile view (always show the same officials)
-  get official5Image(): string {
-    return '/assets/sk-official-5.png';
-  }
-
-  get official6Image(): string {
-    return '/assets/sk-official-6.png';
-  }
-
-  get official7Image(): string {
-    return '/assets/sk-official-7.png';
-  }
-
-  get official8Image(): string {
-    return '/assets/sk-official-8.png';
-  }
-
-  // Static getters for mobile - always show officials 1-4 regardless of carousel
-  get official1ImageStatic(): string {
-    return '/assets/sk-official-1.png';
-  }
-
-  get official2ImageStatic(): string {
-    return '/assets/sk-official-2.png';
-  }
-
-  get official3ImageStatic(): string {
-    return '/assets/sk-official-3.png';
-  }
-
-  get official4ImageStatic(): string {
-    return '/assets/sk-official-4.png';
+  get mobileOfficials(): SkOfficial[] {
+    return this.currentOfficials;
   }
 
   navigateTo(route: string): void {

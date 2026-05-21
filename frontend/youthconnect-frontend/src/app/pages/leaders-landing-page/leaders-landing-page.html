@@ -7,101 +7,16 @@
         </div>
 
         <div class="leaders-grid">
-            <!-- Card 1 -->
-            <div class="leader-card">
-                <div 
-                    class="leader-image leader-image-one desktop-image"
-                    [style.backgroundImage]="'url(' + official1Image + ')'">
+            @for (official of mobileOfficials; track official.name; let i = $index) {
+                <div class="leader-card" [class.desktop-only]="i >= 4">
+                    <div 
+                        [class]="'leader-image leader-image-' + (i + 1)"
+                        [style.backgroundImage]="'url(' + official.image + ')'">
+                    </div>
+                    <h3>{{ official.name }}</h3>
+                    <p>{{ official.position }}</p>
                 </div>
-                <div 
-                    class="leader-image leader-image-one mobile-image"
-                    [style.backgroundImage]="'url(' + official1ImageStatic + ')'">
-                </div>
-                <h3>Official 1</h3>
-                <p>Position/Role</p>
-            </div>
-
-            <!-- Card 2 -->
-            <div class="leader-card">
-                <div 
-                    class="leader-image leader-image-two desktop-image"
-                    [style.backgroundImage]="'url(' + official2Image + ')'">
-                </div>
-                <div 
-                    class="leader-image leader-image-two mobile-image"
-                    [style.backgroundImage]="'url(' + official2ImageStatic + ')'">
-                </div>
-                <h3>Official 2</h3>
-                <p>Position/Role</p>
-            </div>
-
-            <!-- Card 3 -->
-            <div class="leader-card">
-                <div 
-                    class="leader-image leader-image-three desktop-image"
-                    [style.backgroundImage]="'url(' + official3Image + ')'">
-                </div>
-                <div 
-                    class="leader-image leader-image-three mobile-image"
-                    [style.backgroundImage]="'url(' + official3ImageStatic + ')'">
-                </div>
-                <h3>Official 3</h3>
-                <p>Position/Role</p>
-            </div>
-
-            <!-- Card 4 -->
-            <div class="leader-card">
-                <div 
-                    class="leader-image leader-image-four desktop-image"
-                    [style.backgroundImage]="'url(' + official4Image + ')'">
-                </div>
-                <div 
-                    class="leader-image leader-image-four mobile-image"
-                    [style.backgroundImage]="'url(' + official4ImageStatic + ')'">
-                </div>
-                <h3>Official 4</h3>
-                <p>Position/Role</p>
-            </div>
-
-            <!-- Card 5 (Mobile only) -->
-            <div class="leader-card mobile-only">
-                <div 
-                    class="leader-image leader-image-five"
-                    [style.backgroundImage]="'url(' + official5Image + ')'">
-                </div>
-                <h3>Official 5</h3>
-                <p>Position/Role</p>
-            </div>
-
-            <!-- Card 6 (Mobile only) -->
-            <div class="leader-card mobile-only">
-                <div 
-                    class="leader-image leader-image-six"
-                    [style.backgroundImage]="'url(' + official6Image + ')'">
-                </div>
-                <h3>Official 6</h3>
-                <p>Position/Role</p>
-            </div>
-
-            <!-- Card 7 (Mobile only) -->
-            <div class="leader-card mobile-only">
-                <div 
-                    class="leader-image leader-image-seven"
-                    [style.backgroundImage]="'url(' + official7Image + ')'">
-                </div>
-                <h3>Official 7</h3>
-                <p>Position/Role</p>
-            </div>
-
-            <!-- Card 8 (Mobile only) -->
-            <div class="leader-card mobile-only">
-                <div 
-                    class="leader-image leader-image-eight"
-                    [style.backgroundImage]="'url(' + official8Image + ')'">
-                </div>
-                <h3>Official 8</h3>
-                <p>Position/Role</p>
-            </div>
+            }
         </div>
 
         <button 
@@ -122,12 +37,12 @@
 
         @if (skOfficialSets.length > 1) {
             <div class="carousel-dots">
-                @for (image of skOfficialSets; track image; let i = $index) {
+                @for (set of skOfficialSets; track set.name; let i = $index) {
                     <span 
                         class="dot"
                         [class.active]="i === currentSetIndex"
                         (click)="goToSet(i)"
-                        [title]="'Go to image ' + (i + 1)">
+                        [title]="'Go to set ' + (i + 1)">
                     </span>
                 }
             </div>
