@@ -29,6 +29,9 @@ export class TaskTracker implements OnInit {
   searchTerm = '';
   selectedTask: TaskResponse | null = null;
 
+  // Tab state
+  activeTab: 'all' | 'assigned' = 'all';
+
   // Tasks data
   tasks: TaskResponse[] = [];
   filteredTasks: TaskResponse[] = [];
@@ -189,7 +192,7 @@ export class TaskTracker implements OnInit {
     this.taskService.getAllTasks().subscribe({
       next: (tasks) => {
         this.tasks = tasks;
-        this.filteredTasks = tasks;
+        this.applyFilters();
         this.isLoading = false;
       },
       error: (error) => {
@@ -200,19 +203,38 @@ export class TaskTracker implements OnInit {
     });
   }
 
-  searchTasks(term: string) {
-    this.searchTerm = term;
-    if (!term.trim()) {
-      this.filteredTasks = this.tasks;
-      return;
+  switchTab(tab: 'all' | 'assigned') {
+    this.activeTab = tab;
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    let filtered = [...this.tasks];
+
+    // Apply tab filter
+    if (this.activeTab === 'assigned') {
+      filtered = filtered.filter(task => 
+        task.adminId === this.currentAdminId || 
+        task.skIncharge === this.skOfficialName
+      );
     }
 
-    const lowerTerm = term.toLowerCase();
-    this.filteredTasks = this.tasks.filter(task =>
-      task.taskDescription?.toLowerCase().includes(lowerTerm) ||
-      task.tasking?.toLowerCase().includes(lowerTerm) ||
-      task.hyperlink?.toLowerCase().includes(lowerTerm)
-    );
+    // Apply search filter
+    if (this.searchTerm.trim()) {
+      const lowerTerm = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(task =>
+        task.taskDescription?.toLowerCase().includes(lowerTerm) ||
+        task.tasking?.toLowerCase().includes(lowerTerm) ||
+        task.hyperlink?.toLowerCase().includes(lowerTerm)
+      );
+    }
+
+    this.filteredTasks = filtered;
+  }
+
+  searchTasks(term: string) {
+    this.searchTerm = term;
+    this.applyFilters();
   }
 
   openModal() {
@@ -310,7 +332,7 @@ export class TaskTracker implements OnInit {
         } else {
           this.tasks.unshift(response);
         }
-        this.filteredTasks = [...this.tasks];
+        this.applyFilters();
         this.showNotification('Task created successfully! Email notification sent.');
         this.isLoading = false;
       },
@@ -318,7 +340,7 @@ export class TaskTracker implements OnInit {
         console.error('Error creating task:', error);
         // Remove optimistic task on error
         this.tasks = this.tasks.filter(t => t.taskId !== optimisticTask.taskId);
-        this.filteredTasks = [...this.tasks];
+        this.applyFilters();
         this.errorMessage = 'Failed to create task';
         this.showNotification('Failed to create task', 'error');
         this.isLoading = false;
@@ -346,7 +368,7 @@ export class TaskTracker implements OnInit {
         const index = this.tasks.findIndex(t => t.taskId === taskId);
         if (index !== -1) {
           this.tasks[index] = response;
-          this.filteredTasks = [...this.tasks];
+          this.applyFilters();
 
           // Update selected task if it's currently being viewed in details modal
           if (this.selectedTask && this.selectedTask.taskId === taskId) {
@@ -382,7 +404,7 @@ export class TaskTracker implements OnInit {
     this.taskService.deleteTask(this.pendingDeleteTaskId).subscribe({
       next: () => {
         this.tasks = this.tasks.filter(t => t.taskId !== this.pendingDeleteTaskId);
-        this.filteredTasks = [...this.tasks];
+        this.applyFilters();
         this.showNotification('Task deleted successfully!');
         this.isLoading = false;
         this.closeDeleteConfirmationModal();
@@ -454,7 +476,7 @@ export class TaskTracker implements OnInit {
         const index = this.tasks.findIndex(t => t.taskId === taskId);
         if (index !== -1) {
           this.tasks[index] = response;
-          this.filteredTasks = [...this.tasks];
+          this.applyFilters();
 
           // Update selected task if it's currently being viewed in details modal
           if (this.selectedTask && this.selectedTask.taskId === taskId) {

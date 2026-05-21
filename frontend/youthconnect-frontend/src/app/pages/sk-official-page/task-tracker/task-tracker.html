@@ -44,6 +44,24 @@
             <button class="add-task-btn" (click)="openModal()">+ Add Task</button>
         </div>
 
+        <!-- Tab Navigation -->
+        <div class="tab-navigation-wrapper">
+            <div class="tab-navigation">
+                <button 
+                    class="tab-button" 
+                    [class.active]="activeTab === 'all'"
+                    (click)="switchTab('all')">
+                    All Tasks
+                </button>
+                <button 
+                    class="tab-button" 
+                    [class.active]="activeTab === 'assigned'"
+                    (click)="switchTab('assigned')">
+                    Assigned To Me
+                </button>
+            </div>
+        </div>
+
         <!-- Tasks Table -->
         <div *ngIf="isLoading" class="loading-indicator">
             <p>Loading tasks...</p>
@@ -63,7 +81,7 @@
                 <tbody>
                     <tr *ngIf="filteredTasks.length === 0">
                         <td colspan="5" class="no-results">
-                            <p>{{ searchTerm ? 'No tasks match your search.' : 'No tasks found.' }}</p>
+                            <p>{{ searchTerm ? 'No tasks match your search.' : (activeTab === 'assigned' ? 'No tasks assigned to you.' : 'No tasks found.') }}</p>
                         </td>
                     </tr>
                     <tr *ngFor="let task of filteredTasks" class="task-row clickable-row"

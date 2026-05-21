@@ -150,6 +150,68 @@ body,
   flex-wrap: wrap;
 }
 
+// Tab Navigation Styles
+.tab-navigation-wrapper {
+  margin-bottom: 0;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.tab-navigation {
+  display: inline-flex;
+  gap: 0;
+  background: transparent;
+  padding: 0;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.tab-button {
+  padding: 7px 25px;
+  background: #e8e8e8;
+  color: #666;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Poppins', Arial, Helvetica, sans-serif;
+  white-space: nowrap;
+  position: relative;
+
+  &:first-child {
+    border-radius: 8px 0 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 8px 0 0;
+  }
+
+  &:hover:not(.active) {
+    background: #d8d8d8;
+    color: #444;
+  }
+
+  &.active {
+    background: white;
+    color: #0052cc;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+    z-index: 2;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: white;
+    }
+  }
+}
+
 .search-group {
   display: flex;
   align-items: center;
@@ -214,9 +276,12 @@ body,
 /* Tasks Table Styles — matches youth-profiling table */
 .tasks-table-container {
   background-color: white;
-  border-radius: 8px;
+  border-radius: 0 8px 8px 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow-x: auto;
+  margin-top: 0;
+  position: relative;
+  border-top: 1px solid #e8e8e8;
 
   // Hide the horizontal scrollbar visually
   scrollbar-width: none; // Firefox
@@ -1163,6 +1228,30 @@ select.form-input.ng-invalid.ng-touched {
     justify-content: flex-start;
   }
 
+  .tab-navigation-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .tab-navigation {
+    width: 100%;
+    min-width: max-content;
+  }
+
+  .tab-button {
+    padding: 12px 24px;
+    font-size: 13px;
+    flex: 1;
+    min-width: 140px;
+  }
+
   .action-bar {
     width: 100%;
     flex-direction: column;
@@ -1267,6 +1356,12 @@ select.form-input.ng-invalid.ng-touched {
 
   .tasks-root .tasks-container .header-section .user-profile {
     display: none;
+  }
+
+  .tab-button {
+    padding: 10px 20px;
+    font-size: 12px;
+    min-width: 120px;
   }
 
   .search-input {
@@ -1464,6 +1559,12 @@ select.form-input.ng-invalid.ng-touched {
 
   .tasks-root .tasks-container .header-section .header-content p {
     font-size: 10px;
+  }
+
+  .tab-button {
+    padding: 9px 16px;
+    font-size: 11px;
+    min-width: 100px;
   }
 
   .action-bar {
