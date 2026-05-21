@@ -1004,6 +1004,18 @@ body,
   font-weight: 400;
 }
 
+/* Hide number input spinners */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.no-spinner[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 .form-input.ng-invalid.ng-touched,
 .form-textarea.ng-invalid.ng-touched {
   border-color: #d32f2f;

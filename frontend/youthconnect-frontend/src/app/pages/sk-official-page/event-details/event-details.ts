@@ -354,16 +354,14 @@ export class EventDetailsPage implements OnInit {
   // ─── Chart helpers ────────────────────────────────────────────────────────
 
   getJoinPercentage(event: EventResponse): number {
-    const expectedCount = event.expectedCount || 0;
-    const joinCount = event.rsvpCount || 0;
-    if (expectedCount === 0) return 0;
-    return Math.round((joinCount / expectedCount) * 100);
+    const cap = event.attendeeLimit || 0;
+    if (cap === 0) return 0;
+    return Math.min(100, Math.round((this.approvedCount / cap) * 100));
   }
 
   getRemainingCount(event: EventResponse): number {
-    const expectedCount = event.expectedCount || 0;
-    const joinCount = event.rsvpCount || 0;
-    return Math.max(0, expectedCount - joinCount);
+    const cap = event.attendeeLimit || 0;
+    return Math.max(0, cap - this.approvedCount);
   }
 
   getJoinStrokeDasharray(event: EventResponse): string {

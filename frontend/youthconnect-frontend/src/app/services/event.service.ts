@@ -20,6 +20,7 @@ export interface EventResponse {
     updatedAt?: string;
     rsvpCount: number;
     expectedCount: number;
+    attendeeLimit?: number | null;
 }
 
 export interface AttendanceResponse {
@@ -39,6 +40,7 @@ export interface EventRequest {
     location: string;
     createdByAdminId: number;
     status?: string;
+    attendeeLimit?: number | null;
 }
 
 @Injectable({

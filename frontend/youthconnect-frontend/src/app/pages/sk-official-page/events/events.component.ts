@@ -165,7 +165,8 @@ export class EventsComponent implements OnInit {
       eventTitle: ['', [Validators.required, Validators.maxLength(200)]],
       description: ['', [Validators.required, Validators.maxLength(5000)]],
       dateTime: ['', Validators.required],
-      location: ['', [Validators.required, Validators.maxLength(255)]]
+      location: ['', [Validators.required, Validators.maxLength(255)]],
+      attendeeLimit: [null, [Validators.required, Validators.min(1), Validators.max(99999)]]
     });
   }
 
@@ -296,7 +297,8 @@ export class EventsComponent implements OnInit {
       eventTitle: event.title,
       description: event.description,
       dateTime: dateTimeLocal,
-      location: event.location
+      location: event.location,
+      attendeeLimit: event.attendeeLimit ?? null
     });
     
     setTimeout(() => this.setupScrollIndicators(), 100);
@@ -363,7 +365,8 @@ export class EventsComponent implements OnInit {
         eventDate: eventDate,
         location: formValue.location.trim(),
         createdByAdminId: this.currentAdminId,
-        status: this.editingEvent?.status || 'Upcoming'
+        status: this.editingEvent?.status || 'Upcoming',
+        attendeeLimit: formValue.attendeeLimit ? Number(formValue.attendeeLimit) : null
       };
 
       console.log('Prepared edit payload:', this.pendingEditPayload);
@@ -491,10 +494,9 @@ export class EventsComponent implements OnInit {
       eventDate: eventDate,
       location: formValue.location.trim(),
       createdByAdminId: this.currentAdminId,
-      status: 'Upcoming'
+      status: 'Upcoming',
+      attendeeLimit: formValue.attendeeLimit ? Number(formValue.attendeeLimit) : null
     };
-
-    console.log('Creating event with payload:', request);
 
     this.isLoading = true;
     this.eventService.createEvent(request).subscribe({

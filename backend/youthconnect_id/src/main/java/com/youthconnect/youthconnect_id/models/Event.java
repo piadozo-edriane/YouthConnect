@@ -41,6 +41,9 @@ public class Event {
     @Column(name = "status", length = 50)
     private String status;
 
+    @Column(name = "attendee_limit")
+    private Integer attendeeLimit;
+
     public Event() {}
 
     public int getEventId() {
@@ -113,5 +116,13 @@ public class Event {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Integer getAttendeeLimit() {
+        return attendeeLimit;
+    }
+
+    public void setAttendeeLimit(Integer attendeeLimit) {
+        this.attendeeLimit = attendeeLimit;
     }
 }

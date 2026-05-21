@@ -119,6 +119,17 @@
                         [disabled]="isLoading">
                         Cancel Join
                     </button>
+                    <div class="cancel-locked"
+                        *ngIf="isJoined(event.eventId)
+                            && getJoinApprovalStatus(event.eventId) === 'approved'
+                            && isWithin24Hours(event)
+                            && !isEventCompleted(event)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Cancellation locked — event starts in less than 24 hours
+                    </div>
                 </div>
 
             </div>
