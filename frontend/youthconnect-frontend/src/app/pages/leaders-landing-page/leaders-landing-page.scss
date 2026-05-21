@@ -90,25 +90,6 @@
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         cursor: pointer;
 
-        &.mobile-only {
-            display: none;
-        }
-
-        .mobile-image {
-            display: none;
-        }
-
-        .desktop-image {
-            display: block;
-        }
-
-        &:nth-child(1),
-        &:nth-child(2),
-        &:nth-child(3),
-        &:nth-child(4) {
-            height: 520px;
-        }
-
         .leader-image {
             width: 100%;
             flex: 1;
@@ -119,21 +100,6 @@
             margin-bottom: 1.5rem;
             min-height: 300px;
             transition: transform 0.3s ease;
-        }
-
-        .leader-image-one {
-            background-color: #E0E0E0;
-        }
-
-        .leader-image-two {
-            background-color: #E0E0E0;
-        }
-
-        .leader-image-three {
-            background-color: #E0E0E0;
-        }
-
-        .leader-image-four {
             background-color: #E0E0E0;
         }
 
@@ -165,6 +131,10 @@
             h3 {
                 color: #452F5D;
             }
+        }
+
+        &.desktop-only {
+            display: none;
         }
     }
 
@@ -328,6 +298,8 @@
             max-width: 100%;
             margin-bottom: 0;
             position: relative;
+            align-items: unset;
+            flex-wrap: unset;
         }
 
         .leader-card {
@@ -346,30 +318,8 @@
             overflow: hidden;
             position: relative;
 
-            &.mobile-only {
+            &.desktop-only {
                 display: flex !important;
-            }
-
-            .desktop-image {
-                display: none !important;
-            }
-
-            .mobile-image {
-                display: block !important;
-                position: absolute;
-                top: 0;
-                left: 0;
-            }
-
-            &:nth-child(1),
-            &:nth-child(2),
-            &:nth-child(3),
-            &:nth-child(4),
-            &:nth-child(5),
-            &:nth-child(6),
-            &:nth-child(7),
-            &:nth-child(8) {
-                height: 280px !important;
             }
 
             .leader-image {
@@ -451,17 +401,6 @@
             max-height: 240px !important;
             border-radius: 15px;
 
-            &:nth-child(1),
-            &:nth-child(2),
-            &:nth-child(3),
-            &:nth-child(4),
-            &:nth-child(5),
-            &:nth-child(6),
-            &:nth-child(7),
-            &:nth-child(8) {
-                height: 240px !important;
-            }
-
             .leader-image {
                 height: 170px !important;
                 min-height: 170px !important;
@@ -526,7 +465,6 @@ button,
     background-attachment: fixed;
 }
 
-// Disable parallax on mobile for better performance
 @media (max-width: 1024px) {
     .leaders-section {
         background-attachment: scroll;
