@@ -355,15 +355,13 @@ export class EventDetailsPage implements OnInit {
 
   getJoinPercentage(event: EventResponse): number {
     const cap = event.attendeeLimit || 0;
-    const joinCount = event.rsvpCount || 0;
     if (cap === 0) return 0;
-    return Math.min(100, Math.round((joinCount / cap) * 100));
+    return Math.min(100, Math.round((this.approvedCount / cap) * 100));
   }
 
   getRemainingCount(event: EventResponse): number {
     const cap = event.attendeeLimit || 0;
-    const joinCount = event.rsvpCount || 0;
-    return Math.max(0, cap - joinCount);
+    return Math.max(0, cap - this.approvedCount);
   }
 
   getJoinStrokeDasharray(event: EventResponse): string {

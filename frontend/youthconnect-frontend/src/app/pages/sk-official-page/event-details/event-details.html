@@ -112,13 +112,13 @@
                                 </svg>
                                 <div class="chart-center-text">
                                     <div class="percentage">{{ getJoinPercentage(selectedEvent) }}%</div>
-                                    <div class="label">Joined</div>
+                                    <div class="label">Approved</div>
                                 </div>
                             </div>
                             <div class="chart-legend">
                                 <div class="legend-item">
                                     <span class="legend-color rsvp-color"></span>
-                                    <span class="legend-label">Joined: {{ selectedEvent.rsvpCount || 0 }}</span>
+                                    <span class="legend-label">Approved: {{ approvedCount }}</span>
                                 </div>
                                 <div class="legend-item">
                                     <span class="legend-color remaining-color"></span>
