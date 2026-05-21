@@ -9,6 +9,7 @@ public class EventRequest {
     private String location;
     private Integer createdByAdminId;
     private String status;
+    private Integer attendeeLimit;
 
     public String getTitle() {
         return title; 
@@ -45,5 +46,11 @@ public class EventRequest {
     }
     public void setStatus(String status) {
         this.status = status; 
+    }
+    public Integer getAttendeeLimit() {
+        return attendeeLimit;
+    }
+    public void setAttendeeLimit(Integer attendeeLimit) {
+        this.attendeeLimit = attendeeLimit;
     }
 }

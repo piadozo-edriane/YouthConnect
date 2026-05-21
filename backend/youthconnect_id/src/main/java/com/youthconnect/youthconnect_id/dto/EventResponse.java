@@ -14,6 +14,7 @@ public class EventResponse {
     private LocalDateTime updatedAt;
     private long rsvpCount;
     private long expectedCount;
+    private Integer attendeeLimit;
 
     public int getEventId() {
         return eventId; 
@@ -80,5 +81,11 @@ public class EventResponse {
     }
     public void setExpectedCount(long expectedCount) {
         this.expectedCount = expectedCount;
+    }
+    public Integer getAttendeeLimit() {
+        return attendeeLimit;
+    }
+    public void setAttendeeLimit(Integer attendeeLimit) {
+        this.attendeeLimit = attendeeLimit;
     }
 }

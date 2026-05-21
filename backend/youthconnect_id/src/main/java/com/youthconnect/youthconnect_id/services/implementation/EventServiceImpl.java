@@ -64,6 +64,7 @@ public class EventServiceImpl implements EventService {
         response.setUpdatedAt(event.getUpdatedAt());
         response.setRsvpCount(rsvpCount);
         response.setExpectedCount(expectedCount);
+        response.setAttendeeLimit(event.getAttendeeLimit());
         return response;
     }
 
@@ -104,6 +105,7 @@ public class EventServiceImpl implements EventService {
         event.setCreatedByAdminId(request.getCreatedByAdminId());
         event.setStatus(request.getStatus() != null ? request.getStatus() : "Upcoming");
         event.setCreatedAt(LocalDateTime.now());
+        event.setAttendeeLimit(request.getAttendeeLimit());
         
         Event savedEvent = eventRepo.save(event);
         
@@ -163,6 +165,7 @@ public class EventServiceImpl implements EventService {
         event.setEventDate(request.getEventDate());
         event.setLocation(request.getLocation());
         event.setStatus(request.getStatus());
+        event.setAttendeeLimit(request.getAttendeeLimit());
         event.setUpdatedAt(LocalDateTime.now());
         Event updated = eventRepo.save(event);
         

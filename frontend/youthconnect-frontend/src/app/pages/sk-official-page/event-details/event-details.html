@@ -10,7 +10,7 @@
 
     <div class="event-details-container">
         <div class="details-top-bar">
-            <button class="back-btn" (click)="goBack()">← Back to Events</button>
+            <button class="back-btn" (click)="goBack()"><< Back to Events</button>
             <div class="details-actions" *ngIf="selectedEvent">
                 <button class="details-edit-btn" (click)="editEvent(selectedEvent)" title="Edit event"
                     [disabled]="isEditDisabled(selectedEvent.status)">
@@ -125,7 +125,7 @@
                                     <span class="legend-label">Remaining: {{ getRemainingCount(selectedEvent) }}</span>
                                 </div>
                                 <div class="legend-item total">
-                                    <span class="legend-label">Expected Total: {{ selectedEvent.expectedCount || 0 }}</span>
+                                    <span class="legend-label">Attendee Cap: {{ selectedEvent.attendeeLimit ?? 'N/A' }}</span>
                                 </div>
                             </div>
                         </div>
