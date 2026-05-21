@@ -218,11 +218,25 @@ export class EventPage implements OnInit {
         return !this.isEventOngoing(event) && !this.isEventCompleted(event) && !this.isJoined(event.eventId);
     }
 
+    isWithin24Hours(event: EventResponse): boolean {
+        const eventDate = new Date(event.eventDate);
+        const now = new Date();
+        const msUntilEvent = eventDate.getTime() - now.getTime();
+        const hoursUntilEvent = msUntilEvent / (1000 * 60 * 60);
+        return hoursUntilEvent <= 24;
+    }
+
     canCancelJoin(event: EventResponse): boolean {
-        return this.isJoined(event.eventId)
-            && !this.isEventOngoing(event)
-            && !this.isEventCompleted(event)
-            && this.getJoinApprovalStatus(event.eventId) !== 'rejected';
+        if (!this.isJoined(event.eventId)) return false;
+        if (this.isEventOngoing(event) || this.isEventCompleted(event)) return false;
+        if (this.getJoinApprovalStatus(event.eventId) === 'rejected') return false;
+
+        // Approved attendees cannot cancel within 24 hours of the event
+        if (this.getJoinApprovalStatus(event.eventId) === 'approved' && this.isWithin24Hours(event)) {
+            return false;
+        }
+
+        return true;
     }
 
     joinEvent(event: EventResponse): void {
