@@ -125,7 +125,7 @@
                                     <span class="legend-label">Remaining: {{ getRemainingCount(selectedEvent) }}</span>
                                 </div>
                                 <div class="legend-item total">
-                                    <span class="legend-label">Attendee Cap: {{ selectedEvent.attendeeLimit ?? 'N/A' }}</span>
+                                    <span class="legend-label">Participant Limit: {{ selectedEvent.attendeeLimit ?? 'N/A' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -134,8 +134,7 @@
                     <!-- Approved Attendees List -->
                     <div class="attendees-section">
                         <h4 class="attendees-title">
-                            Approved Attendees
-                            <span class="attendees-count-badge">{{ approvedCount }}</span>
+                            {{ approvedCount }} / {{ selectedEvent.attendeeLimit ?? '—' }} Approved
                         </h4>
 
                         <div *ngIf="isLoadingAttendees" class="attendees-loading">
@@ -146,12 +145,8 @@
                             <div *ngFor="let attendee of approvedAttendees; let i = index"
                                 class="attendee-item clickable"
                                 (click)="openAttendeeDetailsModal(attendee)">
-                                <div class="attendee-number">{{ i + 1 }}</div>
-                                <div class="attendee-info">
-                                    <div class="attendee-name">{{ attendee.name }}</div>
-                                    <div class="attendee-email">{{ attendee.email }}</div>
-                                </div>
-                                <span class="attendee-status-badge approved">Approved</span>
+                                <span class="attendee-index">{{ i + 1 }}.</span>
+                                <span class="attendee-name">{{ attendee.name }}</span>
                             </div>
                         </div>
 
