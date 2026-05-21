@@ -140,8 +140,8 @@
           </div>
 
           <div class="form-group form-group-full">
-            <label>Complete Address</label>
-            <input formControlName="completeAddress" placeholder="Enter your complete address" class="form-input" />
+            <label>Complete Address Included your Specific Zone</label>
+            <input formControlName="completeAddress" placeholder="Zone 1 - 17th - 16th St" class="form-input" />
             @if (completeAddressControl?.touched) {
               @if (completeAddressControl?.errors?.['required']) {
                 <span class="error-text">Complete address is required</span>
@@ -187,6 +187,7 @@
             <option value="ELEMENTARY_LEVEL">Elementary Level</option>
             <option value="ELEMENTARY_GRADUATE">Elementary Graduate</option>
             <option value="HIGH_SCHOOL_GRADUATE">High School Graduate</option>
+            <option value="HIGH_SCHOOL_LEVEL">High School Level</option>
             <option value="VOCATIONAL_GRAD">Vocational Graduate</option>
             <option value="COLLEGE_LEVEL">College Level</option>
             <option value="COLLEGE_GRADUATE">College Graduate</option>
@@ -253,7 +254,7 @@
         </div>
 
         <div class="form-group">
-          <label>Reason</label>
+          <label>Reason for not Attending on Assembly</label>
           <input type="text" formControlName="reason" placeholder="Enter your reason" class="form-input" />
           @if (reasonControl?.touched) {
             @if (reasonControl?.errors?.['required']) {
