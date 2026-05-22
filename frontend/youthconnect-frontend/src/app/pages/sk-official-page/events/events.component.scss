@@ -455,11 +455,20 @@ body,
   font-size: 0.85rem;
   color: #111;
   font-weight: 500;
+  min-width: 0;
+
+  span:not(.icon):not(.status-label):not(.status-pill) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
 
   .icon {
     display: inline-flex;
     width: 18px;
     height: 18px;
+    flex-shrink: 0;
 
     img {
       width: 18px;
