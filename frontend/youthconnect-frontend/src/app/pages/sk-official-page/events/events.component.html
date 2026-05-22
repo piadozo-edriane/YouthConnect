@@ -61,14 +61,6 @@
             <div *ngFor="let event of filteredEvents" class="event-card" (click)="viewEvent(event)">
                 <div class="card-header">
                     <h3>{{ event.title }}</h3>
-                    <div class="card-actions">
-                        <button class="edit-btn" (click)="editEvent(event); $event.stopPropagation()" title="Edit event" [disabled]="isEditDisabled(event.status)">
-                            <img src="../../assets/sk-official-events-icons/edit.svg" alt="Edit" width="18" height="18">
-                        </button>
-                        <button class="delete-btn" (click)="deleteEvent(event); $event.stopPropagation()" title="Delete event" [disabled]="isEventOngoing(event.status)">
-                            <img src="../../assets/sk-official-events-icons/delete.svg" alt="Delete" width="18" height="18">
-                        </button>
-                    </div>
                 </div>
                 <div class="card-body">
                     <p class="description">{{ event.description }}</p>
