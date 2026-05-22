@@ -155,7 +155,7 @@ body,
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 400px;
+  width: 500px;
   max-width: 100%;
   flex-shrink: 0;
   background: #fff;
@@ -214,7 +214,42 @@ body,
   }
 }
 
-// ─── Events List ──────────────────────────────────────────────────────────────
+// ─── Filter Group ─────────────────────────────────────────────────────────────
+
+.filter-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-select {
+  padding: 10px 36px 10px 16px;
+  border: 1.5px solid #d0d0d0;
+  border-radius: 999px;
+  font-size: 14px;
+  font-family: 'Poppins', Arial, Helvetica, sans-serif;
+  font-weight: 500;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+
+  &:focus {
+    outline: none;
+    border-color: #aaa;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  &:hover {
+    border-color: #aaa;
+  }
+}
 
 /* Event Card Styles */
 .events-list {
@@ -455,11 +490,20 @@ body,
   font-size: 0.85rem;
   color: #111;
   font-weight: 500;
+  min-width: 0;
+
+  span:not(.icon):not(.status-label):not(.status-pill) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
 
   .icon {
     display: inline-flex;
     width: 18px;
     height: 18px;
+    flex-shrink: 0;
 
     img {
       width: 18px;
@@ -609,6 +653,15 @@ body,
   .search-group {
     width: 100%;
     flex: 1 1 auto;
+  }
+
+  .filter-group {
+    width: 100%;
+
+    .filter-select {
+      flex: 1;
+      min-width: 120px;
+    }
   }
 
   .add-event-btn {
