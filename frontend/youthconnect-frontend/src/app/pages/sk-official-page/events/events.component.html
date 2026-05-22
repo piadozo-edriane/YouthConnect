@@ -44,7 +44,13 @@
                     placeholder="Search events by title, description, or location"
                     class="search-input"
                     [(ngModel)]="searchTerm"
-                    (input)="searchEvents(searchTerm)">
+                    (input)="onSearchChange(searchTerm)">
+            </div>
+            <div class="filter-group">
+                <select class="filter-select" [value]="selectedStatusFilter"
+                    (change)="onStatusFilterChange($any($event.target).value)">
+                    <option *ngFor="let filter of statusFilters" [value]="filter.value">{{ filter.label }}</option>
+                </select>
             </div>
             <button class="add-event-btn" (click)="openModal()">+ Add Event</button>
         </div>
@@ -55,7 +61,7 @@
                 <p>Loading events...</p>
             </div>
             <div *ngIf="!isLoading && filteredEvents.length === 0" class="empty-state">
-                <p>{{ searchTerm ? 'No events match your search.' : 'No events found.' }}</p>
+                <p>{{ searchTerm || selectedStatusFilter !== 'ALL' ? 'No events match your filters.' : 'No events found.' }}</p>
             </div>
             
             <div *ngFor="let event of filteredEvents" class="event-card" (click)="viewEvent(event)">

@@ -26,6 +26,14 @@ export class EventsComponent implements OnInit {
   editingEventId: number | null = null;
   editingEvent: EventResponse | null = null;
   searchTerm: string = '';
+  selectedStatusFilter: string = 'ALL';
+
+  statusFilters = [
+    { value: 'ALL',      label: 'All Events' },
+    { value: 'Upcoming',  label: 'Upcoming' },
+    { value: 'Ongoing',   label: 'Ongoing' },
+    { value: 'Completed', label: 'Completed' },
+  ];
   skOfficialName = 'SK Official';
   skOfficialEmail = '';
   skOfficialPosition = 'SK Official';
@@ -236,6 +244,7 @@ export class EventsComponent implements OnInit {
         }));
         this.filteredEvents = this.events;
         this.searchTerm = '';
+        this.selectedStatusFilter = 'ALL';
         this.isLoading = false;
         this.handlePendingActions();
       },
@@ -253,18 +262,36 @@ export class EventsComponent implements OnInit {
 
   searchEvents(term: string) {
     this.searchTerm = term;
-    
-    if (!term.trim()) {
-      this.filteredEvents = this.events;
-      return;
+    this.applyFilters();
+  }
+
+  onSearchChange(term: string) {
+    this.searchTerm = term;
+    this.applyFilters();
+  }
+
+  onStatusFilterChange(status: string) {
+    this.selectedStatusFilter = status;
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    let result = [...this.events];
+
+    if (this.selectedStatusFilter !== 'ALL') {
+      result = result.filter(e => (e.status || '').toLowerCase() === this.selectedStatusFilter.toLowerCase());
     }
 
-    const searchLower = term.toLowerCase();
-    this.filteredEvents = this.events.filter(event =>
-      event.title.toLowerCase().includes(searchLower) ||
-      event.description.toLowerCase().includes(searchLower) ||
-      event.location.toLowerCase().includes(searchLower)
-    );
+    if (this.searchTerm.trim()) {
+      const q = this.searchTerm.toLowerCase();
+      result = result.filter(e =>
+        e.title.toLowerCase().includes(q) ||
+        e.description.toLowerCase().includes(q) ||
+        e.location.toLowerCase().includes(q)
+      );
+    }
+
+    this.filteredEvents = result;
   }
 
   openModal() {
