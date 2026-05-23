@@ -11,17 +11,6 @@
     <div class="header-section">
       <div class="header-content">
         <h1>YOUTH PROFILING</h1>
-        <p>Create, manage, and maintain youth member profiles</p>
-      </div>
-      <div class="user-profile">
-        <div class="profile-badge">
-          <span class="initials">{{ skOfficialInitials }}</span>
-        </div>
-        <div class="profile-info">
-          <p class="name">{{ skOfficialName }}</p>
-          <p class="email">{{ skOfficialEmail }}</p>
-          <p class="position">{{ skOfficialPosition }}</p>
-        </div>
       </div>
     </div>
 
@@ -32,7 +21,7 @@
           <circle cx="11" cy="11" r="8"></circle>
           <path d="m21 21-4.35-4.35"></path>
         </svg>
-        <input type="text" class="search-input" placeholder="Search by name, contact, address, classification"
+        <input type="text" class="search-input" placeholder="Search profile by name, address, or classification"
           [(ngModel)]="searchQuery" (keyup)="onSearch()" />
       </div>
       <div class="export-buttons">
@@ -40,8 +29,14 @@
           Approval Panel
           <span class="notification-badge" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
         </button>
-        <button class="btn btn-pdf" (click)="exportToPDF()">Export PDF</button>
-        <button class="btn btn-excel" (click)="exportToExcel()">Export Excel</button>
+        <button class="btn btn-pdf" (click)="exportToPDF()">
+          <img src="assets/sk-official-events-icons/export.svg" alt="Export" width="15" height="15">
+          PDF
+        </button>
+        <button class="btn btn-excel" (click)="exportToExcel()">
+          <img src="assets/sk-official-events-icons/export.svg" alt="Export" width="15" height="15">
+          Excel
+        </button>
       </div>
     </div>
 
@@ -60,63 +55,34 @@
       <table class="profiles-table">
         <thead>
           <tr>
-            <th>Actions</th>
-            <th>First Name</th>
-            <th>Middle Name</th>
-            <th>Last Name</th>
-            <th>Suffix</th>
+            <th>Full Name</th>
             <th>Age</th>
             <th>Gender</th>
             <th>Birthday</th>
             <th>Contact Number</th>
-            <th>Complete Address</th>
-            <th>Civil Status</th>
-            <th>Youth Classification</th>
-            <th>Education Background</th>
-            <th>Work Status</th>
-            <th>SK Voter</th>
-            <th>National Voter</th>
-            <th>Past Voter</th>
-            <th>Assemblies Attended</th>
-            <th>Non-Attendance Reason</th>
+            <th class="actions-th">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let profile of filteredProfiles; trackBy: trackByYouthId" class="profile-row clickable-row"
             (click)="openYouthDetailsModal(profile)">
-            <td class="actions-cell" (click)="$event.stopPropagation()">
-              <button class="btn-icon btn-edit" title="Edit" (click)="onEdit(profile)" aria-label="Edit profile">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" />
-                  <path
-                    d="M20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                </svg>
-              </button>
-              <button class="btn-icon btn-deactivate" title="Deactivate" (click)="onDeactivate(profile)"
-                aria-label="Deactivate profile">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-9l-1 1H5v2h14V4z" />
-                </svg>
-              </button>
+            <td class="name-cell">
+              {{ profile.firstName }}
+              {{ profile.middleName ? profile.middleName + ' ' : '' }}{{ profile.lastName }}{{ profile.suffix ? ' ' + profile.suffix : '' }}
             </td>
-            <td class="name-cell">{{ profile.firstName }}</td>
-            <td>{{ profile.middleName || 'N/A' }}</td>
-            <td>{{ profile.lastName }}</td>
-            <td>{{ profile.suffix || 'N/A' }}</td>
             <td>{{ getAge(profile.birthday) }}</td>
             <td>{{ profile.gender }}</td>
             <td>{{ formatDate(profile.birthday) }}</td>
             <td>{{ profile.contactNumber }}</td>
-            <td>{{ profile.completeAddress || 'N/A' }}</td>
-            <td>{{ profile.civilStatus }}</td>
-            <td>{{ profile.youthClassification?.youthClassification || 'N/A' }}</td>
-            <td>{{ profile.youthClassification?.educationBackground || 'N/A' }}</td>
-            <td>{{ profile.youthClassification?.workStatus || 'N/A' }}</td>
-            <td>{{ profile.youthClassification?.skVoter ? 'Yes' : 'No' }}</td>
-            <td>{{ profile.youthClassification?.nationalVoter ? 'Yes' : 'No' }}</td>
-            <td>{{ profile.youthClassification?.pastVoter ? 'Yes' : 'No' }}</td>
-            <td>{{ profile.youthClassification?.numAttended || 0 }}</td>
-            <td>{{ profile.youthClassification?.nonAttendedReason || 'N/A' }}</td>
+            <td class="actions-cell" (click)="$event.stopPropagation()">
+              <button class="btn-icon btn-edit" title="Edit" (click)="onEdit(profile)" aria-label="Edit profile">
+                <img src="assets/sk-official-events-icons/edit.svg" alt="Edit" width="16" height="16">
+              </button>
+              <button class="btn-icon btn-deactivate" title="Deactivate" (click)="onDeactivate(profile)"
+                aria-label="Deactivate profile">
+                <img src="assets/sk-official-events-icons/delete.svg" alt="Delete" width="16" height="16">
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -721,15 +687,21 @@
           <div class="details-section">
             <h3 class="section-title">Personal Information</h3>
             <div class="details-grid">
-              <div class="detail-item full-width">
-                <span class="detail-label">Full Name:</span>
-                <span class="detail-value" style="font-weight: 700; font-size: 16px;">{{ selectedYouthProfile?.firstName
-                  }} {{ selectedYouthProfile?.middleName || '' }} {{ selectedYouthProfile?.lastName }} {{
-                  selectedYouthProfile?.suffix || '' }}</span>
+              <div class="detail-item">
+                <span class="detail-label">First Name:</span>
+                <span class="detail-value">{{ selectedYouthProfile?.firstName }}</span>
               </div>
               <div class="detail-item">
-                <span class="detail-label">Gender:</span>
-                <span class="detail-value">{{ selectedYouthProfile?.gender }}</span>
+                <span class="detail-label">Middle Name:</span>
+                <span class="detail-value">{{ selectedYouthProfile?.middleName || 'N/A' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Last Name:</span>
+                <span class="detail-value">{{ selectedYouthProfile?.lastName }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Suffix:</span>
+                <span class="detail-value">{{ selectedYouthProfile?.suffix || 'N/A' }}</span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">Birthday:</span>
