@@ -269,7 +269,7 @@ export class TaskTracker implements OnInit {
       filtered = filtered.filter(task =>
         task.taskDescription?.toLowerCase().includes(lowerTerm) ||
         task.tasking?.toLowerCase().includes(lowerTerm) ||
-        task.hyperlink?.toLowerCase().includes(lowerTerm)
+        task.skIncharge?.toLowerCase().includes(lowerTerm)
       );
     }
 

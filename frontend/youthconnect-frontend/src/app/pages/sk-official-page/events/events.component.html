@@ -13,18 +13,7 @@
         <div class="header-section">
             <div class="header-content">
                 <h1>EVENTS</h1>
-                <p>Create and manage all upcoming events</p>
-            </div>
-            <div class="user-profile">
-                <div class="profile-badge">
-                    <span class="initials">{{ skOfficialInitials }}</span>
-                </div>
-                <div class="profile-info">
-                    <p class="name">{{ skOfficialName }}</p>
-                    <p class="email">{{ skOfficialEmail }}</p>
-                    <p class="position">{{ skOfficialPosition }}</p>
-                </div>
-            </div>
+            </div>  
         </div>
 
         <!-- Success/Error Messages -->
@@ -41,7 +30,7 @@
                 </svg>
                 <input
                     type="text"
-                    placeholder="Search events by title, description, or location"
+                    placeholder="Event Title, Description, or Location"
                     class="search-input"
                     [(ngModel)]="searchTerm"
                     (input)="onSearchChange(searchTerm)">
