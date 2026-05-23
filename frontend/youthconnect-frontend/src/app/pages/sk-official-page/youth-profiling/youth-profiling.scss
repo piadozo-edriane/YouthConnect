@@ -175,6 +175,14 @@ body,
   cursor: pointer;
   transition: background-color 0.2s;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  img {
+    flex-shrink: 0;
+    filter: brightness(0) invert(1);
+  }
 }
 
 .btn-pdf {

@@ -29,8 +29,14 @@
           Approval Panel
           <span class="notification-badge" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
         </button>
-        <button class="btn btn-pdf" (click)="exportToPDF()">Export PDF</button>
-        <button class="btn btn-excel" (click)="exportToExcel()">Export Excel</button>
+        <button class="btn btn-pdf" (click)="exportToPDF()">
+          <img src="assets/sk-official-events-icons/export.svg" alt="Export" width="15" height="15">
+          PDF
+        </button>
+        <button class="btn btn-excel" (click)="exportToExcel()">
+          <img src="assets/sk-official-events-icons/export.svg" alt="Export" width="15" height="15">
+          Excel
+        </button>
       </div>
     </div>
 
