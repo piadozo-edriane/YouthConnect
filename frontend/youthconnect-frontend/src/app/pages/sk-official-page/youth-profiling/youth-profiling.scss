@@ -451,7 +451,7 @@ body,
   font-weight: 500;
   color: #385079;
 
-  &:hover {
+  &:hover:not(.active):not(.ellipsis):not(:disabled) {
     background: #f7f9fc;
     border-color: #0052cc;
     color: #0052cc;
@@ -462,6 +462,21 @@ body,
     border-color: #0052cc;
     color: #ffffff;
     font-weight: 600;
+  }
+
+  &.ellipsis {
+    border: none;
+    background: transparent;
+    cursor: default;
+    color: #667085;
+    font-weight: 600;
+    letter-spacing: 2px;
+
+    &:hover {
+      background: transparent;
+      border: none;
+      color: #667085;
+    }
   }
 }
 

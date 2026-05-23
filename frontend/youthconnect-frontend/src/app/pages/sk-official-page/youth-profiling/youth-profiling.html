@@ -82,7 +82,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let profile of filteredProfiles" class="profile-row clickable-row"
+          <tr *ngFor="let profile of filteredProfiles; trackBy: trackByYouthId" class="profile-row clickable-row"
             (click)="openYouthDetailsModal(profile)">
             <td class="actions-cell" (click)="$event.stopPropagation()">
               <button class="btn-icon btn-edit" title="Edit" (click)="onEdit(profile)" aria-label="Edit profile">
@@ -182,7 +182,7 @@
     </div>
 
     <div class="approval-list" *ngIf="paginatedApprovalProfiles.length > 0; else noApprovalRows">
-      <article class="approval-card" *ngFor="let profile of paginatedApprovalProfiles">
+      <article class="approval-card" *ngFor="let profile of paginatedApprovalProfiles; trackBy: trackByUserId">
         <div class="approval-card-head">
           <h3>{{ profile.firstName }} {{ profile.lastName }}</h3>
           <span class="approval-status" [class.pending]="isPendingProfile(profile)"
@@ -252,8 +252,12 @@
         </button>
 
         <div class="pagination-numbers">
-          <button *ngFor="let page of approvalPageNumbers" class="pagination-number"
-            [class.active]="page === approvalCurrentPage" (click)="goToApprovalPage(page)">
+          <button *ngFor="let page of approvalPageNumbers" 
+            class="pagination-number"
+            [class.active]="page === approvalCurrentPage"
+            [class.ellipsis]="page === '...'"
+            [disabled]="page === '...'"
+            (click)="goToApprovalPage(page)">
             {{ page }}
           </button>
         </div>
