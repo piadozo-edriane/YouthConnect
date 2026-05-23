@@ -352,6 +352,10 @@ export class EventsComponent implements OnInit {
     return this.eventsTotalPages > 3 && pages.length > 0 && pages[pages.length - 1] < this.eventsTotalPages;
   }
 
+  get showEventsPagination(): boolean {
+    return this.eventsTotalPages > 1;
+  }
+
   goToEventsPage(page: number): void {
     if (page >= 1 && page <= this.eventsTotalPages) {
       this.eventsCurrentPage = page;
