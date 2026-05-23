@@ -25,6 +25,8 @@ export class Concerns implements OnInit {
   skOfficialEmail = '';
   skOfficialPosition = 'SK Official';
   skOfficialInitials = 'SK';
+  concernsCurrentPage = 1;
+  concernsItemsPerPage = 9;
 
   constructor(
     private adminConcernService: AdminConcernService,
@@ -102,6 +104,7 @@ export class Concerns implements OnInit {
         this.concerns = data;
         this.filteredConcerns = data;
         this.searchTerm = '';
+        this.concernsCurrentPage = 1;
         this.isLoading = false;
       },
       error: (error) => {
@@ -126,6 +129,72 @@ export class Concerns implements OnInit {
       concern.description.toLowerCase().includes(searchLower) ||
       concern.typeOfConcern.toLowerCase().includes(searchLower)
     );
+    this.concernsCurrentPage = 1;
+  }
+
+  get paginatedConcerns(): Concern[] {
+    const startIndex = (this.concernsCurrentPage - 1) * this.concernsItemsPerPage;
+    const endIndex = startIndex + this.concernsItemsPerPage;
+    return this.filteredConcerns.slice(startIndex, endIndex);
+  }
+
+  get concernsTotalPages(): number {
+    return Math.ceil(this.filteredConcerns.length / this.concernsItemsPerPage);
+  }
+
+  get concernsVisiblePages(): number[] {
+    const totalPages = this.concernsTotalPages;
+    const currentPage = this.concernsCurrentPage;
+
+    if (totalPages <= 0) {
+      return [];
+    }
+
+    if (totalPages <= 3) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    if (currentPage <= 2) {
+      return [1, 2, 3];
+    }
+
+    if (currentPage >= totalPages - 1) {
+      return [totalPages - 2, totalPages - 1, totalPages];
+    }
+
+    return [currentPage - 1, currentPage, currentPage + 1];
+  }
+
+  get showConcernsLeftEllipsis(): boolean {
+    const pages = this.concernsVisiblePages;
+    return this.concernsTotalPages > 3 && pages.length > 0 && pages[0] > 1;
+  }
+
+  get showConcernsRightEllipsis(): boolean {
+    const pages = this.concernsVisiblePages;
+    return this.concernsTotalPages > 3 && pages.length > 0 && pages[pages.length - 1] < this.concernsTotalPages;
+  }
+
+  get showConcernsPagination(): boolean {
+    return this.filteredConcerns.length > this.concernsItemsPerPage;
+  }
+
+  goToConcernsPage(page: number): void {
+    if (page >= 1 && page <= this.concernsTotalPages) {
+      this.concernsCurrentPage = page;
+    }
+  }
+
+  nextConcernsPage(): void {
+    if (this.concernsCurrentPage < this.concernsTotalPages) {
+      this.concernsCurrentPage++;
+    }
+  }
+
+  previousConcernsPage(): void {
+    if (this.concernsCurrentPage > 1) {
+      this.concernsCurrentPage--;
+    }
   }
 
   updateConcern(concern: Concern) {
