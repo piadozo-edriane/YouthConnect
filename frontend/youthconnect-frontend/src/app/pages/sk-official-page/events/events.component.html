@@ -64,7 +64,7 @@
                 <p>{{ searchTerm || selectedStatusFilter !== 'ALL' ? 'No events match your filters.' : 'No events found.' }}</p>
             </div>
             
-            <div *ngFor="let event of filteredEvents" class="event-card" (click)="viewEvent(event)">
+            <div *ngFor="let event of paginatedEvents; trackBy: trackByEventId" class="event-card" (click)="viewEvent(event)">
                 <div class="card-header">
                     <h3>{{ event.title }}</h3>
                 </div>
@@ -100,6 +100,56 @@
                         {{ getStatusActionLabel(event.status) }}
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Sticky Pagination Footer -->
+        <div class="events-pagination-footer" *ngIf="filteredEvents.length > 0">
+            <!-- Event Count Display -->
+            <div class="events-data-count">
+                <p>Showing {{ paginatedEvents.length }} of {{ filteredEvents.length }} 
+                    {{ filteredEvents.length === 1 ? 'event' : 'events' }}</p>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div class="events-pagination">
+                <button class="pagination-btn" (click)="goToEventsPage(1)" [disabled]="eventsCurrentPage === 1" title="First Page">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                        <path d="M18.41 16.59L13.82 12l4.59-4.59L17 6l-6 6 6 6 1.41-1.41zM6 6h2v12H6V6z" />
+                    </svg>
+                </button>
+
+                <button class="pagination-btn" (click)="previousEventsPage()" [disabled]="eventsCurrentPage === 1" title="Previous Page">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+                    </svg>
+                </button>
+
+                <div class="pagination-numbers">
+                    <span *ngIf="showEventsLeftEllipsis" class="pagination-ellipsis">...</span>
+
+                    <button *ngFor="let page of eventsVisiblePages"
+                        class="pagination-number"
+                        [class.active]="page === eventsCurrentPage"
+                        (click)="goToEventsPage(page)">
+                        {{ page }}
+                    </button>
+
+                    <span *ngIf="showEventsRightEllipsis" class="pagination-ellipsis">...</span>
+                </div>
+
+                <button class="pagination-btn" (click)="nextEventsPage()"
+                    [disabled]="eventsCurrentPage === eventsTotalPages" title="Next Page">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                    </svg>
+                </button>
+
+                <button class="pagination-btn" (click)="goToEventsPage(eventsTotalPages)" [disabled]="eventsCurrentPage === eventsTotalPages" title="Last Page">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                        <path d="M5.59 7.41L10.18 12l-4.59 4.59L7 18l6-6-6-6-1.41 1.41zM18 6h-2v12h2V6z" />
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
