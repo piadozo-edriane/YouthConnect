@@ -353,7 +353,7 @@ export class EventsComponent implements OnInit {
   }
 
   get showEventsPagination(): boolean {
-    return this.eventsTotalPages > 1;
+    return this.filteredEvents.length > this.eventsItemsPerPage;
   }
 
   goToEventsPage(page: number): void {
