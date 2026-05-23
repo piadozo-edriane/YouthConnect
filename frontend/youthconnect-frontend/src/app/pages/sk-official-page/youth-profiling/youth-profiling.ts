@@ -28,6 +28,9 @@ export class YouthProfiling implements OnInit {
   approvalCurrentPage: number = 1;
   approvalItemsPerPage: number = 10;
 
+  // Cache flag to prevent reloading
+  private profilesLoaded = false;
+
   // Tab management
   activeTab: 'active' | 'inactive' | 'pending' | 'rejected' = 'active';
 
@@ -229,6 +232,11 @@ export class YouthProfiling implements OnInit {
   }
 
   loadYouthProfiles(): void {
+    // Only load if not already loaded
+    if (this.profilesLoaded && this.youthProfiles.length > 0) {
+      return;
+    }
+
     this.isLoading = true;
     this.errorMessage = '';
 
@@ -284,6 +292,7 @@ export class YouthProfiling implements OnInit {
         });
 
         this.filteredProfiles = this.getProfilesByTab();
+        this.profilesLoaded = true; // Mark as loaded
         this.isLoading = false;
       },
       error: (error) => {
@@ -457,11 +466,35 @@ export class YouthProfiling implements OnInit {
     return Math.ceil(this.filteredApprovalProfiles.length / this.approvalItemsPerPage);
   }
 
-  get approvalPageNumbers(): number[] {
-    return Array.from({ length: this.approvalTotalPages }, (_, i) => i + 1);
+  get approvalPageNumbers(): (number | string)[] {
+    const totalPages = this.approvalTotalPages;
+    const currentPage = this.approvalCurrentPage;
+    const pages: (number | string)[] = [];
+
+    if (totalPages <= 5) {
+      // Show all pages if 5 or fewer
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Smart pagination with ellipsis
+      if (currentPage <= 2) {
+        // Near the start: 1 2 3 ... 7
+        pages.push(1, 2, 3, '...', totalPages);
+      } else if (currentPage >= totalPages - 1) {
+        // Near the end: 1 ... 5 6 7
+        pages.push(1, '...', totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        // In the middle: 1 ... 3 4 5 ... 7
+        pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+      }
+    }
+
+    return pages;
   }
 
-  goToApprovalPage(page: number): void {
+  goToApprovalPage(page: number | string): void {
+    if (typeof page === 'string') return; // Ignore ellipsis clicks
     if (page >= 1 && page <= this.approvalTotalPages) {
       this.approvalCurrentPage = page;
     }
@@ -1269,5 +1302,14 @@ export class YouthProfiling implements OnInit {
     setTimeout(() => {
       this.notifications = this.notifications.filter(notification => notification.id !== id);
     }, 3000);
+  }
+
+  // TrackBy functions for optimal rendering
+  trackByYouthId(index: number, profile: YouthMemberListItem): number {
+    return profile.youthId;
+  }
+
+  trackByUserId(index: number, profile: YouthMemberListItem): number {
+    return profile.userId;
   }
 }

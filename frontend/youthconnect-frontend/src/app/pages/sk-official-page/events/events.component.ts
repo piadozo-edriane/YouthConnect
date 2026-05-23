@@ -28,6 +28,13 @@ export class EventsComponent implements OnInit {
   searchTerm: string = '';
   selectedStatusFilter: string = 'ALL';
 
+  // Pagination for events
+  eventsCurrentPage: number = 1;
+  eventsItemsPerPage: number = 9;
+
+  // Cache flag to prevent reloading
+  private eventsLoaded = false;
+
   statusFilters = [
     { value: 'ALL',      label: 'All Events' },
     { value: 'Upcoming',  label: 'Upcoming' },
@@ -234,6 +241,11 @@ export class EventsComponent implements OnInit {
   }
 
   loadEvents() {
+    // Only load if not already loaded
+    if (this.eventsLoaded && this.events.length > 0) {
+      return;
+    }
+
     this.isLoading = true;
     this.eventService.getAllEvents().subscribe({
       next: (data) => {
@@ -245,6 +257,7 @@ export class EventsComponent implements OnInit {
         this.filteredEvents = this.events;
         this.searchTerm = '';
         this.selectedStatusFilter = 'ALL';
+        this.eventsLoaded = true; // Mark as loaded
         this.isLoading = false;
         this.handlePendingActions();
       },
@@ -292,6 +305,69 @@ export class EventsComponent implements OnInit {
     }
 
     this.filteredEvents = result;
+    this.eventsCurrentPage = 1; // Reset to first page when filters change
+  }
+
+  // Pagination getters and methods
+  get paginatedEvents(): EventResponse[] {
+    const startIndex = (this.eventsCurrentPage - 1) * this.eventsItemsPerPage;
+    const endIndex = startIndex + this.eventsItemsPerPage;
+    return this.filteredEvents.slice(startIndex, endIndex);
+  }
+
+  get eventsTotalPages(): number {
+    return Math.ceil(this.filteredEvents.length / this.eventsItemsPerPage);
+  }
+
+  get eventsVisiblePages(): number[] {
+    const totalPages = this.eventsTotalPages;
+    const currentPage = this.eventsCurrentPage;
+
+    if (totalPages <= 0) {
+      return [];
+    }
+
+    if (totalPages <= 3) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    if (currentPage <= 2) {
+      return [1, 2, 3];
+    }
+
+    if (currentPage >= totalPages - 1) {
+      return [totalPages - 2, totalPages - 1, totalPages];
+    }
+
+    return [currentPage - 1, currentPage, currentPage + 1];
+  }
+
+  get showEventsLeftEllipsis(): boolean {
+    const pages = this.eventsVisiblePages;
+    return this.eventsTotalPages > 3 && pages.length > 0 && pages[0] > 1;
+  }
+
+  get showEventsRightEllipsis(): boolean {
+    const pages = this.eventsVisiblePages;
+    return this.eventsTotalPages > 3 && pages.length > 0 && pages[pages.length - 1] < this.eventsTotalPages;
+  }
+
+  goToEventsPage(page: number): void {
+    if (page >= 1 && page <= this.eventsTotalPages) {
+      this.eventsCurrentPage = page;
+    }
+  }
+
+  nextEventsPage(): void {
+    if (this.eventsCurrentPage < this.eventsTotalPages) {
+      this.eventsCurrentPage++;
+    }
+  }
+
+  previousEventsPage(): void {
+    if (this.eventsCurrentPage > 1) {
+      this.eventsCurrentPage--;
+    }
   }
 
   openModal() {
@@ -769,5 +845,10 @@ export class EventsComponent implements OnInit {
     const emptyLength = circumference - filledLength;
     
     return `${filledLength} ${emptyLength}`;
+  }
+
+  // TrackBy function for optimal rendering
+  trackByEventId(index: number, event: EventResponse): number {
+    return event.eventId;
   }
 }
