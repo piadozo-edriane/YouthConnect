@@ -12,17 +12,6 @@
         <div class="header-section">
             <div class="header-content">
                 <h1>TASK TRACKER</h1>
-                <p>Create and manage your tasks</p>
-            </div>
-            <div class="user-profile">
-                <div class="profile-badge">
-                    <span class="initials">{{ skOfficialInitials }}</span>
-                </div>
-                <div class="profile-info">
-                    <p class="name">{{ skOfficialName }}</p>
-                    <p class="email">{{ skOfficialEmail }}</p>
-                    <p class="position">{{ skOfficialPosition }}</p>
-                </div>
             </div>
         </div>
 
@@ -40,6 +29,23 @@
                 </svg>
                 <input type="text" placeholder="Search tasks by description, type, or hyperlink" class="search-input"
                     [(ngModel)]="searchTerm" (input)="searchTasks(searchTerm)">
+            </div>
+            <div class="filter-group">
+                <select class="filter-select" [value]="selectedTaskingFilter"
+                    (change)="onTaskingFilterChange($any($event.target).value)">
+                    <option value="ALL">All Committees</option>
+                    <option *ngFor="let t of taskingOptions" [value]="t">{{ getTaskingDisplayName(t) }}</option>
+                </select>
+                <select class="filter-select" [value]="selectedSkInchargeFilter"
+                    *ngIf="activeTab === 'all'"
+                    (change)="onSkInchargeFilterChange($any($event.target).value)">
+                    <option value="ALL">All SK Incharge</option>
+                    <option *ngFor="let o of skOfficials" [value]="o.fullName">{{ o.fullName }}</option>
+                </select>
+                <select class="filter-select" [value]="selectedStatusFilter"
+                    (change)="onStatusFilterChange($any($event.target).value)">
+                    <option *ngFor="let s of taskStatusFilterOptions" [value]="s.value">{{ s.label }}</option>
+                </select>
             </div>
             <button class="add-task-btn" (click)="openModal()">+ Add Task</button>
         </div>
@@ -81,7 +87,7 @@
                 <tbody>
                     <tr *ngIf="filteredTasks.length === 0">
                         <td colspan="5" class="no-results">
-                            <p>{{ searchTerm ? 'No tasks match your search.' : (activeTab === 'assigned' ? 'No tasks assigned to you.' : 'No tasks found.') }}</p>
+                            <p>{{ searchTerm || selectedTaskingFilter !== 'ALL' || selectedSkInchargeFilter !== 'ALL' || selectedStatusFilter !== 'ALL' ? 'No tasks match your filters.' : (activeTab === 'assigned' ? 'No tasks assigned to you.' : 'No tasks found.') }}</p>
                         </td>
                     </tr>
                     <tr *ngFor="let task of filteredTasks" class="task-row clickable-row"
@@ -146,10 +152,24 @@
                                 <option *ngFor="let tasking of taskingOptions" [value]="tasking">
                                     {{ getTaskingDisplayName(tasking) }}
                                 </option>
+                                <option value="CUSTOM">CUSTOM</option>
                             </select>
                             <div *ngIf="taskForm.get('taskingType')?.invalid && taskForm.get('taskingType')?.touched"
                                 class="form-error">
                                 <span *ngIf="taskForm.get('taskingType')?.hasError('required')">Tasking/Committee is
+                                    required</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group" *ngIf="taskForm.get('taskingType')?.value === 'CUSTOM'">
+                            <label for="customTasking" class="form-label">Custom Tasking/Committee<span
+                                    class="required">*</span></label>
+                            <input type="text" id="customTasking" class="form-input"
+                                placeholder="Enter custom tasking/committee"
+                                formControlName="customTasking">
+                            <div *ngIf="taskForm.get('customTasking')?.invalid && taskForm.get('customTasking')?.touched"
+                                class="form-error">
+                                <span *ngIf="taskForm.get('customTasking')?.hasError('required')">Custom tasking is
                                     required</span>
                             </div>
                         </div>
