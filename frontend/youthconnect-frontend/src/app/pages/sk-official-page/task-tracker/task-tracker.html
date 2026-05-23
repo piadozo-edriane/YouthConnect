@@ -163,10 +163,24 @@
                                 <option *ngFor="let tasking of taskingOptions" [value]="tasking">
                                     {{ getTaskingDisplayName(tasking) }}
                                 </option>
+                                <option value="CUSTOM">CUSTOM</option>
                             </select>
                             <div *ngIf="taskForm.get('taskingType')?.invalid && taskForm.get('taskingType')?.touched"
                                 class="form-error">
                                 <span *ngIf="taskForm.get('taskingType')?.hasError('required')">Tasking/Committee is
+                                    required</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group" *ngIf="taskForm.get('taskingType')?.value === 'CUSTOM'">
+                            <label for="customTasking" class="form-label">Custom Tasking/Committee<span
+                                    class="required">*</span></label>
+                            <input type="text" id="customTasking" class="form-input"
+                                placeholder="Enter custom tasking/committee"
+                                formControlName="customTasking">
+                            <div *ngIf="taskForm.get('customTasking')?.invalid && taskForm.get('customTasking')?.touched"
+                                class="form-error">
+                                <span *ngIf="taskForm.get('customTasking')?.hasError('required')">Custom tasking is
                                     required</span>
                             </div>
                         </div>

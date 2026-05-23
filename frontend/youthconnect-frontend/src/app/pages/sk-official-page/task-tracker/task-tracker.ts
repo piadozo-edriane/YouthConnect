@@ -87,12 +87,24 @@ export class TaskTracker implements OnInit {
   initForm() {
     this.taskForm = this.fb.group({
       taskingType: ['', Validators.required],
+      customTasking: [''],
       taskDescription: ['', [Validators.required]],
       skIncharge: ['', [Validators.required]],
       hyperlink: [''],
       status: ['', Validators.required],
       dueDate: ['', Validators.required],
       customStatus: ['']
+    });
+
+    // Conditional validation for customTasking
+    this.taskForm.get('taskingType')?.valueChanges.subscribe(value => {
+      const customTaskingControl = this.taskForm.get('customTasking');
+      if (value === 'CUSTOM') {
+        customTaskingControl?.setValidators([Validators.required]);
+      } else {
+        customTaskingControl?.clearValidators();
+      }
+      customTaskingControl?.updateValueAndValidity();
     });
 
     // Add conditional validation for customStatus
@@ -295,8 +307,14 @@ export class TaskTracker implements OnInit {
   openEditModal(task: TaskResponse) {
     this.isEditing = true;
     this.currentEditingTaskId = task.taskId;
+
+    const isKnownTasking = Object.values(Tasking).includes(task.tasking as any);
+    const taskingType = isKnownTasking ? task.tasking : 'CUSTOM';
+    const customTasking = isKnownTasking ? '' : task.tasking;
+
     this.taskForm.patchValue({
-      taskingType: task.tasking,
+      taskingType,
+      customTasking,
       taskDescription: task.taskDescription || '',
       skIncharge: task.skIncharge || '',
       hyperlink: task.hyperlink || '',
@@ -339,7 +357,7 @@ export class TaskTracker implements OnInit {
 
     const request: TaskRequest = {
       adminId: this.currentAdminId,
-      tasking: formValue.taskingType as Tasking,
+      tasking: this.getResolvedTasking(formValue),
       taskDescription: formValue.taskDescription,
       skIncharge: formValue.skIncharge,
       hyperlink: formValue.hyperlink || undefined,
@@ -484,7 +502,7 @@ export class TaskTracker implements OnInit {
       const formValue = this.taskForm.value;
 
       const request: TaskEditRequest = {
-        tasking: formValue.taskingType as Tasking,
+        tasking: this.getResolvedTasking(formValue),
         taskDescription: formValue.taskDescription,
         skIncharge: formValue.skIncharge,
         hyperlink: formValue.hyperlink || undefined,
@@ -541,6 +559,12 @@ export class TaskTracker implements OnInit {
 
   setAsInProgress(taskId: number) {
     this.updateTaskStatus(taskId, 'IN_PROGRESS');
+  }
+
+  getResolvedTasking(formValue: any): string {
+    return formValue.taskingType === 'CUSTOM'
+      ? (formValue.customTasking || '').trim()
+      : formValue.taskingType;
   }
 
   getTaskingDisplayName(tasking: string): string {

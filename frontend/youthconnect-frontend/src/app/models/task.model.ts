@@ -1,8 +1,8 @@
-import { Tasking, TaskStatus } from './enums';
+import { TaskStatus } from './enums';
 
 export interface TaskRequest {
   adminId: number;
-  tasking: Tasking;
+  tasking: string;
   taskDescription?: string;
   skIncharge?: string;
   hyperlink?: string;
@@ -11,7 +11,7 @@ export interface TaskRequest {
 }
 
 export interface TaskEditRequest {
-  tasking: Tasking;
+  tasking: string;
   taskDescription?: string;
   skIncharge?: string;
   hyperlink?: string;
@@ -26,7 +26,7 @@ export interface TaskHyperlinkRequest {
 export interface TaskResponse {
   taskId: number;
   adminId: number;
-  tasking: Tasking;
+  tasking: string;
   taskDescription?: string;
   skIncharge?: string;
   hyperlink?: string;

@@ -105,9 +105,9 @@ public class TaskServiceImpl implements TaskService {
             
             // Get task title from tasking
             String taskTitle = task.getTasking() != null ? 
-                task.getTasking().toString().replace("_", " ") : "New Task";
+                task.getTasking().replace("_", " ") : "New Task";
             
-            System.out.println("📧 Queuing task assignment notification for: " + assignedOfficial.getEmail() + " (async)");
+            System.out.println("Queuing task assignment notification for: " + assignedOfficial.getEmail() + " (async)");
             
             // Send email notification asynchronously
             emailService.sendTaskAssignmentNotificationAsync(

@@ -2,31 +2,31 @@ package com.youthconnect.youthconnect_id.dto;
 
 import java.time.LocalDateTime;
 
-import com.youthconnect.youthconnect_id.enums.Tasking;
 import com.youthconnect.youthconnect_id.enums.TaskStatus;
 
 public class TaskEditRequest {
-    private Tasking tasking;
+
+    private String tasking;
     private String taskDescription;
     private String skIncharge;
     private String hyperlink;
     private LocalDateTime dueDate;
     private TaskStatus status;
 
-    public Tasking getTasking() {
-        return tasking; 
+    public String getTasking() {
+        return tasking;
     }
 
-    public void setTasking(Tasking tasking) {
-        this.tasking = tasking; 
+    public void setTasking(String tasking) {
+        this.tasking = tasking;
     }
 
     public String getTaskDescription() {
-        return taskDescription; 
+        return taskDescription;
     }
 
     public void setTaskDescription(String taskDescription) {
-        this.taskDescription = taskDescription; 
+        this.taskDescription = taskDescription;
     }
 
     public String getSkIncharge() {
@@ -46,11 +46,11 @@ public class TaskEditRequest {
     }
 
     public LocalDateTime getDueDate() {
-        return dueDate; 
+        return dueDate;
     }
 
     public void setDueDate(LocalDateTime dueDate) {
-        this.dueDate = dueDate; 
+        this.dueDate = dueDate;
     }
 
     public TaskStatus getStatus() {
