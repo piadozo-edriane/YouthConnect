@@ -93,7 +93,7 @@
         </div>
 
         <!-- Sticky Pagination Footer -->
-        <div class="events-pagination-footer" *ngIf="filteredEvents.length > 0">
+        <div class="events-pagination-footer" *ngIf="showEventsPagination">
             <!-- Event Count Display -->
             <div class="events-data-count">
                 <p>Showing {{ paginatedEvents.length }} of {{ filteredEvents.length }} 
@@ -114,18 +114,18 @@
                     </svg>
                 </button>
 
-                <div class="pagination-numbers">
-                    <span *ngIf="showEventsLeftEllipsis" class="pagination-ellipsis">...</span>
+                <span *ngIf="showEventsLeftEllipsis" class="pagination-ellipsis">...</span>
 
+                <div class="pagination-numbers">
                     <button *ngFor="let page of eventsVisiblePages"
                         class="pagination-number"
                         [class.active]="page === eventsCurrentPage"
                         (click)="goToEventsPage(page)">
                         {{ page }}
                     </button>
-
-                    <span *ngIf="showEventsRightEllipsis" class="pagination-ellipsis">...</span>
                 </div>
+
+                <span *ngIf="showEventsRightEllipsis" class="pagination-ellipsis">...</span>
 
                 <button class="pagination-btn" (click)="nextEventsPage()"
                     [disabled]="eventsCurrentPage === eventsTotalPages" title="Next Page">
