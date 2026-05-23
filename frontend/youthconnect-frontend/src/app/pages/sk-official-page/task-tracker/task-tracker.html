@@ -41,6 +41,23 @@
                 <input type="text" placeholder="Search tasks by description, type, or hyperlink" class="search-input"
                     [(ngModel)]="searchTerm" (input)="searchTasks(searchTerm)">
             </div>
+            <div class="filter-group">
+                <select class="filter-select" [value]="selectedTaskingFilter"
+                    (change)="onTaskingFilterChange($any($event.target).value)">
+                    <option value="ALL">All Committees</option>
+                    <option *ngFor="let t of taskingOptions" [value]="t">{{ getTaskingDisplayName(t) }}</option>
+                </select>
+                <select class="filter-select" [value]="selectedSkInchargeFilter"
+                    *ngIf="activeTab === 'all'"
+                    (change)="onSkInchargeFilterChange($any($event.target).value)">
+                    <option value="ALL">All SK Incharge</option>
+                    <option *ngFor="let o of skOfficials" [value]="o.fullName">{{ o.fullName }}</option>
+                </select>
+                <select class="filter-select" [value]="selectedStatusFilter"
+                    (change)="onStatusFilterChange($any($event.target).value)">
+                    <option *ngFor="let s of taskStatusFilterOptions" [value]="s.value">{{ s.label }}</option>
+                </select>
+            </div>
             <button class="add-task-btn" (click)="openModal()">+ Add Task</button>
         </div>
 
@@ -81,7 +98,7 @@
                 <tbody>
                     <tr *ngIf="filteredTasks.length === 0">
                         <td colspan="5" class="no-results">
-                            <p>{{ searchTerm ? 'No tasks match your search.' : (activeTab === 'assigned' ? 'No tasks assigned to you.' : 'No tasks found.') }}</p>
+                            <p>{{ searchTerm || selectedTaskingFilter !== 'ALL' || selectedSkInchargeFilter !== 'ALL' || selectedStatusFilter !== 'ALL' ? 'No tasks match your filters.' : (activeTab === 'assigned' ? 'No tasks assigned to you.' : 'No tasks found.') }}</p>
                         </td>
                     </tr>
                     <tr *ngFor="let task of filteredTasks" class="task-row clickable-row"

@@ -32,6 +32,20 @@ export class TaskTracker implements OnInit {
   // Tab state
   activeTab: 'all' | 'assigned' = 'all';
 
+  // Filter state
+  selectedTaskingFilter: string = 'ALL';
+  selectedSkInchargeFilter: string = 'ALL';
+  selectedStatusFilter: string = 'ALL';
+
+  taskStatusFilterOptions = [
+    { value: 'ALL',         label: 'All Statuses' },
+    { value: 'PRIO',        label: 'PRIO' },
+    { value: 'TODO',        label: 'TO DO' },
+    { value: 'IN_PROGRESS', label: 'IN PROGRESS' },
+    { value: 'DONE',        label: 'DONE' },
+    { value: 'CUSTOM',      label: 'CUSTOM' },
+  ];
+
   // Tasks data
   tasks: TaskResponse[] = [];
   filteredTasks: TaskResponse[] = [];
@@ -205,6 +219,9 @@ export class TaskTracker implements OnInit {
 
   switchTab(tab: 'all' | 'assigned') {
     this.activeTab = tab;
+    this.selectedTaskingFilter = 'ALL';
+    this.selectedSkInchargeFilter = 'ALL';
+    this.selectedStatusFilter = 'ALL';
     this.applyFilters();
   }
 
@@ -213,10 +230,25 @@ export class TaskTracker implements OnInit {
 
     // Apply tab filter
     if (this.activeTab === 'assigned') {
-      filtered = filtered.filter(task => 
-        task.adminId === this.currentAdminId || 
+      filtered = filtered.filter(task =>
+        task.adminId === this.currentAdminId ||
         task.skIncharge === this.skOfficialName
       );
+    }
+
+    // Apply tasking filter
+    if (this.selectedTaskingFilter !== 'ALL') {
+      filtered = filtered.filter(task => task.tasking === this.selectedTaskingFilter);
+    }
+
+    // Apply SK Incharge filter
+    if (this.selectedSkInchargeFilter !== 'ALL') {
+      filtered = filtered.filter(task => task.skIncharge === this.selectedSkInchargeFilter);
+    }
+
+    // Apply status filter
+    if (this.selectedStatusFilter !== 'ALL') {
+      filtered = filtered.filter(task => task.status === this.selectedStatusFilter);
     }
 
     // Apply search filter
@@ -230,6 +262,21 @@ export class TaskTracker implements OnInit {
     }
 
     this.filteredTasks = filtered;
+  }
+
+  onTaskingFilterChange(value: string) {
+    this.selectedTaskingFilter = value;
+    this.applyFilters();
+  }
+
+  onSkInchargeFilterChange(value: string) {
+    this.selectedSkInchargeFilter = value;
+    this.applyFilters();
+  }
+
+  onStatusFilterChange(value: string) {
+    this.selectedStatusFilter = value;
+    this.applyFilters();
   }
 
   searchTasks(term: string) {
