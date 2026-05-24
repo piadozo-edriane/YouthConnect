@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import { EventService, EventResponse, AttendanceResponse } from '../../../services/event.service';
+import { EventService, EventResponse, EventRequest, AttendanceResponse } from '../../../services/event.service';
 import { YouthMemberManagementService } from '../../../services/youth-member-management.service';
+import { AuthService } from '../../../services/auth.service';
 
 export interface AttendeeRecord {
   attendanceId: number;
@@ -27,9 +28,10 @@ export interface AttendeeRecord {
 export class EventDetailsPage implements OnInit {
   private eventService = inject(EventService);
   private youthMemberService = inject(YouthMemberManagementService);
+  private authService = inject(AuthService);
+  private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private fb = inject(FormBuilder);
 
   selectedEvent: EventResponse | null = null;
   isLoading = false;
@@ -63,25 +65,40 @@ export class EventDetailsPage implements OnInit {
   notifications: { id: number; message: string; type: 'success' | 'error' }[] = [];
   private notificationCounter = 0;
 
-  // Edit event modal
+  // Edit modal
   isEditModalOpen = false;
   isEditConfirmModalOpen = false;
-  editEventForm!: FormGroup;
-  editErrorMessage = '';
-  private pendingEditPayload: any = null;
+  editForm!: FormGroup;
+  editModalError = '';
+  pendingEditPayload: EventRequest | null = null;
+  currentAdminId = 0;
 
   ngOnInit(): void {
-    this.editEventForm = this.fb.group({
+    this.initEditForm();
+    this.loadCurrentAdmin();
+    this.route.paramMap.subscribe(() => {
+      this.loadEventDetails();
+    });
+  }
+
+  private initEditForm(): void {
+    this.editForm = this.fb.group({
       eventTitle:    ['', [Validators.required, Validators.maxLength(200)]],
       description:   ['', [Validators.required, Validators.maxLength(5000)]],
       dateTime:      ['', Validators.required],
       location:      ['', [Validators.required, Validators.maxLength(255)]],
       attendeeLimit: [null, [Validators.required, Validators.min(1), Validators.max(99999)]]
     });
+  }
 
-    this.route.paramMap.subscribe(() => {
-      this.loadEventDetails();
-    });
+  private loadCurrentAdmin(): void {
+    const user = this.authService.getCurrentUser() as any;
+    if (user?.adminId) {
+      this.currentAdminId = user.adminId;
+    } else {
+      const stored = localStorage.getItem('sk_official_id') || localStorage.getItem('adminId');
+      this.currentAdminId = stored ? Number(stored) : 0;
+    }
   }
 
   goBack(): void {
@@ -89,49 +106,51 @@ export class EventDetailsPage implements OnInit {
   }
 
   editEvent(event: EventResponse): void {
+    this.editModalError = '';
+    this.pendingEditPayload = null;
+
     const dateObj = new Date(event.eventDate);
     const pad = (n: number) => String(n).padStart(2, '0');
     const dateTimeLocal = `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}T${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}`;
 
-    this.editEventForm.patchValue({
+    this.editForm.patchValue({
       eventTitle:    event.title,
       description:   event.description,
       dateTime:      dateTimeLocal,
       location:      event.location,
       attendeeLimit: event.attendeeLimit ?? null
     });
-    this.editErrorMessage = '';
+
     this.isEditModalOpen = true;
   }
 
   closeEditModal(): void {
     this.isEditModalOpen = false;
-    this.editEventForm.reset();
-    this.editErrorMessage = '';
+    this.editForm.reset();
+    this.editModalError = '';
+    this.pendingEditPayload = null;
   }
 
   submitEditEvent(): void {
-    if (this.editEventForm.invalid) {
-      Object.keys(this.editEventForm.controls).forEach(k => this.editEventForm.get(k)?.markAsTouched());
-      this.editErrorMessage = 'Please fill in all required fields correctly.';
+    if (this.editForm.invalid) {
+      Object.keys(this.editForm.controls).forEach(k => this.editForm.get(k)?.markAsTouched());
+      this.editModalError = 'Please fill in all required fields correctly.';
       return;
     }
 
-    const v = this.editEventForm.value;
+    const v = this.editForm.value;
     const dateObj = new Date(v.dateTime);
-    if (isNaN(dateObj.getTime())) { this.editErrorMessage = 'Invalid date format.'; return; }
-
     const pad = (n: number) => String(n).padStart(2, '0');
-    const eventDate = `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}T${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}`;
+    const eventDate = `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}T${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:00`;
 
     this.pendingEditPayload = {
-      title:             v.eventTitle.trim(),
-      description:       v.description.trim(),
+      title:            v.eventTitle.trim(),
+      description:      v.description.trim(),
       eventDate,
-      location:          v.location.trim(),
-      createdByAdminId:  this.selectedEvent!.createdByAdminId,
-      status:            this.selectedEvent!.status || 'Upcoming',
-      attendeeLimit:     v.attendeeLimit ? Number(v.attendeeLimit) : null
+      location:         v.location.trim(),
+      createdByAdminId: this.currentAdminId,
+      status:           this.selectedEvent?.status || 'Upcoming',
+      attendeeLimit:    v.attendeeLimit ? Number(v.attendeeLimit) : null
     };
 
     this.isEditConfirmModalOpen = true;
@@ -156,7 +175,7 @@ export class EventDetailsPage implements OnInit {
       },
       error: (error) => {
         console.error('Error updating event:', error);
-        this.editErrorMessage = error.error?.message || 'Failed to update event. Please try again.';
+        this.editModalError = error.error?.message || 'Failed to update event. Please try again.';
         this.isLoading = false;
         this.closeEditConfirmModal();
       }
