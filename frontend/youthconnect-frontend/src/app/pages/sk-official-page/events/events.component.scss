@@ -158,14 +158,12 @@ body,
   align-items: center;
   gap: 10px;
   width: 500px;
-  max-width: 100%;
   flex-shrink: 0;
   background: #fff;
   border: 1.5px solid #e0e0e0;
   border-radius: 999px;
   padding: 10px 20px;
   transition: border-color 0.2s, box-shadow 0.2s;
-  box-sizing: border-box;
 
   &:focus-within {
     border-color: #bbb;

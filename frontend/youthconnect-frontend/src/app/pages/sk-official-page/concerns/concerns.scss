@@ -18,7 +18,6 @@ body,
 // page header with user's profile
 .concerns-root {
   display: flex;
-  height: 100dvh;
   min-height: 100dvh;
   max-height: 100dvh;
   overflow: hidden;
@@ -38,7 +37,7 @@ body,
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       padding: 0px;
 
       .header-content {
@@ -120,15 +119,13 @@ body,
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 400px;
-  max-width: 100%;
+  width: 500px;
   flex-shrink: 0;
   background: #fff;
   border: 1.5px solid #e0e0e0;
   border-radius: 999px;
   padding: 10px 20px;
   transition: border-color 0.2s, box-shadow 0.2s;
-  box-sizing: border-box;
 
   &:focus-within {
     border-color: #bbb;
