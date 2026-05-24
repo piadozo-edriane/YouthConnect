@@ -32,9 +32,6 @@ export class EventsComponent implements OnInit {
   eventsCurrentPage: number = 1;
   eventsItemsPerPage: number = 9;
 
-  // Cache flag to prevent reloading
-  private eventsLoaded = false;
-
   statusFilters = [
     { value: 'ALL',      label: 'All Events' },
     { value: 'Upcoming',  label: 'Upcoming' },
@@ -241,23 +238,14 @@ export class EventsComponent implements OnInit {
   }
 
   loadEvents() {
-    // Only load if not already loaded
-    if (this.eventsLoaded && this.events.length > 0) {
-      return;
-    }
-
     this.isLoading = true;
     this.eventService.getAllEvents().subscribe({
       next: (data) => {
-        // Ensure all events have expectedCount with a default value
         this.events = data.map(event => ({
           ...event,
           expectedCount: event.expectedCount ?? (event.rsvpCount || 0)
         }));
-        this.filteredEvents = this.events;
-        this.searchTerm = '';
-        this.selectedStatusFilter = 'ALL';
-        this.eventsLoaded = true; // Mark as loaded
+        this.applyFilters();
         this.isLoading = false;
         this.handlePendingActions();
       },
