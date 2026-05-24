@@ -1,10 +1,11 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import { EventService, EventResponse, AttendanceResponse } from '../../../services/event.service';
+import { EventService, EventResponse, EventRequest, AttendanceResponse } from '../../../services/event.service';
 import { YouthMemberManagementService } from '../../../services/youth-member-management.service';
+import { AuthService } from '../../../services/auth.service';
 
 export interface AttendeeRecord {
   attendanceId: number;
@@ -19,7 +20,7 @@ export interface AttendeeRecord {
 
 @Component({
   selector: 'app-event-details-page',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './event-details.html',
   styleUrl: './event-details.scss',
   standalone: true
@@ -27,6 +28,8 @@ export interface AttendeeRecord {
 export class EventDetailsPage implements OnInit {
   private eventService = inject(EventService);
   private youthMemberService = inject(YouthMemberManagementService);
+  private authService = inject(AuthService);
+  private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -62,10 +65,47 @@ export class EventDetailsPage implements OnInit {
   notifications: { id: number; message: string; type: 'success' | 'error' }[] = [];
   private notificationCounter = 0;
 
+  // Edit modal
+  isEditModalOpen = false;
+  isEditConfirmModalOpen = false;
+  editForm!: FormGroup;
+  editModalError = '';
+  pendingEditPayload: EventRequest | null = null;
+  currentAdminId = 0;
+  private editFormOriginalValues: any = null;
+
+  // Delete modal
+  isDeleteModalOpen = false;
+
+  // Status update
+  isStatusUpdating = false;
+
   ngOnInit(): void {
+    this.initEditForm();
+    this.loadCurrentAdmin();
     this.route.paramMap.subscribe(() => {
       this.loadEventDetails();
     });
+  }
+
+  private initEditForm(): void {
+    this.editForm = this.fb.group({
+      eventTitle:    ['', [Validators.required, Validators.maxLength(200)]],
+      description:   ['', [Validators.required, Validators.maxLength(5000)]],
+      dateTime:      ['', Validators.required],
+      location:      ['', [Validators.required, Validators.maxLength(255)]],
+      attendeeLimit: [null, [Validators.required, Validators.min(1), Validators.max(99999)]]
+    });
+  }
+
+  private loadCurrentAdmin(): void {
+    const user = this.authService.getCurrentUser() as any;
+    if (user?.adminId) {
+      this.currentAdminId = user.adminId;
+    } else {
+      const stored = localStorage.getItem('sk_official_id') || localStorage.getItem('adminId');
+      this.currentAdminId = stored ? Number(stored) : 0;
+    }
   }
 
   goBack(): void {
@@ -73,11 +113,116 @@ export class EventDetailsPage implements OnInit {
   }
 
   editEvent(event: EventResponse): void {
-    this.router.navigate(['/sk-official/events'], { queryParams: { edit: event.eventId } });
+    this.editModalError = '';
+    this.pendingEditPayload = null;
+
+    const dateObj = new Date(event.eventDate);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const dateTimeLocal = `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}T${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}`;
+
+    const values = {
+      eventTitle:    event.title,
+      description:   event.description,
+      dateTime:      dateTimeLocal,
+      location:      event.location,
+      attendeeLimit: event.attendeeLimit ?? null
+    };
+
+    this.editForm.patchValue(values);
+    this.editFormOriginalValues = { ...values };
+    this.isEditModalOpen = true;
+  }
+
+  get editFormHasChanges(): boolean {
+    if (!this.editFormOriginalValues) return false;
+    const current = this.editForm.value;
+    return Object.keys(this.editFormOriginalValues).some(
+      key => String(current[key] ?? '') !== String(this.editFormOriginalValues[key] ?? '')
+    );
+  }
+
+  closeEditModal(): void {
+    this.isEditModalOpen = false;
+    this.editForm.reset();
+    this.editModalError = '';
+    this.pendingEditPayload = null;
+    this.editFormOriginalValues = null;
+  }
+
+  submitEditEvent(): void {
+    if (this.editForm.invalid) {
+      Object.keys(this.editForm.controls).forEach(k => this.editForm.get(k)?.markAsTouched());
+      this.editModalError = 'Please fill in all required fields correctly.';
+      return;
+    }
+
+    const v = this.editForm.value;
+    const dateObj = new Date(v.dateTime);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const eventDate = `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}T${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:00`;
+
+    this.pendingEditPayload = {
+      title:            v.eventTitle.trim(),
+      description:      v.description.trim(),
+      eventDate,
+      location:         v.location.trim(),
+      createdByAdminId: this.currentAdminId,
+      status:           this.selectedEvent?.status || 'Upcoming',
+      attendeeLimit:    v.attendeeLimit ? Number(v.attendeeLimit) : null
+    };
+
+    this.isEditConfirmModalOpen = true;
+  }
+
+  closeEditConfirmModal(): void {
+    this.isEditConfirmModalOpen = false;
+    this.pendingEditPayload = null;
+  }
+
+  confirmEditSubmission(): void {
+    if (!this.pendingEditPayload || !this.selectedEvent) return;
+
+    this.isLoading = true;
+    this.eventService.editEvent(this.selectedEvent.eventId, this.pendingEditPayload).subscribe({
+      next: (updated) => {
+        this.selectedEvent = { ...this.selectedEvent!, ...updated };
+        this.isLoading = false;
+        this.closeEditConfirmModal();
+        this.closeEditModal();
+        this.showNotification('Event updated successfully!', 'success');
+      },
+      error: (error) => {
+        console.error('Error updating event:', error);
+        this.editModalError = error.error?.message || 'Failed to update event. Please try again.';
+        this.isLoading = false;
+        this.closeEditConfirmModal();
+      }
+    });
   }
 
   deleteEvent(event: EventResponse): void {
-    this.router.navigate(['/sk-official/events'], { queryParams: { delete: event.eventId } });
+    this.isDeleteModalOpen = true;
+  }
+
+  closeDeleteModal(): void {
+    this.isDeleteModalOpen = false;
+  }
+
+  confirmDeleteEvent(): void {
+    if (!this.selectedEvent) return;
+    this.isLoading = true;
+    this.eventService.deleteEvent(this.selectedEvent.eventId).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.router.navigate(['/sk-official/events']);
+      },
+      error: (error) => {
+        console.error('Error deleting event:', error);
+        this.isLoading = false;
+        this.closeDeleteModal();
+        this.showNotification('Failed to delete event. Please try again.', 'error');
+      }
+    });
   }
 
   loadEventDetails(): void {
@@ -179,6 +324,11 @@ export class EventDetailsPage implements OnInit {
     return this.allAttendees.filter(a => a.approvalStatus === 'approved');
   }
 
+  get isApprovalLocked(): boolean {
+    const s = (this.selectedEvent?.status || '').toLowerCase();
+    return s === 'ongoing' || s === 'completed';
+  }
+
   // ─── Approval Panel ───────────────────────────────────────────────────────
 
   openApprovalPanel(): void {
@@ -260,7 +410,6 @@ export class EventDetailsPage implements OnInit {
         this.approvalMessage = `${attendee.name} has been approved.`;
         this.updatingAttendanceId = null;
         this.updatingAction = null;
-        this.showNotification(`${attendee.name} approved successfully!`, 'success');
         setTimeout(() => { this.approvalMessage = ''; }, 3000);
       },
       error: (error) => {
@@ -305,7 +454,6 @@ export class EventDetailsPage implements OnInit {
         this.approvalMessage = `${name} has been rejected.`;
         this.updatingAttendanceId = null;
         this.updatingAction = null;
-        this.showNotification(`${name} rejected successfully.`, 'success');
         this.closeRejectModal();
         setTimeout(() => { this.approvalMessage = ''; }, 3000);
       },
@@ -398,7 +546,7 @@ export class EventDetailsPage implements OnInit {
   }
 
   isStatusActionDisabled(status?: string): boolean {
-    return (status || '').toLowerCase() === 'completed' || this.isLoading;
+    return (status || '').toLowerCase() === 'completed' || this.isStatusUpdating;
   }
 
   updateEventStatus(event: EventResponse): void {
@@ -413,20 +561,21 @@ export class EventDetailsPage implements OnInit {
       eventDate: event.eventDate,
       location: event.location,
       createdByAdminId: event.createdByAdminId,
-      status: nextStatus
+      status: nextStatus,
+      attendeeLimit: event.attendeeLimit ?? null
     };
 
-    this.isLoading = true;
+    this.isStatusUpdating = true;
     this.eventService.editEvent(event.eventId, request).subscribe({
       next: () => {
         if (this.selectedEvent) {
           this.selectedEvent = { ...this.selectedEvent, status: nextStatus };
         }
-        this.isLoading = false;
+        this.isStatusUpdating = false;
       },
       error: (error) => {
         console.error('Error updating event status:', error);
-        this.isLoading = false;
+        this.isStatusUpdating = false;
       }
     });
   }

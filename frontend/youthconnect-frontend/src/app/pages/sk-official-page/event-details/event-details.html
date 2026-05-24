@@ -10,21 +10,19 @@
 
     <div class="event-details-container">
         <div class="details-top-bar">
-            <button class="back-btn" (click)="goBack()"><< Back to Events</button>
+            <button class="back-btn" (click)="goBack()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
             <div class="details-actions" *ngIf="selectedEvent">
                 <button class="details-edit-btn" (click)="editEvent(selectedEvent)" title="Edit event"
                     [disabled]="isEditDisabled(selectedEvent.status)">
-                    <img src="../../assets/sk-official-events-icons/edit.svg" alt="Edit" width="20" height="20">
-                    <span>Edit</span>
+                    <img src="../../assets/sk-official-events-icons/edit.svg" alt="Edit" width="22" height="22">
                 </button>
                 <button class="details-delete-btn" (click)="deleteEvent(selectedEvent)" title="Delete event"
                     [disabled]="isEventOngoing(selectedEvent.status)">
-                    <img src="../../assets/sk-official-events-icons/delete.svg" alt="Delete" width="20" height="20">
-                    <span>Delete</span>
-                </button>
-                <button class="btn-approval-panel" (click)="openApprovalPanel()">
-                    Attendee Approval
-                    <span class="notification-badge" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
+                    <img src="../../assets/sk-official-events-icons/delete.svg" alt="Delete" width="22" height="22">
                 </button>
             </div>
         </div>
@@ -69,29 +67,28 @@
                         <span class="detail-info-label">JOINED:</span>
                         <span class="detail-info-value">{{ selectedEvent.rsvpCount || 0 }} Joined</span>
                     </div>
+                </div>
 
+                <div class="details-status-bar">
                     <!-- Attendee Summary Chips -->
                     <div class="attendee-summary" *ngIf="!isLoadingAttendees">
-                        <div class="summary-chip pending-chip">
-                            <span class="chip-count">{{ pendingCount }}</span>
-                            <span class="chip-label">Pending</span>
-                        </div>
                         <div class="summary-chip approved-chip">
                             <span class="chip-count">{{ approvedCount }}</span>
                             <span class="chip-label">Approved</span>
+                        </div>
+                        <div class="summary-chip pending-chip">
+                            <span class="chip-count">{{ pendingCount }}</span>
+                            <span class="chip-label">Pending</span>
                         </div>
                         <div class="summary-chip rejected-chip">
                             <span class="chip-count">{{ rejectedCount }}</span>
                             <span class="chip-label">Rejected</span>
                         </div>
                     </div>
-                </div>
-
-                <div class="details-status-bar">
                     <button class="details-status-btn" [ngClass]="getStatusActionClass(selectedEvent.status)"
                         [disabled]="isStatusActionDisabled(selectedEvent.status)"
                         (click)="updateEventStatus(selectedEvent)">
-                        {{ getStatusActionLabel(selectedEvent.status) }}
+                        {{ isStatusUpdating ? 'Updating...' : getStatusActionLabel(selectedEvent.status) }}
                     </button>
                 </div>
             </div>
@@ -133,9 +130,15 @@
 
                     <!-- Approved Attendees List -->
                     <div class="attendees-section">
-                        <h4 class="attendees-title">
-                            {{ approvedCount }} / {{ selectedEvent.attendeeLimit ?? '—' }} Approved
-                        </h4>
+                        <div class="attendees-title-row">
+                            <h4 class="attendees-title">
+                                {{ approvedCount }} / {{ selectedEvent.attendeeLimit ?? '—' }} Approved
+                            </h4>
+                            <button class="btn-approval-panel" (click)="openApprovalPanel()" [disabled]="isApprovalLocked">
+                                Attendee Approval
+                                <span class="notification-badge" *ngIf="pendingCount > 0 && !isApprovalLocked">{{ pendingCount }}</span>
+                            </button>
+                        </div>
 
                         <div *ngIf="isLoadingAttendees" class="attendees-loading">
                             <p>Loading attendees...</p>
@@ -222,12 +225,12 @@
                         <!-- Pending: Approve & Reject -->
                         <ng-container *ngIf="attendee.approvalStatus === 'pending'">
                             <button type="button" class="btn-approve"
-                                [disabled]="updatingAttendanceId !== null"
+                                [disabled]="updatingAttendanceId !== null || isApprovalLocked"
                                 (click)="approveAttendee(attendee)">
                                 {{ updatingAttendanceId === attendee.attendanceId && updatingAction === 'approve' ? 'Approving...' : 'Approve' }}
                             </button>
                             <button type="button" class="btn-reject"
-                                [disabled]="updatingAttendanceId !== null"
+                                [disabled]="updatingAttendanceId !== null || isApprovalLocked"
                                 (click)="openRejectModal(attendee)">
                                 Reject
                             </button>
@@ -235,7 +238,7 @@
                         <!-- Approved: can reject -->
                         <ng-container *ngIf="attendee.approvalStatus === 'approved'">
                             <button type="button" class="btn-reject"
-                                [disabled]="updatingAttendanceId !== null"
+                                [disabled]="updatingAttendanceId !== null || isApprovalLocked"
                                 (click)="openRejectModal(attendee)">
                                 Reject
                             </button>
@@ -243,7 +246,7 @@
                         <!-- Rejected: can approve -->
                         <ng-container *ngIf="attendee.approvalStatus === 'rejected'">
                             <button type="button" class="btn-approve"
-                                [disabled]="updatingAttendanceId !== null"
+                                [disabled]="updatingAttendanceId !== null || isApprovalLocked"
                                 (click)="approveAttendee(attendee)">
                                 {{ updatingAttendanceId === attendee.attendanceId && updatingAction === 'approve' ? 'Approving...' : 'Approve' }}
                             </button>
@@ -309,6 +312,132 @@
                 <button type="button" class="btn-reject-confirm" (click)="confirmRejectAttendee()"
                     [disabled]="updatingAttendanceId !== null">
                     {{ updatingAttendanceId !== null ? 'Rejecting...' : 'Confirm Rejection' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Event Modal -->
+    <div class="modal-overlay" *ngIf="isEditModalOpen">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Edit Event</h2>
+                    <p class="modal-subtitle">Update event details</p>
+                </div>
+                <button class="close-btn" (click)="closeEditModal()">✕</button>
+            </div>
+
+            <div class="modal-body-wrapper">
+                <div *ngIf="editModalError" class="modal-alert alert-error">{{ editModalError }}</div>
+                <form [formGroup]="editForm">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="form-label">Event Title <span class="required">*</span></label>
+                            <input type="text" class="form-input" placeholder="Enter event title"
+                                formControlName="eventTitle" maxlength="200">
+                            <div *ngIf="editForm.get('eventTitle')?.invalid && editForm.get('eventTitle')?.touched" class="form-error">
+                                <span *ngIf="editForm.get('eventTitle')?.hasError('required')">Event title is required</span>
+                                <span *ngIf="editForm.get('eventTitle')?.hasError('maxlength')">Title cannot exceed 200 characters</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Event Description <span class="required">*</span></label>
+                            <textarea class="form-textarea" placeholder="Enter event description" rows="4"
+                                formControlName="description" maxlength="5000"></textarea>
+                            <div *ngIf="editForm.get('description')?.invalid && editForm.get('description')?.touched" class="form-error">
+                                <span *ngIf="editForm.get('description')?.hasError('required')">Description is required</span>
+                                <span *ngIf="editForm.get('description')?.hasError('maxlength')">Description cannot exceed 5000 characters</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Event Date & Time <span class="required">*</span></label>
+                            <input type="datetime-local" class="form-input" formControlName="dateTime">
+                            <div *ngIf="editForm.get('dateTime')?.invalid && editForm.get('dateTime')?.touched" class="form-error">
+                                <span>Date and time are required</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Event Location <span class="required">*</span></label>
+                            <input type="text" class="form-input" placeholder="Enter event location"
+                                formControlName="location" maxlength="255">
+                            <div *ngIf="editForm.get('location')?.invalid && editForm.get('location')?.touched" class="form-error">
+                                <span *ngIf="editForm.get('location')?.hasError('required')">Location is required</span>
+                                <span *ngIf="editForm.get('location')?.hasError('maxlength')">Location cannot exceed 255 characters</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Number of Attendees <span class="required">*</span></label>
+                            <input type="number" class="form-input" placeholder="e.g. 50"
+                                formControlName="attendeeLimit" min="1" max="99999">
+                            <div *ngIf="editForm.get('attendeeLimit')?.invalid && editForm.get('attendeeLimit')?.touched" class="form-error">
+                                <span *ngIf="editForm.get('attendeeLimit')?.hasError('required')">Number of attendees is required</span>
+                                <span *ngIf="editForm.get('attendeeLimit')?.hasError('min')">Must be at least 1</span>
+                                <span *ngIf="editForm.get('attendeeLimit')?.hasError('max')">Cannot exceed 99,999</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" (click)="closeEditModal()" [disabled]="isLoading">Cancel</button>
+                <button type="button" class="btn-confirm-edit" (click)="submitEditEvent()" [disabled]="editForm.invalid || isLoading || !editFormHasChanges">
+                    {{ isLoading ? 'Updating...' : 'Update Event' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Confirm Modal -->
+    <div class="modal-overlay" *ngIf="isEditConfirmModalOpen">
+        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Confirm Update</h2>
+                </div>
+                <button class="close-btn" (click)="closeEditConfirmModal()">✕</button>
+            </div>
+            <div class="modal-body-wrapper">
+                <div class="modal-body">
+                    <p class="confirmation-text">
+                        Are you sure you want to update <strong>{{ editForm.get('eventTitle')?.value }}</strong>?
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" (click)="closeEditConfirmModal()" [disabled]="isLoading">Cancel</button>
+                <button type="button" class="btn-confirm-edit" (click)="confirmEditSubmission()" [disabled]="isLoading">
+                    {{ isLoading ? 'Updating...' : 'Update' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Event Modal -->
+    <div class="modal-overlay" *ngIf="isDeleteModalOpen">
+        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Confirm Delete</h2>
+                </div>
+                <button class="close-btn" (click)="closeDeleteModal()">✕</button>
+            </div>
+            <div class="modal-body-wrapper">
+                <div class="modal-body">
+                    <p class="confirmation-text">
+                        Are you sure you want to permanently delete <strong>{{ selectedEvent?.title }}</strong>? This action cannot be undone.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" (click)="closeDeleteModal()" [disabled]="isLoading">Cancel</button>
+                <button type="button" class="btn-delete" (click)="confirmDeleteEvent()" [disabled]="isLoading">
+                    {{ isLoading ? 'Deleting...' : 'Delete' }}
                 </button>
             </div>
         </div>
