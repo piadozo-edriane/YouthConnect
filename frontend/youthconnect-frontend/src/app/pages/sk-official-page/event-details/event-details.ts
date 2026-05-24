@@ -72,6 +72,7 @@ export class EventDetailsPage implements OnInit {
   editModalError = '';
   pendingEditPayload: EventRequest | null = null;
   currentAdminId = 0;
+  private editFormOriginalValues: any = null;
 
   // Delete modal
   isDeleteModalOpen = false;
@@ -116,15 +117,25 @@ export class EventDetailsPage implements OnInit {
     const pad = (n: number) => String(n).padStart(2, '0');
     const dateTimeLocal = `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}T${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}`;
 
-    this.editForm.patchValue({
+    const values = {
       eventTitle:    event.title,
       description:   event.description,
       dateTime:      dateTimeLocal,
       location:      event.location,
       attendeeLimit: event.attendeeLimit ?? null
-    });
+    };
 
+    this.editForm.patchValue(values);
+    this.editFormOriginalValues = { ...values };
     this.isEditModalOpen = true;
+  }
+
+  get editFormHasChanges(): boolean {
+    if (!this.editFormOriginalValues) return false;
+    const current = this.editForm.value;
+    return Object.keys(this.editFormOriginalValues).some(
+      key => String(current[key] ?? '') !== String(this.editFormOriginalValues[key] ?? '')
+    );
   }
 
   closeEditModal(): void {
@@ -132,6 +143,7 @@ export class EventDetailsPage implements OnInit {
     this.editForm.reset();
     this.editModalError = '';
     this.pendingEditPayload = null;
+    this.editFormOriginalValues = null;
   }
 
   submitEditEvent(): void {

@@ -386,7 +386,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn-cancel" (click)="closeEditModal()" [disabled]="isLoading">Cancel</button>
-                <button type="button" class="btn-confirm-edit" (click)="submitEditEvent()" [disabled]="editForm.invalid || isLoading">
+                <button type="button" class="btn-confirm-edit" (click)="submitEditEvent()" [disabled]="editForm.invalid || isLoading || !editFormHasChanges">
                     {{ isLoading ? 'Updating...' : 'Update Event' }}
                 </button>
             </div>
