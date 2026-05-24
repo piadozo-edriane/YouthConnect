@@ -418,6 +418,31 @@
         </div>
     </div>
 
+    <!-- Delete Event Modal -->
+    <div class="modal-overlay" *ngIf="isDeleteModalOpen">
+        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Confirm Delete</h2>
+                </div>
+                <button class="close-btn" (click)="closeDeleteModal()">✕</button>
+            </div>
+            <div class="modal-body-wrapper">
+                <div class="modal-body">
+                    <p class="confirmation-text">
+                        Are you sure you want to permanently delete <strong>{{ selectedEvent?.title }}</strong>? This action cannot be undone.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" (click)="closeDeleteModal()" [disabled]="isLoading">Cancel</button>
+                <button type="button" class="btn-delete" (click)="confirmDeleteEvent()" [disabled]="isLoading">
+                    {{ isLoading ? 'Deleting...' : 'Delete' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Attendee Details Modal -->
     <div class="modal-overlay" *ngIf="isAttendeeDetailsModalOpen && selectedAttendeeProfile">
         <div class="modal-content modal-attendee-details" (click)="$event.stopPropagation()">

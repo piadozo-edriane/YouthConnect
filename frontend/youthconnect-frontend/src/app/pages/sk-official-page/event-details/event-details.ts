@@ -73,6 +73,9 @@ export class EventDetailsPage implements OnInit {
   pendingEditPayload: EventRequest | null = null;
   currentAdminId = 0;
 
+  // Delete modal
+  isDeleteModalOpen = false;
+
   ngOnInit(): void {
     this.initEditForm();
     this.loadCurrentAdmin();
@@ -183,7 +186,28 @@ export class EventDetailsPage implements OnInit {
   }
 
   deleteEvent(event: EventResponse): void {
-    this.router.navigate(['/sk-official/events'], { queryParams: { delete: event.eventId } });
+    this.isDeleteModalOpen = true;
+  }
+
+  closeDeleteModal(): void {
+    this.isDeleteModalOpen = false;
+  }
+
+  confirmDeleteEvent(): void {
+    if (!this.selectedEvent) return;
+    this.isLoading = true;
+    this.eventService.deleteEvent(this.selectedEvent.eventId).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.router.navigate(['/sk-official/events']);
+      },
+      error: (error) => {
+        console.error('Error deleting event:', error);
+        this.isLoading = false;
+        this.closeDeleteModal();
+        this.showNotification('Failed to delete event. Please try again.', 'error');
+      }
+    });
   }
 
   loadEventDetails(): void {
