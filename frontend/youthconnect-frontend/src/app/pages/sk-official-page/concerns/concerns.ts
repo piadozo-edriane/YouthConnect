@@ -20,7 +20,24 @@ export class Concerns implements OnInit {
   errorMessage: string = '';
   successMessage: string = '';
   searchTerm: string = '';
+  selectedTypeFilter: string = 'ALL';
+  selectedStatusFilter: string = 'ALL';
   currentAdminId: number = 0;
+
+  concernTypeFilterOptions = [
+    { value: 'ALL',               label: 'All Types' },
+    { value: 'PROJECT_CONCERN',   label: 'Project Concern' },
+    { value: 'COMMUNITY_CONCERN', label: 'Community Concern' },
+    { value: 'SYSTEM_CONCERN',    label: 'System Concern' },
+  ];
+
+  concernStatusFilterOptions = [
+    { value: 'ALL',         label: 'All Statuses' },
+    { value: 'OPEN',        label: 'Open' },
+    { value: 'IN_PROGRESS', label: 'In Progress' },
+    { value: 'RESOLVED',    label: 'Resolved' },
+    { value: 'CLOSED',      label: 'Closed' },
+  ];
   skOfficialName = 'SK Official';
   skOfficialEmail = '';
   skOfficialPosition = 'SK Official';
@@ -102,9 +119,10 @@ export class Concerns implements OnInit {
     this.adminConcernService.getAllConcerns().subscribe({
       next: (data) => {
         this.concerns = data;
-        this.filteredConcerns = data;
         this.searchTerm = '';
-        this.concernsCurrentPage = 1;
+        this.selectedTypeFilter = 'ALL';
+        this.selectedStatusFilter = 'ALL';
+        this.applyFilters();
         this.isLoading = false;
       },
       error: (error) => {
@@ -115,21 +133,43 @@ export class Concerns implements OnInit {
     });
   }
 
-  searchConcerns(term: string) {
-    this.searchTerm = term;
-    
-    if (!term.trim()) {
-      this.filteredConcerns = this.concerns;
-      return;
+  onTypeFilterChange(value: string) {
+    this.selectedTypeFilter = value;
+    this.applyFilters();
+  }
+
+  onStatusFilterChange(value: string) {
+    this.selectedStatusFilter = value;
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    let result = this.concerns;
+
+    if (this.selectedTypeFilter !== 'ALL') {
+      result = result.filter(c => c.typeOfConcern === this.selectedTypeFilter);
     }
 
-    const searchLower = term.toLowerCase();
-    this.filteredConcerns = this.concerns.filter(concern =>
-      concern.title.toLowerCase().includes(searchLower) ||
-      concern.description.toLowerCase().includes(searchLower) ||
-      concern.typeOfConcern.toLowerCase().includes(searchLower)
-    );
+    if (this.selectedStatusFilter !== 'ALL') {
+      result = result.filter(c => c.status === this.selectedStatusFilter);
+    }
+
+    if (this.searchTerm.trim()) {
+      const searchLower = this.searchTerm.toLowerCase();
+      result = result.filter(c =>
+        c.title.toLowerCase().includes(searchLower) ||
+        c.description.toLowerCase().includes(searchLower) ||
+        c.typeOfConcern.toLowerCase().includes(searchLower)
+      );
+    }
+
+    this.filteredConcerns = result;
     this.concernsCurrentPage = 1;
+  }
+
+  searchConcerns(term: string) {
+    this.searchTerm = term;
+    this.applyFilters();
   }
 
   get paginatedConcerns(): Concern[] {

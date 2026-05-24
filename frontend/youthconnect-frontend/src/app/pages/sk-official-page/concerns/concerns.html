@@ -28,7 +28,17 @@
                     placeholder="Search concerns by title, type, or description"
                     class="search-input"
                     [(ngModel)]="searchTerm"
-                    (input)="searchConcerns(searchTerm)">
+                    (input)="applyFilters()">
+            </div>
+            <div class="filter-group">
+                <select class="filter-select" [value]="selectedTypeFilter"
+                    (change)="onTypeFilterChange($any($event.target).value)">
+                    <option *ngFor="let t of concernTypeFilterOptions" [value]="t.value">{{ t.label }}</option>
+                </select>
+                <select class="filter-select" [value]="selectedStatusFilter"
+                    (change)="onStatusFilterChange($any($event.target).value)">
+                    <option *ngFor="let s of concernStatusFilterOptions" [value]="s.value">{{ s.label }}</option>
+                </select>
             </div>
         </div>
 
