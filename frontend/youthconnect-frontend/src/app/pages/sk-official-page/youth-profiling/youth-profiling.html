@@ -64,7 +64,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let profile of filteredProfiles; trackBy: trackByYouthId" class="profile-row clickable-row"
+          <tr *ngFor="let profile of paginatedProfiles; trackBy: trackByYouthId" class="profile-row clickable-row"
             (click)="openYouthDetailsModal(profile)">
             <td class="name-cell">
               {{ profile.firstName }}
@@ -88,6 +88,56 @@
       </table>
     </div>
 
+    <!-- Sticky Pagination Footer -->
+    <div class="profiles-pagination-footer" *ngIf="showProfilesPagination">
+      <!-- Profile Count Display -->
+      <div class="profiles-data-count">
+        <p>Showing {{ paginatedProfiles.length }} of {{ filteredProfiles.length }} 
+          {{ filteredProfiles.length === 1 ? 'youth profile' : 'youth profiles' }}</p>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="profiles-pagination">
+        <button class="pagination-btn" (click)="goToProfilesPage(1)" [disabled]="profilesCurrentPage === 1" title="First Page">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+            <path d="M18.41 16.59L13.82 12l4.59-4.59L17 6l-6 6 6 6 1.41-1.41zM6 6h2v12H6V6z" />
+          </svg>
+        </button>
+
+        <button class="pagination-btn" (click)="previousProfilesPage()" [disabled]="profilesCurrentPage === 1" title="Previous Page">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+          </svg>
+        </button>
+
+        <span *ngIf="showProfilesLeftEllipsis" class="pagination-ellipsis">...</span>
+
+        <div class="pagination-numbers">
+          <button *ngFor="let page of profilesVisiblePages"
+            class="pagination-number"
+            [class.active]="page === profilesCurrentPage"
+            (click)="goToProfilesPage(page)">
+            {{ page }}
+          </button>
+        </div>
+
+        <span *ngIf="showProfilesRightEllipsis" class="pagination-ellipsis">...</span>
+
+        <button class="pagination-btn" (click)="nextProfilesPage()"
+          [disabled]="profilesCurrentPage === profilesTotalPages" title="Next Page">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+          </svg>
+        </button>
+
+        <button class="pagination-btn" (click)="goToProfilesPage(profilesTotalPages)" [disabled]="profilesCurrentPage === profilesTotalPages" title="Last Page">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+            <path d="M5.59 7.41L10.18 12l-4.59 4.59L7 18l6-6-6-6-1.41 1.41zM18 6h-2v12h2V6z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
     <!-- Empty State -->
     <div *ngIf="!isLoading && filteredProfiles.length === 0 && !searchQuery" class="empty-state">
       <p>No youth profiles found.</p>
@@ -96,13 +146,6 @@
     <!-- No Search Results -->
     <div *ngIf="!isLoading && filteredProfiles.length === 0 && searchQuery" class="empty-state">
       <p>No youth profiles match your search.</p>
-    </div>
-
-    <!-- Results Count -->
-    <div *ngIf="!isLoading && filteredProfiles.length > 0" class="results-footer"
-      style="background: transparent; box-shadow: none; border: none; padding: 0; margin: 0;">
-      <p style="margin: 0; background: transparent;">Showing {{ filteredProfiles.length }} of {{ youthProfiles.length }}
-        youth profiles</p>
     </div>
   </div>
 
