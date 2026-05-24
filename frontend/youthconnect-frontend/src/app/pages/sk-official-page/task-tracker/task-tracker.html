@@ -85,12 +85,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngIf="filteredTasks.length === 0">
+                    <tr *ngIf="paginatedTasks.length === 0">
                         <td colspan="5" class="no-results">
                             <p>{{ searchTerm || selectedTaskingFilter !== 'ALL' || selectedSkInchargeFilter !== 'ALL' || selectedStatusFilter !== 'ALL' ? 'No tasks match your filters.' : (activeTab === 'assigned' ? 'No tasks assigned to you.' : 'No tasks found.') }}</p>
                         </td>
                     </tr>
-                    <tr *ngFor="let task of filteredTasks" class="task-row clickable-row"
+                    <tr *ngFor="let task of paginatedTasks; trackBy: trackByTaskId" class="task-row clickable-row"
                         (click)="openDetailsModal(task)">
                         <td class="tasking-cell">{{ getTaskingDisplayName(task.tasking) }}</td>
                         <td class="sk-incharge-col">{{ task.skIncharge || getSkOfficialName(task.adminId) }}</td>
@@ -101,29 +101,81 @@
                         </td>
                         <td>{{ task.dueDate ? formatDate(task.dueDate) : '—' }}</td>
                         <td class="actions-cell" (click)="$event.stopPropagation()">
-                            <button class="btn-task-action btn-in-progress"
-                                *ngIf="task.status === 'PRIO' || task.status === 'TODO'"
-                                (click)="setAsInProgress(task.taskId)" title="Set as In Progress">
-                                Set as In Progress
-                            </button>
-                            <button class="btn-task-action btn-mark-done"
-                                *ngIf="task.status === 'IN_PROGRESS' || task.status === 'CUSTOM'"
-                                (click)="updateTaskStatus(task.taskId, 'DONE')" title="Mark as Done">
-                                Mark as Done
-                            </button>
-                            <span *ngIf="task.status === 'DONE'" class="task-done-badge">Done</span>
-                            <button class="btn-icon btn-edit" (click)="openEditModal(task)" title="Edit task">
-                                <img src="assets/sk-official-events-icons/edit.svg" alt="Edit" width="16" height="16">
-                            </button>
-                            <button class="btn-icon btn-deactivate" (click)="deleteTask(task.taskId)"
-                                title="Delete task">
-                                <img src="assets/sk-official-events-icons/delete.svg" alt="Delete" width="16"
-                                    height="16">
-                            </button>
+                            <div class="actions-cell-content">
+                                <button class="btn-task-action btn-in-progress"
+                                    *ngIf="task.status === 'PRIO' || task.status === 'TODO'"
+                                    (click)="setAsInProgress(task.taskId)" title="Set as In Progress">
+                                    Set as In Progress
+                                </button>
+                                <button class="btn-task-action btn-mark-done"
+                                    *ngIf="task.status === 'IN_PROGRESS' || task.status === 'CUSTOM'"
+                                    (click)="updateTaskStatus(task.taskId, 'DONE')" title="Mark as Done">
+                                    Mark as Done
+                                </button>
+                                <span *ngIf="task.status === 'DONE'" class="task-done-badge">Done</span>
+                                <button class="btn-icon btn-edit" (click)="openEditModal(task)" title="Edit task">
+                                    <img src="assets/sk-official-events-icons/edit.svg" alt="Edit" width="16" height="16">
+                                </button>
+                                <button class="btn-icon btn-deactivate" (click)="deleteTask(task.taskId)"
+                                    title="Delete task">
+                                    <img src="assets/sk-official-events-icons/delete.svg" alt="Delete" width="16"
+                                        height="16">
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <!-- Sticky Pagination Footer -->
+        <div class="tasks-pagination-footer" *ngIf="showTasksPagination">
+            <!-- Task Count Display -->
+            <div class="tasks-data-count">
+                <p>Showing {{ paginatedTasks.length }} of {{ filteredTasks.length }} 
+                    {{ filteredTasks.length === 1 ? 'task' : 'tasks' }}</p>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div class="tasks-pagination">
+                <button class="pagination-btn" (click)="goToTasksPage(1)" [disabled]="tasksCurrentPage === 1" title="First Page">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                        <path d="M18.41 16.59L13.82 12l4.59-4.59L17 6l-6 6 6 6 1.41-1.41zM6 6h2v12H6V6z" />
+                    </svg>
+                </button>
+
+                <button class="pagination-btn" (click)="previousTasksPage()" [disabled]="tasksCurrentPage === 1" title="Previous Page">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+                    </svg>
+                </button>
+
+                <span *ngIf="showTasksLeftEllipsis" class="pagination-ellipsis">...</span>
+
+                <div class="pagination-numbers">
+                    <button *ngFor="let page of tasksVisiblePages"
+                        class="pagination-number"
+                        [class.active]="page === tasksCurrentPage"
+                        (click)="goToTasksPage(page)">
+                        {{ page }}
+                    </button>
+                </div>
+
+                <span *ngIf="showTasksRightEllipsis" class="pagination-ellipsis">...</span>
+
+                <button class="pagination-btn" (click)="nextTasksPage()"
+                    [disabled]="tasksCurrentPage === tasksTotalPages" title="Next Page">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                    </svg>
+                </button>
+
+                <button class="pagination-btn" (click)="goToTasksPage(tasksTotalPages)" [disabled]="tasksCurrentPage === tasksTotalPages" title="Last Page">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                        <path d="M5.59 7.41L10.18 12l-4.59 4.59L7 18l6-6-6-6-1.41 1.41zM18 6h-2v12h2V6z" />
+                    </svg>
+                </button>
+            </div>
         </div>
     </div>
 
