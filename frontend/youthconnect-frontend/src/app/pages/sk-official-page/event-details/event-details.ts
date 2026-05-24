@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { EventService, EventResponse, AttendanceResponse } from '../../../services/event.service';
@@ -19,7 +19,7 @@ export interface AttendeeRecord {
 
 @Component({
   selector: 'app-event-details-page',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './event-details.html',
   styleUrl: './event-details.scss',
   standalone: true
@@ -29,6 +29,7 @@ export class EventDetailsPage implements OnInit {
   private youthMemberService = inject(YouthMemberManagementService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private fb = inject(FormBuilder);
 
   selectedEvent: EventResponse | null = null;
   isLoading = false;
@@ -62,7 +63,22 @@ export class EventDetailsPage implements OnInit {
   notifications: { id: number; message: string; type: 'success' | 'error' }[] = [];
   private notificationCounter = 0;
 
+  // Edit event modal
+  isEditModalOpen = false;
+  isEditConfirmModalOpen = false;
+  editEventForm!: FormGroup;
+  editErrorMessage = '';
+  private pendingEditPayload: any = null;
+
   ngOnInit(): void {
+    this.editEventForm = this.fb.group({
+      eventTitle:    ['', [Validators.required, Validators.maxLength(200)]],
+      description:   ['', [Validators.required, Validators.maxLength(5000)]],
+      dateTime:      ['', Validators.required],
+      location:      ['', [Validators.required, Validators.maxLength(255)]],
+      attendeeLimit: [null, [Validators.required, Validators.min(1), Validators.max(99999)]]
+    });
+
     this.route.paramMap.subscribe(() => {
       this.loadEventDetails();
     });
@@ -73,7 +89,78 @@ export class EventDetailsPage implements OnInit {
   }
 
   editEvent(event: EventResponse): void {
-    this.router.navigate(['/sk-official/events'], { queryParams: { edit: event.eventId } });
+    const dateObj = new Date(event.eventDate);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const dateTimeLocal = `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}T${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}`;
+
+    this.editEventForm.patchValue({
+      eventTitle:    event.title,
+      description:   event.description,
+      dateTime:      dateTimeLocal,
+      location:      event.location,
+      attendeeLimit: event.attendeeLimit ?? null
+    });
+    this.editErrorMessage = '';
+    this.isEditModalOpen = true;
+  }
+
+  closeEditModal(): void {
+    this.isEditModalOpen = false;
+    this.editEventForm.reset();
+    this.editErrorMessage = '';
+  }
+
+  submitEditEvent(): void {
+    if (this.editEventForm.invalid) {
+      Object.keys(this.editEventForm.controls).forEach(k => this.editEventForm.get(k)?.markAsTouched());
+      this.editErrorMessage = 'Please fill in all required fields correctly.';
+      return;
+    }
+
+    const v = this.editEventForm.value;
+    const dateObj = new Date(v.dateTime);
+    if (isNaN(dateObj.getTime())) { this.editErrorMessage = 'Invalid date format.'; return; }
+
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const eventDate = `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}T${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}`;
+
+    this.pendingEditPayload = {
+      title:             v.eventTitle.trim(),
+      description:       v.description.trim(),
+      eventDate,
+      location:          v.location.trim(),
+      createdByAdminId:  this.selectedEvent!.createdByAdminId,
+      status:            this.selectedEvent!.status || 'Upcoming',
+      attendeeLimit:     v.attendeeLimit ? Number(v.attendeeLimit) : null
+    };
+
+    this.isEditConfirmModalOpen = true;
+  }
+
+  closeEditConfirmModal(): void {
+    this.isEditConfirmModalOpen = false;
+    this.pendingEditPayload = null;
+  }
+
+  confirmEditSubmission(): void {
+    if (!this.pendingEditPayload || !this.selectedEvent) return;
+
+    this.isLoading = true;
+    this.eventService.editEvent(this.selectedEvent.eventId, this.pendingEditPayload).subscribe({
+      next: (updated) => {
+        this.selectedEvent = { ...this.selectedEvent!, ...updated };
+        this.isLoading = false;
+        this.closeEditConfirmModal();
+        this.closeEditModal();
+        this.showNotification('Event updated successfully!', 'success');
+      },
+      error: (error) => {
+        console.error('Error updating event:', error);
+        this.editErrorMessage = error.error?.message || 'Failed to update event. Please try again.';
+        this.isLoading = false;
+        this.closeEditConfirmModal();
+      }
+    });
   }
 
   deleteEvent(event: EventResponse): void {
