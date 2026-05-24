@@ -324,6 +324,11 @@ export class EventDetailsPage implements OnInit {
     return this.allAttendees.filter(a => a.approvalStatus === 'approved');
   }
 
+  get isApprovalLocked(): boolean {
+    const s = (this.selectedEvent?.status || '').toLowerCase();
+    return s === 'ongoing' || s === 'completed';
+  }
+
   // ─── Approval Panel ───────────────────────────────────────────────────────
 
   openApprovalPanel(): void {

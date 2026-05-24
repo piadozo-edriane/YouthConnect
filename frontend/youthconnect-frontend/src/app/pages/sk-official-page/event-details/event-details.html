@@ -134,9 +134,9 @@
                             <h4 class="attendees-title">
                                 {{ approvedCount }} / {{ selectedEvent.attendeeLimit ?? '—' }} Approved
                             </h4>
-                            <button class="btn-approval-panel" (click)="openApprovalPanel()">
+                            <button class="btn-approval-panel" (click)="openApprovalPanel()" [disabled]="isApprovalLocked">
                                 Attendee Approval
-                                <span class="notification-badge" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
+                                <span class="notification-badge" *ngIf="pendingCount > 0 && !isApprovalLocked">{{ pendingCount }}</span>
                             </button>
                         </div>
 
@@ -225,12 +225,12 @@
                         <!-- Pending: Approve & Reject -->
                         <ng-container *ngIf="attendee.approvalStatus === 'pending'">
                             <button type="button" class="btn-approve"
-                                [disabled]="updatingAttendanceId !== null"
+                                [disabled]="updatingAttendanceId !== null || isApprovalLocked"
                                 (click)="approveAttendee(attendee)">
                                 {{ updatingAttendanceId === attendee.attendanceId && updatingAction === 'approve' ? 'Approving...' : 'Approve' }}
                             </button>
                             <button type="button" class="btn-reject"
-                                [disabled]="updatingAttendanceId !== null"
+                                [disabled]="updatingAttendanceId !== null || isApprovalLocked"
                                 (click)="openRejectModal(attendee)">
                                 Reject
                             </button>
@@ -238,7 +238,7 @@
                         <!-- Approved: can reject -->
                         <ng-container *ngIf="attendee.approvalStatus === 'approved'">
                             <button type="button" class="btn-reject"
-                                [disabled]="updatingAttendanceId !== null"
+                                [disabled]="updatingAttendanceId !== null || isApprovalLocked"
                                 (click)="openRejectModal(attendee)">
                                 Reject
                             </button>
@@ -246,7 +246,7 @@
                         <!-- Rejected: can approve -->
                         <ng-container *ngIf="attendee.approvalStatus === 'rejected'">
                             <button type="button" class="btn-approve"
-                                [disabled]="updatingAttendanceId !== null"
+                                [disabled]="updatingAttendanceId !== null || isApprovalLocked"
                                 (click)="approveAttendee(attendee)">
                                 {{ updatingAttendanceId === attendee.attendanceId && updatingAction === 'approve' ? 'Approving...' : 'Approve' }}
                             </button>
