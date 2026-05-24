@@ -150,18 +150,6 @@ public class UserServiceImpl implements UserService {
             e.printStackTrace();
         }
 
-        // Notify SK officials about new registration
-        String youthName = savedProfile.getFirstName() + " " + savedProfile.getLastName();
-        try {
-            System.out.println("=== Attempting to notify SK officials ===");
-            emailService.notifySkOfficialsNewUser(savedUser, youthName);
-            System.out.println("✅ SK officials notified successfully");
-        } catch (Exception e) {
-            // Log but don't fail registration if email fails
-            System.err.println("❌ Failed to send notification email to SK officials: " + e.getMessage());
-            e.printStackTrace();
-        }
-
         // Build response
         RegistrationResponse response = new RegistrationResponse(true, "Registration successful. Awaiting approval.");
         response.setUserId(savedUser.getUserId());
@@ -292,17 +280,6 @@ public class UserServiceImpl implements UserService {
                 System.out.println("✅ Re-registration confirmation email sent successfully");
             } catch (Exception e) {
                 System.err.println("❌ Failed to send re-registration confirmation email: " + e.getMessage());
-                e.printStackTrace();
-            }
-
-            // Notify SK officials about re-registration
-            String youthName = youthProfile.getFirstName() + " " + youthProfile.getLastName();
-            try {
-                System.out.println("=== Attempting to notify SK officials about re-registration ===");
-                emailService.notifySkOfficialsNewUser(savedUser, youthName);
-                System.out.println("✅ SK officials notified successfully");
-            } catch (Exception e) {
-                System.err.println("❌ Failed to send notification email to SK officials: " + e.getMessage());
                 e.printStackTrace();
             }
 
