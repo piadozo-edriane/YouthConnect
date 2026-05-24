@@ -260,7 +260,6 @@ export class EventDetailsPage implements OnInit {
         this.approvalMessage = `${attendee.name} has been approved.`;
         this.updatingAttendanceId = null;
         this.updatingAction = null;
-        this.showNotification(`${attendee.name} approved successfully!`, 'success');
         setTimeout(() => { this.approvalMessage = ''; }, 3000);
       },
       error: (error) => {
@@ -305,7 +304,6 @@ export class EventDetailsPage implements OnInit {
         this.approvalMessage = `${name} has been rejected.`;
         this.updatingAttendanceId = null;
         this.updatingAction = null;
-        this.showNotification(`${name} rejected successfully.`, 'success');
         this.closeRejectModal();
         setTimeout(() => { this.approvalMessage = ''; }, 3000);
       },
