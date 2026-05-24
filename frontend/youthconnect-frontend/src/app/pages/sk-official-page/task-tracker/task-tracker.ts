@@ -46,6 +46,14 @@ export class TaskTracker implements OnInit {
     { value: 'CUSTOM',      label: 'CUSTOM' },
   ];
 
+  // Pagination for tasks
+  private allTasksCurrentPage: number = 1;
+  private assignedTasksCurrentPage: number = 1;
+  tasksItemsPerPage: number = 15;
+
+  // Cache flag to prevent reloading
+  private tasksLoaded = false;
+
   // Tasks data
   tasks: TaskResponse[] = [];
   filteredTasks: TaskResponse[] = [];
@@ -212,6 +220,11 @@ export class TaskTracker implements OnInit {
   }
 
   loadTasks() {
+    // Only load if not already loaded
+    if (this.tasksLoaded && this.tasks.length > 0) {
+      return;
+    }
+
     this.isLoading = true;
     this.errorMessage = '';
 
@@ -219,6 +232,7 @@ export class TaskTracker implements OnInit {
       next: (tasks) => {
         this.tasks = tasks;
         this.applyFilters();
+        this.tasksLoaded = true; // Mark as loaded
         this.isLoading = false;
       },
       error: (error) => {
@@ -237,7 +251,7 @@ export class TaskTracker implements OnInit {
     this.applyFilters();
   }
 
-  applyFilters() {
+  applyFilters(resetPage: boolean = true) {
     let filtered = [...this.tasks];
 
     // Apply tab filter
@@ -274,26 +288,32 @@ export class TaskTracker implements OnInit {
     }
 
     this.filteredTasks = filtered;
+
+    if (resetPage) {
+      this.resetActivePagination();
+    }
+
+    this.clampActivePagination();
   }
 
   onTaskingFilterChange(value: string) {
     this.selectedTaskingFilter = value;
-    this.applyFilters();
+    this.applyFilters(true);
   }
 
   onSkInchargeFilterChange(value: string) {
     this.selectedSkInchargeFilter = value;
-    this.applyFilters();
+    this.applyFilters(true);
   }
 
   onStatusFilterChange(value: string) {
     this.selectedStatusFilter = value;
-    this.applyFilters();
+    this.applyFilters(true);
   }
 
   searchTasks(term: string) {
     this.searchTerm = term;
-    this.applyFilters();
+    this.applyFilters(true);
   }
 
   openModal() {
@@ -604,5 +624,102 @@ export class TaskTracker implements OnInit {
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+  // Pagination getters and methods
+  get tasksCurrentPage(): number {
+    return this.activeTab === 'all' ? this.allTasksCurrentPage : this.assignedTasksCurrentPage;
+  }
+
+  set tasksCurrentPage(value: number) {
+    if (this.activeTab === 'all') {
+      this.allTasksCurrentPage = value;
+    } else {
+      this.assignedTasksCurrentPage = value;
+    }
+  }
+
+  get paginatedTasks(): TaskResponse[] {
+    const startIndex = (this.tasksCurrentPage - 1) * this.tasksItemsPerPage;
+    const endIndex = startIndex + this.tasksItemsPerPage;
+    return this.filteredTasks.slice(startIndex, endIndex);
+  }
+
+  get tasksTotalPages(): number {
+    return Math.ceil(this.filteredTasks.length / this.tasksItemsPerPage);
+  }
+
+  get tasksVisiblePages(): number[] {
+    const totalPages = this.tasksTotalPages;
+    const currentPage = this.tasksCurrentPage;
+
+    if (totalPages <= 0) {
+      return [];
+    }
+
+    if (totalPages <= 3) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    if (currentPage <= 2) {
+      return [1, 2, 3];
+    }
+
+    if (currentPage >= totalPages - 1) {
+      return [totalPages - 2, totalPages - 1, totalPages];
+    }
+
+    return [currentPage - 1, currentPage, currentPage + 1];
+  }
+
+  get showTasksLeftEllipsis(): boolean {
+    const pages = this.tasksVisiblePages;
+    return this.tasksTotalPages > 3 && pages.length > 0 && pages[0] > 1;
+  }
+
+  get showTasksRightEllipsis(): boolean {
+    const pages = this.tasksVisiblePages;
+    return this.tasksTotalPages > 3 && pages.length > 0 && pages[pages.length - 1] < this.tasksTotalPages;
+  }
+
+  get showTasksPagination(): boolean {
+    return this.filteredTasks.length > this.tasksItemsPerPage;
+  }
+
+  goToTasksPage(page: number): void {
+    if (page >= 1 && page <= this.tasksTotalPages) {
+      this.tasksCurrentPage = page;
+    }
+  }
+
+  nextTasksPage(): void {
+    if (this.tasksCurrentPage < this.tasksTotalPages) {
+      this.tasksCurrentPage++;
+    }
+  }
+
+  previousTasksPage(): void {
+    if (this.tasksCurrentPage > 1) {
+      this.tasksCurrentPage--;
+    }
+  }
+
+  private resetActivePagination(): void {
+    this.tasksCurrentPage = 1;
+  }
+
+  private clampActivePagination(): void {
+    if (this.tasksTotalPages === 0) {
+      this.tasksCurrentPage = 1;
+      return;
+    }
+
+    if (this.tasksCurrentPage > this.tasksTotalPages) {
+      this.tasksCurrentPage = this.tasksTotalPages;
+    }
+  }
+
+  trackByTaskId(index: number, task: TaskResponse): number {
+    return task.taskId;
   }
 }
