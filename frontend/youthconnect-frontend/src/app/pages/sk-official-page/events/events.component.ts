@@ -789,7 +789,8 @@ export class EventsComponent implements OnInit {
       eventDate: eventDate,
       location: event.location,
       createdByAdminId: event.createdByAdminId,
-      status: nextStatus
+      status: nextStatus,
+      attendeeLimit: event.attendeeLimit ?? null
     };
 
     this.errorMessage = '';
