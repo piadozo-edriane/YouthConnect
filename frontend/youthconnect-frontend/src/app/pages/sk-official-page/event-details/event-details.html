@@ -88,7 +88,7 @@
                     <button class="details-status-btn" [ngClass]="getStatusActionClass(selectedEvent.status)"
                         [disabled]="isStatusActionDisabled(selectedEvent.status)"
                         (click)="updateEventStatus(selectedEvent)">
-                        {{ getStatusActionLabel(selectedEvent.status) }}
+                        {{ isStatusUpdating ? 'Updating...' : getStatusActionLabel(selectedEvent.status) }}
                     </button>
                 </div>
             </div>

@@ -77,6 +77,9 @@ export class EventDetailsPage implements OnInit {
   // Delete modal
   isDeleteModalOpen = false;
 
+  // Status update
+  isStatusUpdating = false;
+
   ngOnInit(): void {
     this.initEditForm();
     this.loadCurrentAdmin();
@@ -538,7 +541,7 @@ export class EventDetailsPage implements OnInit {
   }
 
   isStatusActionDisabled(status?: string): boolean {
-    return (status || '').toLowerCase() === 'completed' || this.isLoading;
+    return (status || '').toLowerCase() === 'completed' || this.isStatusUpdating;
   }
 
   updateEventStatus(event: EventResponse): void {
@@ -553,20 +556,21 @@ export class EventDetailsPage implements OnInit {
       eventDate: event.eventDate,
       location: event.location,
       createdByAdminId: event.createdByAdminId,
-      status: nextStatus
+      status: nextStatus,
+      attendeeLimit: event.attendeeLimit ?? null
     };
 
-    this.isLoading = true;
+    this.isStatusUpdating = true;
     this.eventService.editEvent(event.eventId, request).subscribe({
       next: () => {
         if (this.selectedEvent) {
           this.selectedEvent = { ...this.selectedEvent, status: nextStatus };
         }
-        this.isLoading = false;
+        this.isStatusUpdating = false;
       },
       error: (error) => {
         console.error('Error updating event status:', error);
-        this.isLoading = false;
+        this.isStatusUpdating = false;
       }
     });
   }
