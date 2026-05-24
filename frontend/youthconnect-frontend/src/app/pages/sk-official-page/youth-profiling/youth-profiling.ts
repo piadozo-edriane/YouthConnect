@@ -28,6 +28,10 @@ export class YouthProfiling implements OnInit {
   approvalCurrentPage: number = 1;
   approvalItemsPerPage: number = 10;
 
+  // Pagination for youth profiles table
+  profilesCurrentPage: number = 1;
+  profilesItemsPerPage: number = 25;
+
   // Cache flag to prevent reloading
   private profilesLoaded = false;
 
@@ -1302,6 +1306,72 @@ export class YouthProfiling implements OnInit {
     setTimeout(() => {
       this.notifications = this.notifications.filter(notification => notification.id !== id);
     }, 3000);
+  }
+
+  // Pagination getters and methods for youth profiles table
+  get paginatedProfiles(): YouthMemberListItem[] {
+    const startIndex = (this.profilesCurrentPage - 1) * this.profilesItemsPerPage;
+    const endIndex = startIndex + this.profilesItemsPerPage;
+    return this.filteredProfiles.slice(startIndex, endIndex);
+  }
+
+  get profilesTotalPages(): number {
+    return Math.ceil(this.filteredProfiles.length / this.profilesItemsPerPage);
+  }
+
+  get profilesVisiblePages(): number[] {
+    const totalPages = this.profilesTotalPages;
+    const currentPage = this.profilesCurrentPage;
+
+    if (totalPages <= 0) {
+      return [];
+    }
+
+    if (totalPages <= 3) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    if (currentPage <= 2) {
+      return [1, 2, 3];
+    }
+
+    if (currentPage >= totalPages - 1) {
+      return [totalPages - 2, totalPages - 1, totalPages];
+    }
+
+    return [currentPage - 1, currentPage, currentPage + 1];
+  }
+
+  get showProfilesLeftEllipsis(): boolean {
+    const pages = this.profilesVisiblePages;
+    return this.profilesTotalPages > 3 && pages.length > 0 && pages[0] > 1;
+  }
+
+  get showProfilesRightEllipsis(): boolean {
+    const pages = this.profilesVisiblePages;
+    return this.profilesTotalPages > 3 && pages.length > 0 && pages[pages.length - 1] < this.profilesTotalPages;
+  }
+
+  get showProfilesPagination(): boolean {
+    return this.filteredProfiles.length > this.profilesItemsPerPage;
+  }
+
+  goToProfilesPage(page: number): void {
+    if (page >= 1 && page <= this.profilesTotalPages) {
+      this.profilesCurrentPage = page;
+    }
+  }
+
+  nextProfilesPage(): void {
+    if (this.profilesCurrentPage < this.profilesTotalPages) {
+      this.profilesCurrentPage++;
+    }
+  }
+
+  previousProfilesPage(): void {
+    if (this.profilesCurrentPage > 1) {
+      this.profilesCurrentPage--;
+    }
   }
 
   // TrackBy functions for optimal rendering
