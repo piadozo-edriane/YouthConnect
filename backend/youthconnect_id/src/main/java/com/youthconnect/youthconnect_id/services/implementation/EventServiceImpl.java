@@ -88,6 +88,7 @@ public class EventServiceImpl implements EventService {
         response.setUserId(attendance.getUserId());
         response.setAttended(attendance.isAttended());
         response.setApprovalStatus(attendance.getApprovalStatus() != null ? attendance.getApprovalStatus() : "pending");
+        response.setRejectionReason(attendance.getRejectionReason());
         response.setRegisteredAt(attendance.getRegisteredAt());
         response.setAttendedAt(attendance.getAttendedAt());
         return response;
@@ -336,6 +337,12 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public AttendanceResponse updateAttendanceStatus(int eventId, int attendanceId, UpdateAttendanceStatusRequest request) {
+        System.out.println("=== UPDATE ATTENDANCE STATUS CALLED ===");
+        System.out.println("Event ID: " + eventId);
+        System.out.println("Attendance ID: " + attendanceId);
+        System.out.println("Requested Status: " + request.getApprovalStatus());
+        System.out.println("Rejection Reason: " + request.getRejectionReason());
+        
         EventAttendance attendance = eventAttendanceRepo.findById(attendanceId)
                 .orElseThrow(() -> new RuntimeException("Attendance record not found"));
 
@@ -349,6 +356,87 @@ public class EventServiceImpl implements EventService {
         }
 
         attendance.setApprovalStatus(status.toLowerCase());
-        return toAttendanceResponse(eventAttendanceRepo.save(attendance));
+        
+        // Save rejection reason if rejecting
+        if ("rejected".equalsIgnoreCase(status)) {
+            attendance.setRejectionReason(request.getRejectionReason());
+        } else {
+            // Clear rejection reason if approving
+            attendance.setRejectionReason(null);
+        }
+        
+        AttendanceResponse response = toAttendanceResponse(eventAttendanceRepo.save(attendance));
+        
+        System.out.println("✅ Attendance status updated successfully");
+        
+        // Send email notification to the attendee
+        try {
+            System.out.println("=== ATTEMPTING TO SEND EMAIL NOTIFICATION ===");
+            
+            // Get user and event details
+            com.youthconnect.youthconnect_id.models.User user = userRepo.findById(attendance.getUserId())
+                    .orElse(null);
+            
+            if (user == null) {
+                System.err.println("❌ User not found with ID: " + attendance.getUserId());
+                return response;
+            }
+            
+            System.out.println("✅ User found: " + user.getEmail());
+            
+            Event event = eventRepo.findById(eventId)
+                    .orElse(null);
+            
+            if (event == null) {
+                System.err.println("❌ Event not found with ID: " + eventId);
+                return response;
+            }
+            
+            System.out.println("✅ Event found: " + event.getTitle());
+            
+            // Get user's name from youth profile
+            com.youthconnect.youthconnect_id.models.YouthProfile profile = 
+                youthProfileRepo.findById(user.getYouthId()).orElse(null);
+            
+            if (profile == null) {
+                System.err.println("❌ Youth profile not found for youth ID: " + user.getYouthId());
+                return response;
+            }
+            
+            System.out.println("✅ Profile found: " + profile.getFirstName() + " " + profile.getLastName());
+            
+            String userName = profile.getFirstName();
+            String eventDate = event.getEventDate() != null ? event.getEventDate().toString() : "TBA";
+            
+            if ("approved".equalsIgnoreCase(status)) {
+                System.out.println("📧 Sending attendee APPROVAL email to: " + user.getEmail());
+                emailService.sendAttendeeApprovalEmail(
+                    user.getEmail(),
+                    userName,
+                    event.getTitle(),
+                    eventDate,
+                    event.getLocation()
+                );
+                System.out.println("✅ Approval email sent successfully!");
+            } else if ("rejected".equalsIgnoreCase(status)) {
+                System.out.println("📧 Sending attendee REJECTION email to: " + user.getEmail());
+                String rejectionReason = request.getRejectionReason() != null ? 
+                    request.getRejectionReason() : "Not specified";
+                emailService.sendAttendeeRejectionEmail(
+                    user.getEmail(),
+                    userName,
+                    event.getTitle(),
+                    rejectionReason
+                );
+                System.out.println("✅ Rejection email sent successfully!");
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Failed to send attendee status email: " + e.getMessage());
+            e.printStackTrace();
+            // Don't fail the status update if email fails
+        }
+        
+        System.out.println("=== UPDATE ATTENDANCE STATUS COMPLETED ===");
+        return response;
     }
 }

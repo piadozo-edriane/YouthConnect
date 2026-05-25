@@ -57,6 +57,8 @@ export class EventDetailsPage implements OnInit, OnDestroy {
   // Rejection modal
   isRejectModalOpen = false;
   rejectingAttendee: AttendeeRecord | null = null;
+  rejectionReason = '';
+  rejectionError = '';
 
   // Post-Event Attendance Panel
   isAttendancePanelOpen = false;
@@ -190,10 +192,10 @@ export class EventDetailsPage implements OnInit, OnDestroy {
 
   private initEditForm(): void {
     this.editForm = this.fb.group({
-      eventTitle:    ['', [Validators.required, Validators.maxLength(200)]],
-      description:   ['', [Validators.required, Validators.maxLength(5000)]],
-      dateTime:      ['', Validators.required],
-      location:      ['', [Validators.required, Validators.maxLength(255)]],
+      eventTitle: ['', [Validators.required, Validators.maxLength(200)]],
+      description: ['', [Validators.required, Validators.maxLength(5000)]],
+      dateTime: ['', Validators.required],
+      location: ['', [Validators.required, Validators.maxLength(255)]],
       attendeeLimit: [null, [Validators.required, Validators.min(1), Validators.max(99999)]]
     });
   }
@@ -221,10 +223,10 @@ export class EventDetailsPage implements OnInit, OnDestroy {
     const dateTimeLocal = `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}T${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}`;
 
     const values = {
-      eventTitle:    event.title,
-      description:   event.description,
-      dateTime:      dateTimeLocal,
-      location:      event.location,
+      eventTitle: event.title,
+      description: event.description,
+      dateTime: dateTimeLocal,
+      location: event.location,
       attendeeLimit: event.attendeeLimit ?? null
     };
 
@@ -262,13 +264,13 @@ export class EventDetailsPage implements OnInit, OnDestroy {
     const eventDate = `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}T${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:00`;
 
     this.pendingEditPayload = {
-      title:            v.eventTitle.trim(),
-      description:      v.description.trim(),
+      title: v.eventTitle.trim(),
+      description: v.description.trim(),
       eventDate,
-      location:         v.location.trim(),
+      location: v.location.trim(),
       createdByAdminId: this.currentAdminId,
-      status:           this.selectedEvent?.status || 'Upcoming',
-      attendeeLimit:    v.attendeeLimit ? Number(v.attendeeLimit) : null
+      status: this.selectedEvent?.status || 'Upcoming',
+      attendeeLimit: v.attendeeLimit ? Number(v.attendeeLimit) : null
     };
 
     this.isEditConfirmModalOpen = true;
@@ -623,6 +625,13 @@ export class EventDetailsPage implements OnInit, OnDestroy {
 
   approveAttendee(attendee: AttendeeRecord): void {
     if (!this.selectedEvent) return;
+
+    // Prevent double submission
+    if (this.updatingAttendanceId !== null) {
+      console.log('Already processing a request, ignoring duplicate click');
+      return;
+    }
+
     this.updatingAttendanceId = attendee.attendanceId;
     this.updatingAction = 'approve';
     this.approvalError = '';
@@ -651,29 +660,61 @@ export class EventDetailsPage implements OnInit, OnDestroy {
   }
 
   openRejectModal(attendee: AttendeeRecord): void {
-    if (!this.selectedEvent) return;
-    this.updatingAttendanceId = attendee.attendanceId;
+    this.rejectingAttendee = attendee;
+    this.rejectionReason = '';
+    this.rejectionError = '';
+    this.isRejectModalOpen = true;
+  }
+
+  closeRejectModal(): void {
+    this.isRejectModalOpen = false;
+    this.rejectingAttendee = null;
+    this.rejectionReason = '';
+    this.rejectionError = '';
+  }
+
+  confirmRejectAttendee(): void {
+    if (!this.rejectingAttendee || !this.selectedEvent) return;
+
+    if (!this.rejectionReason.trim()) {
+      this.rejectionError = 'Please provide a reason for rejection.';
+      return;
+    }
+
+    // Prevent double submission
+    if (this.updatingAttendanceId !== null) {
+      console.log('Already processing a request, ignoring duplicate click');
+      return;
+    }
+
+    this.updatingAttendanceId = this.rejectingAttendee.attendanceId;
     this.updatingAction = 'reject';
     this.approvalError = '';
+    this.rejectionError = '';
 
-    this.eventService.updateAttendanceStatus(this.selectedEvent.eventId, attendee.attendanceId, 'rejected').subscribe({
+    this.eventService.updateAttendanceStatus(
+      this.selectedEvent.eventId,
+      this.rejectingAttendee.attendanceId,
+      'rejected',
+      this.rejectionReason.trim()
+    ).subscribe({
       next: (updated) => {
         this.allAttendees = this.allAttendees.map(a =>
-          a.attendanceId === attendee.attendanceId
+          a.attendanceId === this.rejectingAttendee!.attendanceId
             ? { ...a, approvalStatus: updated.approvalStatus }
             : a
         );
-        this.approvalMessage = `${attendee.name} has been rejected.`;
+        this.approvalMessage = `${this.rejectingAttendee!.name} has been rejected.`;
         this.updatingAttendanceId = null;
         this.updatingAction = null;
+        this.closeRejectModal();
         setTimeout(() => { this.approvalMessage = ''; }, 3000);
       },
       error: (error) => {
         console.error('Error rejecting attendee:', error);
-        this.approvalError = 'Failed to reject attendee. Please try again.';
+        this.rejectionError = 'Failed to reject attendee. Please try again.';
         this.updatingAttendanceId = null;
         this.updatingAction = null;
-        setTimeout(() => { this.approvalError = ''; }, 3000);
       }
     });
   }

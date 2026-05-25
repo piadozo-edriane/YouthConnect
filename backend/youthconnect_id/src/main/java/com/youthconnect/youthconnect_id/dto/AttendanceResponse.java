@@ -10,6 +10,7 @@ public class AttendanceResponse {
     private int userId;
     private boolean isAttended;
     private String approvalStatus;
+    private String rejectionReason;
     private LocalDateTime registeredAt;
     private LocalDateTime attendedAt;
 
@@ -44,6 +45,12 @@ public class AttendanceResponse {
     }
     public void setApprovalStatus(String approvalStatus) {
         this.approvalStatus = approvalStatus;
+    }
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
     public LocalDateTime getRegisteredAt() {
         return registeredAt; 

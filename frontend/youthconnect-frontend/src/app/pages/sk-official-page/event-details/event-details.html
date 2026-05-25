@@ -12,7 +12,7 @@
         <div class="details-top-bar">
             <button class="back-btn" (click)="goBack()">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
                 </svg>
             </button>
             <div class="details-actions" *ngIf="selectedEvent">
@@ -51,7 +51,8 @@
                     <p class="detail-text">{{ selectedEvent.description }}</p>
 
                     <div class="detail-info-row">
-                        <img src="../../assets/sk-official-events-icons/location.svg" alt="Location" width="16" height="16">
+                        <img src="../../assets/sk-official-events-icons/location.svg" alt="Location" width="16"
+                            height="16">
                         <span class="detail-info-label">LOCATION:</span>
                         <span class="detail-info-value">{{ selectedEvent.location }}</span>
                     </div>
@@ -63,7 +64,8 @@
                     </div>
 
                     <div class="detail-info-row">
-                        <img src="../../assets/sk-official-events-icons/calendar.svg" alt="Joined" width="16" height="16">
+                        <img src="../../assets/sk-official-events-icons/calendar.svg" alt="Joined" width="16"
+                            height="16">
                         <span class="detail-info-label">JOINED:</span>
                         <span class="detail-info-value">{{ selectedEvent.rsvpCount || 0 }} Joined</span>
                     </div>
@@ -126,7 +128,8 @@
                                     <span class="legend-label">Remaining: {{ getRemainingCount(selectedEvent) }}</span>
                                 </div>
                                 <div class="legend-item total">
-                                    <span class="legend-label">Participant Limit: {{ selectedEvent.attendeeLimit ?? 'N/A' }}</span>
+                                    <span class="legend-label">Participant Limit: {{ selectedEvent.attendeeLimit ??
+                                        'N/A' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -147,8 +150,7 @@
                                 </button>
                                 <!-- Ongoing / Completed: show Post-Event Attendance only -->
                                 <button class="btn-attendance-panel" (click)="openAttendancePanel()"
-                                    *ngIf="isAttendancePanelAvailable"
-                                    title="Mark post-event attendance">
+                                    *ngIf="isAttendancePanelAvailable" title="Mark post-event attendance">
                                     Post-Event Attendance
                                 </button>
                             </div>
@@ -160,8 +162,7 @@
 
                         <div *ngIf="!isLoadingAttendees && approvedCount > 0" class="attendees-list">
                             <div *ngFor="let attendee of approvedAttendees; let i = index"
-                                class="attendee-item clickable"
-                                (click)="openAttendeeDetailsModal(attendee)">
+                                class="attendee-item clickable" (click)="openAttendeeDetailsModal(attendee)">
                                 <span class="attendee-index">{{ i + 1 }}.</span>
                                 <span class="attendee-name">{{ attendee.name }}</span>
                             </div>
@@ -221,8 +222,7 @@
             <article class="approval-card" *ngFor="let attendee of paginatedApprovalAttendees">
                 <div class="approval-card-head">
                     <h3>{{ attendee.name }}</h3>
-                    <span class="approval-status"
-                        [class.pending]="attendee.approvalStatus === 'pending'"
+                    <span class="approval-status" [class.pending]="attendee.approvalStatus === 'pending'"
                         [class.approved]="attendee.approvalStatus === 'approved'"
                         [class.rejected]="attendee.approvalStatus === 'rejected'">
                         {{ attendee.approvalStatus | titlecase }}
@@ -239,7 +239,8 @@
                             <button type="button" class="btn-approve"
                                 [disabled]="updatingAttendanceId !== null || isApprovalLocked"
                                 (click)="approveAttendee(attendee)">
-                                {{ updatingAttendanceId === attendee.attendanceId && updatingAction === 'approve' ? 'Approving...' : 'Approve' }}
+                                {{ updatingAttendanceId === attendee.attendanceId && updatingAction === 'approve' ?
+                                'Approving...' : 'Approve' }}
                             </button>
                             <button type="button" class="btn-reject"
                                 [disabled]="updatingAttendanceId !== null || isApprovalLocked"
@@ -260,7 +261,8 @@
                             <button type="button" class="btn-approve"
                                 [disabled]="updatingAttendanceId !== null || isApprovalLocked"
                                 (click)="approveAttendee(attendee)">
-                                {{ updatingAttendanceId === attendee.attendanceId && updatingAction === 'approve' ? 'Approving...' : 'Approve' }}
+                                {{ updatingAttendanceId === attendee.attendanceId && updatingAction === 'approve' ?
+                                'Approving...' : 'Approve' }}
                             </button>
                         </ng-container>
                     </div>
@@ -300,7 +302,8 @@
     <div class="approval-panel-backdrop" *ngIf="isAttendancePanelOpen" (click)="closeAttendancePanel()"></div>
 
     <!-- Post-Event Attendance Panel -->
-    <aside class="approval-panel attendance-panel" [class.open]="isAttendancePanelOpen" [attr.aria-hidden]="!isAttendancePanelOpen">
+    <aside class="approval-panel attendance-panel" [class.open]="isAttendancePanelOpen"
+        [attr.aria-hidden]="!isAttendancePanelOpen">
         <div class="approval-panel-header">
             <div>
                 <h2>Post-Event Attendance</h2>
@@ -311,22 +314,19 @@
 
         <!-- Attendance Summary Bar -->
         <div class="attendance-summary-bar">
-            <div class="att-stat att-stat--clickable"
-                [class.att-stat--active]="attendanceStatFilter === 'present'"
+            <div class="att-stat att-stat--clickable" [class.att-stat--active]="attendanceStatFilter === 'present'"
                 (click)="setAttendanceStatFilter('present')">
                 <span class="att-stat-count attended-color">{{ attendedCount }}</span>
                 <span class="att-stat-label">Present</span>
             </div>
             <div class="att-stat-divider"></div>
-            <div class="att-stat att-stat--clickable"
-                [class.att-stat--active]="attendanceStatFilter === 'absent'"
+            <div class="att-stat att-stat--clickable" [class.att-stat--active]="attendanceStatFilter === 'absent'"
                 (click)="setAttendanceStatFilter('absent')">
                 <span class="att-stat-count absent-color">{{ absentCount }}</span>
                 <span class="att-stat-label">Absent</span>
             </div>
             <div class="att-stat-divider"></div>
-            <div class="att-stat att-stat--clickable"
-                [class.att-stat--active]="attendanceStatFilter === 'approved'"
+            <div class="att-stat att-stat--clickable" [class.att-stat--active]="attendanceStatFilter === 'approved'"
                 (click)="setAttendanceStatFilter('approved')">
                 <span class="att-stat-count total-color">{{ approvedCount }}</span>
                 <span class="att-stat-label">Approved</span>
@@ -336,15 +336,19 @@
         <!-- Compact list when a stat is selected -->
         <div class="att-compact-section" *ngIf="attendanceStatFilter !== null">
             <div class="att-compact-header">
-                <button class="att-compact-back" type="button" (click)="setAttendanceStatFilter(attendanceStatFilter!)" aria-label="Back">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                <button class="att-compact-back" type="button" (click)="setAttendanceStatFilter(attendanceStatFilter!)"
+                    aria-label="Back">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
                     </svg>
                 </button>
                 <span class="att-compact-title">
-                    <ng-container *ngIf="attendanceStatFilter === 'present'">Present ({{ attendedCount }})</ng-container>
+                    <ng-container *ngIf="attendanceStatFilter === 'present'">Present ({{ attendedCount
+                        }})</ng-container>
                     <ng-container *ngIf="attendanceStatFilter === 'absent'">Absent ({{ absentCount }})</ng-container>
-                    <ng-container *ngIf="attendanceStatFilter === 'approved'">Approved ({{ approvedCount }})</ng-container>
+                    <ng-container *ngIf="attendanceStatFilter === 'approved'">Approved ({{ approvedCount
+                        }})</ng-container>
                 </span>
             </div>
             <div class="att-compact-list" *ngIf="filteredAttendancePanelAttendees.length > 0; else emptyCompact">
@@ -353,15 +357,16 @@
                     (click)="openAttendeeDetailsModal(attendee, attendanceStatFilter!)">
                     <span class="attendee-index">{{ i + 1 }}.</span>
                     <span class="attendee-name">{{ attendee.name }}</span>
-                    <span class="att-compact-badge"
-                        [class.present]="attendee.isAttended"
+                    <span class="att-compact-badge" [class.present]="attendee.isAttended"
                         [class.absent]="!attendee.isAttended">
                         {{ attendee.isAttended ? '✓' : '—' }}
                     </span>
                 </div>
             </div>
             <ng-template #emptyCompact>
-                <div class="approval-empty-state"><p>No attendees in this group.</p></div>
+                <div class="approval-empty-state">
+                    <p>No attendees in this group.</p>
+                </div>
             </ng-template>
         </div>
 
@@ -373,69 +378,68 @@
 
         <!-- Messages -->
         <div *ngIf="attendancePanelError" class="approval-alert approval-alert-error">{{ attendancePanelError }}</div>
-        <div *ngIf="attendancePanelMessage" class="approval-alert approval-alert-success">{{ attendancePanelMessage }}</div>
+        <div *ngIf="attendancePanelMessage" class="approval-alert approval-alert-success">{{ attendancePanelMessage }}
+        </div>
 
         <!-- Attendee Cards (hidden when a stat filter is active) -->
         <ng-container *ngIf="attendanceStatFilter === null">
-        <div class="approval-list" *ngIf="paginatedAttendancePanelAttendees.length > 0; else noAttendanceRows">
-            <article class="approval-card attendance-card"
-                [class.is-present]="attendee.isAttended"
-                [class.is-absent]="!attendee.isAttended"
-                *ngFor="let attendee of paginatedAttendancePanelAttendees">
-                <div class="approval-card-head">
-                    <h3>{{ attendee.name }}</h3>
-                    <span class="attendance-status-badge"
-                        [class.present]="attendee.isAttended"
-                        [class.absent]="!attendee.isAttended">
-                        {{ attendee.isAttended ? 'Present' : 'Absent' }}
-                    </span>
-                </div>
-                <p class="approval-meta attended-at-text" *ngIf="attendee.isAttended">
-                    Marked present: {{ formatAttendedAt(attendee.attendedAt) }}
-                </p>
-
-                <div class="approval-actions">
-                    <button type="button" class="btn-see-details" (click)="openAttendeeDetailsModal(attendee)">
-                        See Details
-                    </button>
-                    <div class="action-buttons-right">
-                        <button type="button" class="btn-mark-present"
-                            *ngIf="!attendee.isAttended"
-                            [disabled]="markingAttendanceId !== null"
-                            (click)="toggleAttendance(attendee)">
-                            {{ markingAttendanceId === attendee.attendanceId ? 'Marking...' : 'Mark Present' }}
-                        </button>
+            <div class="approval-list" *ngIf="paginatedAttendancePanelAttendees.length > 0; else noAttendanceRows">
+                <article class="approval-card attendance-card" [class.is-present]="attendee.isAttended"
+                    [class.is-absent]="!attendee.isAttended" *ngFor="let attendee of paginatedAttendancePanelAttendees">
+                    <div class="approval-card-head">
+                        <h3>{{ attendee.name }}</h3>
+                        <span class="attendance-status-badge" [class.present]="attendee.isAttended"
+                            [class.absent]="!attendee.isAttended">
+                            {{ attendee.isAttended ? 'Present' : 'Absent' }}
+                        </span>
                     </div>
-                </div>
-            </article>
-        </div>
+                    <p class="approval-meta attended-at-text" *ngIf="attendee.isAttended">
+                        Marked present: {{ formatAttendedAt(attendee.attendedAt) }}
+                    </p>
 
-        <!-- Pagination -->
-        <div class="approval-pagination" *ngIf="filteredAttendancePanelAttendees.length > attendanceItemsPerPage">
-            <button class="pagination-btn" (click)="previousAttendancePage()" [disabled]="attendanceCurrentPage === 1">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-                </svg>
-            </button>
-            <div class="pagination-numbers">
-                <button *ngFor="let page of attendancePageNumbers" class="pagination-number"
-                    [class.active]="page === attendanceCurrentPage" (click)="goToAttendancePage(page)">
-                    {{ page }}
+                    <div class="approval-actions">
+                        <button type="button" class="btn-see-details" (click)="openAttendeeDetailsModal(attendee)">
+                            See Details
+                        </button>
+                        <div class="action-buttons-right">
+                            <button type="button" class="btn-mark-present" *ngIf="!attendee.isAttended"
+                                [disabled]="markingAttendanceId !== null" (click)="toggleAttendance(attendee)">
+                                {{ markingAttendanceId === attendee.attendanceId ? 'Marking...' : 'Mark Present' }}
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Pagination -->
+            <div class="approval-pagination" *ngIf="filteredAttendancePanelAttendees.length > attendanceItemsPerPage">
+                <button class="pagination-btn" (click)="previousAttendancePage()"
+                    [disabled]="attendanceCurrentPage === 1">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16"
+                        height="16">
+                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+                    </svg>
+                </button>
+                <div class="pagination-numbers">
+                    <button *ngFor="let page of attendancePageNumbers" class="pagination-number"
+                        [class.active]="page === attendanceCurrentPage" (click)="goToAttendancePage(page)">
+                        {{ page }}
+                    </button>
+                </div>
+                <button class="pagination-btn" (click)="nextAttendancePage()"
+                    [disabled]="attendanceCurrentPage === attendanceTotalPages">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16"
+                        height="16">
+                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                    </svg>
                 </button>
             </div>
-            <button class="pagination-btn" (click)="nextAttendancePage()"
-                [disabled]="attendanceCurrentPage === attendanceTotalPages">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
-                </svg>
-            </button>
-        </div>
 
-        <ng-template #noAttendanceRows>
-            <div class="approval-empty-state">
-                <p>No approved attendees found.</p>
-            </div>
-        </ng-template>
+            <ng-template #noAttendanceRows>
+                <div class="approval-empty-state">
+                    <p>No approved attendees found.</p>
+                </div>
+            </ng-template>
         </ng-container>
     </aside>
 
@@ -458,9 +462,12 @@
                             <label class="form-label">Event Title <span class="required">*</span></label>
                             <input type="text" class="form-input" placeholder="Enter event title"
                                 formControlName="eventTitle" maxlength="200">
-                            <div *ngIf="editForm.get('eventTitle')?.invalid && editForm.get('eventTitle')?.touched" class="form-error">
-                                <span *ngIf="editForm.get('eventTitle')?.hasError('required')">Event title is required</span>
-                                <span *ngIf="editForm.get('eventTitle')?.hasError('maxlength')">Title cannot exceed 200 characters</span>
+                            <div *ngIf="editForm.get('eventTitle')?.invalid && editForm.get('eventTitle')?.touched"
+                                class="form-error">
+                                <span *ngIf="editForm.get('eventTitle')?.hasError('required')">Event title is
+                                    required</span>
+                                <span *ngIf="editForm.get('eventTitle')?.hasError('maxlength')">Title cannot exceed 200
+                                    characters</span>
                             </div>
                         </div>
 
@@ -468,16 +475,20 @@
                             <label class="form-label">Event Description <span class="required">*</span></label>
                             <textarea class="form-textarea" placeholder="Enter event description" rows="4"
                                 formControlName="description" maxlength="5000"></textarea>
-                            <div *ngIf="editForm.get('description')?.invalid && editForm.get('description')?.touched" class="form-error">
-                                <span *ngIf="editForm.get('description')?.hasError('required')">Description is required</span>
-                                <span *ngIf="editForm.get('description')?.hasError('maxlength')">Description cannot exceed 5000 characters</span>
+                            <div *ngIf="editForm.get('description')?.invalid && editForm.get('description')?.touched"
+                                class="form-error">
+                                <span *ngIf="editForm.get('description')?.hasError('required')">Description is
+                                    required</span>
+                                <span *ngIf="editForm.get('description')?.hasError('maxlength')">Description cannot
+                                    exceed 5000 characters</span>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Event Date & Time <span class="required">*</span></label>
                             <input type="datetime-local" class="form-input" formControlName="dateTime">
-                            <div *ngIf="editForm.get('dateTime')?.invalid && editForm.get('dateTime')?.touched" class="form-error">
+                            <div *ngIf="editForm.get('dateTime')?.invalid && editForm.get('dateTime')?.touched"
+                                class="form-error">
                                 <span>Date and time are required</span>
                             </div>
                         </div>
@@ -486,9 +497,11 @@
                             <label class="form-label">Event Location <span class="required">*</span></label>
                             <input type="text" class="form-input" placeholder="Enter event location"
                                 formControlName="location" maxlength="255">
-                            <div *ngIf="editForm.get('location')?.invalid && editForm.get('location')?.touched" class="form-error">
+                            <div *ngIf="editForm.get('location')?.invalid && editForm.get('location')?.touched"
+                                class="form-error">
                                 <span *ngIf="editForm.get('location')?.hasError('required')">Location is required</span>
-                                <span *ngIf="editForm.get('location')?.hasError('maxlength')">Location cannot exceed 255 characters</span>
+                                <span *ngIf="editForm.get('location')?.hasError('maxlength')">Location cannot exceed 255
+                                    characters</span>
                             </div>
                         </div>
 
@@ -496,8 +509,10 @@
                             <label class="form-label">Number of Attendees <span class="required">*</span></label>
                             <input type="number" class="form-input" placeholder="e.g. 50"
                                 formControlName="attendeeLimit" min="1" max="99999">
-                            <div *ngIf="editForm.get('attendeeLimit')?.invalid && editForm.get('attendeeLimit')?.touched" class="form-error">
-                                <span *ngIf="editForm.get('attendeeLimit')?.hasError('required')">Number of attendees is required</span>
+                            <div *ngIf="editForm.get('attendeeLimit')?.invalid && editForm.get('attendeeLimit')?.touched"
+                                class="form-error">
+                                <span *ngIf="editForm.get('attendeeLimit')?.hasError('required')">Number of attendees is
+                                    required</span>
                                 <span *ngIf="editForm.get('attendeeLimit')?.hasError('min')">Must be at least 1</span>
                                 <span *ngIf="editForm.get('attendeeLimit')?.hasError('max')">Cannot exceed 99,999</span>
                             </div>
@@ -507,8 +522,10 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn-cancel" (click)="closeEditModal()" [disabled]="isLoading">Cancel</button>
-                <button type="button" class="btn-confirm-edit" (click)="submitEditEvent()" [disabled]="editForm.invalid || isLoading || !editFormHasChanges">
+                <button type="button" class="btn-cancel" (click)="closeEditModal()"
+                    [disabled]="isLoading">Cancel</button>
+                <button type="button" class="btn-confirm-edit" (click)="submitEditEvent()"
+                    [disabled]="editForm.invalid || isLoading || !editFormHasChanges">
                     {{ isLoading ? 'Updating...' : 'Update Event' }}
                 </button>
             </div>
@@ -532,7 +549,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-cancel" (click)="closeEditConfirmModal()" [disabled]="isLoading">Cancel</button>
+                <button type="button" class="btn-cancel" (click)="closeEditConfirmModal()"
+                    [disabled]="isLoading">Cancel</button>
                 <button type="button" class="btn-confirm-edit" (click)="confirmEditSubmission()" [disabled]="isLoading">
                     {{ isLoading ? 'Updating...' : 'Update' }}
                 </button>
@@ -552,12 +570,14 @@
             <div class="modal-body-wrapper">
                 <div class="modal-body">
                     <p class="confirmation-text">
-                        Are you sure you want to permanently delete <strong>{{ selectedEvent?.title }}</strong>? This action cannot be undone.
+                        Are you sure you want to permanently delete <strong>{{ selectedEvent?.title }}</strong>? This
+                        action cannot be undone.
                     </p>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-cancel" (click)="closeDeleteModal()" [disabled]="isLoading">Cancel</button>
+                <button type="button" class="btn-cancel" (click)="closeDeleteModal()"
+                    [disabled]="isLoading">Cancel</button>
                 <button type="button" class="btn-delete" (click)="confirmDeleteEvent()" [disabled]="isLoading">
                     {{ isLoading ? 'Deleting...' : 'Delete' }}
                 </button>
@@ -583,8 +603,10 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-cancel" (click)="closeStatusConfirmModal()" [disabled]="isStatusUpdating">Cancel</button>
-                <button type="button" class="btn-confirm-edit" (click)="confirmStatusUpdate()" [disabled]="isStatusUpdating">
+                <button type="button" class="btn-cancel" (click)="closeStatusConfirmModal()"
+                    [disabled]="isStatusUpdating">Cancel</button>
+                <button type="button" class="btn-confirm-edit" (click)="confirmStatusUpdate()"
+                    [disabled]="isStatusUpdating">
                     {{ isStatusUpdating ? 'Updating...' : 'Confirm' }}
                 </button>
             </div>
@@ -632,11 +654,13 @@
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Birthday:</span>
-                                <span class="detail-value">{{ formatBirthday(selectedAttendeeProfile?.birthday || '') }}</span>
+                                <span class="detail-value">{{ formatBirthday(selectedAttendeeProfile?.birthday || '')
+                                    }}</span>
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Age:</span>
-                                <span class="detail-value">{{ getAge(selectedAttendeeProfile?.birthday || '') }} years old</span>
+                                <span class="detail-value">{{ getAge(selectedAttendeeProfile?.birthday || '') }} years
+                                    old</span>
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Civil Status:</span>
@@ -658,11 +682,55 @@
                             </div>
                             <div class="detail-item full-width">
                                 <span class="detail-label">Complete Address:</span>
-                                <span class="detail-value">{{ selectedAttendeeProfile?.completeAddress || 'N/A' }}</span>
+                                <span class="detail-value">{{ selectedAttendeeProfile?.completeAddress || 'N/A'
+                                    }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rejection Modal -->
+    <div class="modal-overlay" *ngIf="isRejectModalOpen" (click)="closeRejectModal()">
+        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Reject Attendee</h2>
+                    <p class="modal-subtitle">Provide a reason for rejection</p>
+                </div>
+                <button class="close-btn" (click)="closeRejectModal()">✕</button>
+            </div>
+
+            <div class="modal-body-wrapper">
+                <div *ngIf="rejectionError" class="modal-alert alert-error">{{ rejectionError }}</div>
+
+                <div class="modal-body">
+                    <p class="reject-attendee-name">
+                        <strong>Attendee:</strong> {{ rejectingAttendee?.name }}
+                    </p>
+
+                    <div class="form-group">
+                        <label class="form-label">Reason for Rejection <span class="required">*</span></label>
+                        <textarea class="form-textarea"
+                            placeholder="Please provide a clear reason for rejecting this attendee..." rows="4"
+                            [(ngModel)]="rejectionReason" maxlength="500"
+                            [disabled]="updatingAttendanceId !== null"></textarea>
+                        <div class="char-count">{{ rejectionReason.length }}/500</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" (click)="closeRejectModal()"
+                    [disabled]="updatingAttendanceId !== null">
+                    Cancel
+                </button>
+                <button type="button" class="btn-reject-confirm" (click)="confirmRejectAttendee()"
+                    [disabled]="!rejectionReason.trim() || updatingAttendanceId !== null">
+                    {{ updatingAttendanceId !== null ? 'Rejecting...' : 'Confirm Rejection' }}
+                </button>
             </div>
         </div>
     </div>

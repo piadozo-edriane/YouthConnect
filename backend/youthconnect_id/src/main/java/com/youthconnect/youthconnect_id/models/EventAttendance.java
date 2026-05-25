@@ -29,6 +29,9 @@ public class EventAttendance {
     @Column(name = "approval_status", nullable = false)
     private String approvalStatus = "pending";
 
+    @Column(name = "rejection_reason", columnDefinition = "TEXT")
+    private String rejectionReason;
+
     @Column(name = "registered_at", nullable = false)
     private LocalDateTime registeredAt;
 
@@ -91,5 +94,13 @@ public class EventAttendance {
 
     public void setAttendedAt(LocalDateTime attendedAt) {
         this.attendedAt = attendedAt;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 }
