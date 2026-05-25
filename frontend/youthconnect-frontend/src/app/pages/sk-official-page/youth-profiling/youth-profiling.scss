@@ -408,6 +408,57 @@ body,
   align-items: center;
   justify-content: center;
   gap: 8px;
+  padding: 6px 0 0;
+  width: 100%;
+}
+
+.approval-pagination .pagination-btn,
+.approval-pagination .pagination-number {
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd;
+  background: #ffffff;
+  color: #333;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: 'Poppins', Arial, Helvetica, sans-serif;
+
+  &:hover:not(:disabled):not(.active) {
+    border-color: #0052cc;
+    background: #f0f5ff;
+    transform: translateY(-2px);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  &.active {
+    background-color: #0052cc;
+    color: #ffffff;
+    border-color: #0052cc;
+    box-shadow: 0 4px 12px rgba(0, 82, 204, 0.3);
+  }
+}
+
+.approval-pagination .pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 6px;
+  color: #667085;
+  font-weight: 600;
+  letter-spacing: 2px;
+  user-select: none;
 }
 
 .pagination-btn {
@@ -1429,6 +1480,17 @@ body,
     padding: 10px 16px 14px;
   }
 
+  .approval-pagination .pagination-btn,
+  .approval-pagination .pagination-number {
+    min-width: 34px;
+    height: 34px;
+    font-size: 12px;
+  }
+
+  .approval-pagination .pagination-ellipsis {
+    height: 34px;
+  }
+
   .approval-data-count p {
     font-size: 12px;
   }
@@ -1665,6 +1727,17 @@ body,
 
   .approval-pagination-footer {
     padding: 8px 14px 12px;
+  }
+
+  .approval-pagination .pagination-btn,
+  .approval-pagination .pagination-number {
+    min-width: 30px;
+    height: 30px;
+    font-size: 11px;
+  }
+
+  .approval-pagination .pagination-ellipsis {
+    height: 30px;
   }
 
   .approval-data-count p {
