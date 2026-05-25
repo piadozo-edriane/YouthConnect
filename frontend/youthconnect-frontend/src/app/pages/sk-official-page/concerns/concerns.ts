@@ -254,6 +254,26 @@ export class Concerns implements OnInit {
     return status.toLowerCase().replace('_', '-');
   }
 
+  getStatusBadgeClass(status: string): string {
+    const statusMap: { [key: string]: string } = {
+      'OPEN':        'status-open',
+      'IN_PROGRESS': 'status-in-progress',
+      'RESOLVED':    'status-resolved',
+      'CLOSED':      'status-closed'
+    };
+    return statusMap[status] || 'status-open';
+  }
+
+  getStatusLabel(status: string): string {
+    const labelMap: { [key: string]: string } = {
+      'OPEN':        'Open',
+      'IN_PROGRESS': 'In Progress',
+      'RESOLVED':    'Resolved',
+      'CLOSED':      'Closed'
+    };
+    return labelMap[status] || status;
+  }
+
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {

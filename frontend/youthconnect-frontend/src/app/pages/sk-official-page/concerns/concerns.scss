@@ -321,62 +321,47 @@ body,
   flex-direction: column;
   height: 100%;
   cursor: pointer;
-}
+  position: relative;
 
-.concern-card:hover {
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
-  transform: translateY(-6px) scale(1.02);
-}
+  &:hover {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+    transform: translateY(-6px) scale(1.02);
+  }
 
-.concern-card:active {
-  transform: translateY(-2px) scale(0.98);
-  transition: all 0.1s ease;
+  &:active {
+    transform: translateY(-2px) scale(0.98);
+    transition: all 0.1s ease;
+  }
 }
 
 .card-header {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 18px 22px;
-  border-bottom: 2px solid #cfcfcf;
-}
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 22px;
+  border-bottom: 1px solid #ebebeb;
+  gap: 12px;
 
-.header-content {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
+  .card-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
 
-  h3 {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin: 0;
-    color: #111;
-    line-height: 1.2;
-    word-break: break-word;
-    text-align: left;
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0;
+      color: #111;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      min-width: 0;
+    }
   }
-}
-
-.badges-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.concern-type {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 12px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: #e3f2fd;
-  color: #0f2f67;
-  line-height: 1;
 }
 
 .card-body {
@@ -384,50 +369,70 @@ body,
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 
 .description {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: #1d1d1d;
   margin: 0 0 16px;
   line-height: 1.4;
-  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .concern-meta {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-top: 0;
-  border-top: none;
+  gap: 10px;
 }
 
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-size: 0.85rem;
   color: #111;
   font-weight: 500;
 
-  .label {
-    font-weight: 600;
-    color: #555;
-    font-size: 0.85rem;
-  }
-
-  .value {
-    color: #111;
-    font-weight: 500;
-    font-size: 0.85rem;
+  &.status-meta {
+    margin-top: 4px;
+    padding-top: 8px;
+    border-top: 1px solid #e8e8e8;
   }
 }
+
+.meta-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #666;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+// ─── Status Pills ─────────────────────────────────────────────────────────────
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.status-open        { background: #fef3c7; color: #92400e; }
+.status-in-progress { background: #dbeafe; color: #1e40af; }
+.status-resolved    { background: #d1fae5; color: #065f46; }
+.status-closed      { background: #fee2e2; color: #7f1d1d; }
 
 .card-footer {
   padding: 12px 10px 14px;
   display: flex;
   gap: 0;
+  border-top: 1px solid #ebebeb;
 }
 
 .action-btn {
@@ -441,15 +446,14 @@ body,
   transition: filter 0.2s ease;
   color: #fff;
   line-height: 1;
+  font-family: 'Poppins', Arial, Helvetica, sans-serif;
 }
 
 .response-btn {
   background-color: #00a651;
   color: white;
-}
 
-.response-btn:hover {
-  filter: brightness(0.9);
+  &:hover { filter: brightness(0.9); }
 }
 
 /* Modal Styles */
