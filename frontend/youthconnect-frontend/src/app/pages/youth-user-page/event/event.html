@@ -14,7 +14,6 @@
         <div class="header-section">
             <div class="header-content">
                 <h1>UPCOMING EVENTS</h1>
-                <p>Discover and join events created by SK administrators</p>
             </div>
         </div>
 
@@ -55,12 +54,9 @@
                 [class.highlight-event]="isHighlighted(event.eventId)"
                 [class.card--rejected]="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'rejected'">
 
-                <!-- Card Header: title + status pill -->
+                <!-- Card Header: title only -->
                 <div class="card-header">
                     <h3 class="card-title">{{ event.title }}</h3>
-                    <span class="status-pill" [ngClass]="getStatusBadgeClass(event.status)">
-                        {{ event.status }}
-                    </span>
                 </div>
 
                 <!-- Card Body: description + meta -->
@@ -86,26 +82,34 @@
                             <span class="meta-label">LOCATION:</span>
                             <span>{{ event.location }}</span>
                         </div>
+                        <div class="meta-item status-meta">
+                            <span class="status-label">STATUS:</span>
+                            <span class="status-pill" [ngClass]="(event.status || 'upcoming').toLowerCase().replace(' ', '-')">
+                                {{ event.status || 'Upcoming' }}
+                            </span>
+                        </div>
                     </div>
 
-                    <!-- Full-width approval status bar -->
-                    <div class="approval-status-bar approval-status-bar--pending"
-                        *ngIf="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'pending'">
-                        Join Pending
-                    </div>
-                    <div class="approval-status-bar approval-status-bar--approved"
-                        *ngIf="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'approved'">
-                        Join Approved
-                    </div>
-                    <div class="approval-status-bar approval-status-bar--rejected"
-                        *ngIf="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'rejected'">
-                        Join Rejected
-                    </div>
+                    <!-- Full-width approval status bar removed; shown in footer instead -->
                 </div>
 
-                <!-- Card Footer: hidden when rejected -->
-                <div class="card-footer"
-                    *ngIf="getJoinApprovalStatus(event.eventId) !== 'rejected'">
+                <!-- Card Footer -->
+                <div class="card-footer">
+                    <!-- Approval status pill (left side) -->
+                    <span class="approval-pill approval-pill--pending"
+                        *ngIf="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'pending'">
+                        Join Pending
+                    </span>
+                    <span class="approval-pill approval-pill--approved"
+                        *ngIf="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'approved'">
+                        Join Approved
+                    </span>
+                    <span class="approval-pill approval-pill--rejected"
+                        *ngIf="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'rejected'">
+                        Join Rejected
+                    </span>
+
+                    <!-- Join button (not yet joined) -->
                     <button class="btn-rsvp"
                         [class.btn-rsvp-disabled]="isEventOngoing(event) || isEventCompleted(event)"
                         (click)="joinEvent(event)"
@@ -113,12 +117,16 @@
                         *ngIf="!isJoined(event.eventId)">
                         {{ isEventCompleted(event) ? 'Completed' : (isEventOngoing(event) ? 'Ongoing' : 'Join Now') }}
                     </button>
+
+                    <!-- Cancel Join button -->
                     <button class="btn-cancel-rsvp"
                         *ngIf="canCancelJoin(event)"
                         (click)="cancelJoin(event)"
                         [disabled]="isLoading">
                         Cancel Join
                     </button>
+
+                    <!-- Cancellation locked notice -->
                     <div class="cancel-locked"
                         *ngIf="isJoined(event.eventId)
                             && getJoinApprovalStatus(event.eventId) === 'approved'
@@ -128,7 +136,7 @@
                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                         </svg>
-                        Cancellation locked — event starts in less than 24 hours
+                        Cancellation unavailable — the event starts within 24 hours
                     </div>
                 </div>
 
@@ -158,12 +166,64 @@
 </div>
 
 <!-- Join Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showJoinConfirmModal" (click)="closeJoinConfirmModal()">
+    <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title">Join Event</h2>
+                <p class="modal-subtitle">You're about to register for this event and wait for approval</p>
+            </div>
+            <button class="close-btn" (click)="closeJoinConfirmModal()">✕</button>
+        </div>
+        <div class="modal-body-wrapper">
+            <div class="modal-body">
+                <p class="confirmation-text">
+                    Are you sure you want to join <strong>{{ pendingJoinEvent?.title }}</strong>?
+                </p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeJoinConfirmModal()" [disabled]="isLoading">Cancel</button>
+            <button type="button" class="btn-create" (click)="confirmJoinEvent()" [disabled]="isLoading">
+                {{ isLoading ? 'Joining...' : 'Join Now' }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Join Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showCancelConfirmModal" (click)="closeCancelConfirmModal()">
+    <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title">Cancel Registration</h2>
+                <p class="modal-subtitle">You're about to withdraw from this event</p>
+            </div>
+            <button class="close-btn" (click)="closeCancelConfirmModal()">✕</button>
+        </div>
+        <div class="modal-body-wrapper">
+            <div class="modal-body">
+                <p class="confirmation-text">
+                    Are you sure you want to cancel your registration for <strong>{{ pendingCancelEvent?.title }}</strong>?
+                </p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeCancelConfirmModal()" [disabled]="isLoading">Keep Registration</button>
+            <button type="button" class="btn-delete" (click)="confirmCancelJoin()" [disabled]="isLoading">
+                {{ isLoading ? 'Cancelling...' : 'Cancel Join' }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Join Success Modal -->
 <div class="modal-overlay" *ngIf="showJoinModal" (click)="closeJoinModal()">
     <div class="modal-content modal-small" (click)="$event.stopPropagation()">
         <div class="modal-header">
             <div>
                 <h2 class="modal-title">You're In!</h2>
-                <p class="modal-subtitle">Thank you for joining. See you at the event!</p>
+                <p class="modal-subtitle">You have successfully requested to join this event. Please wait for approval.</p>
             </div>
             <button class="close-btn" (click)="closeJoinModal()">✕</button>
         </div>
@@ -176,7 +236,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn-create" (click)="closeJoinModal()">Done</button>
+            <button type="button" class="btn-create" (click)="closeJoinModal()">Okay</button>
         </div>
     </div>
 </div>

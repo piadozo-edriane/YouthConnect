@@ -1,16 +1,17 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EventService, EventResponse } from '../../../services/event.service';
 import { AuthService } from '../../../services/auth.service';
-import { forkJoin } from 'rxjs';
+import { forkJoin, interval, Subscription, switchMap } from 'rxjs';
 
 @Component({
     selector: 'app-event',
     imports: [CommonModule],
     templateUrl: './event.html',
     styleUrl: './event.scss',
+    encapsulation: ViewEncapsulation.None,
 })
-export class EventPage implements OnInit {
+export class EventPage implements OnInit, OnDestroy {
     private eventService = inject(EventService);
     private authService = inject(AuthService);
 
@@ -20,6 +21,12 @@ export class EventPage implements OnInit {
     isLoading = false;
     errorMessage = '';
     successMessage = '';
+
+    // Confirmation modals
+    showJoinConfirmModal = false;
+    showCancelConfirmModal = false;
+    pendingJoinEvent: EventResponse | null = null;
+    pendingCancelEvent: EventResponse | null = null;
 
     events: EventResponse[] = [];
     filteredEvents: EventResponse[] = [];
@@ -34,6 +41,9 @@ export class EventPage implements OnInit {
     currentPage = 1;
     itemsPerPage = 5;
     totalPages = 1;
+
+    private pollSubscription: Subscription | null = null;
+    private readonly POLL_INTERVAL_MS = 10000; // poll every 10 seconds
 
     statusFilters = [
         { value: 'ALL', label: 'All Events' },
@@ -57,8 +67,43 @@ export class EventPage implements OnInit {
             }
             
             this.loadEvents();
+            this.startPolling();
         } else {
             this.errorMessage = 'Unable to load user information';
+        }
+    }
+
+    ngOnDestroy(): void {
+        this.stopPolling();
+    }
+
+    private startPolling(): void {
+        this.pollSubscription = interval(this.POLL_INTERVAL_MS)
+            .pipe(
+                switchMap(() => forkJoin({
+                    events: this.eventService.getAllEvents(),
+                    rsvps: this.eventService.getOwnRsvps(this.userId)
+                }))
+            )
+            .subscribe({
+                next: (result) => {
+                    this.events = result.events;
+                    this.joinedEventIds = new Set(result.rsvps.map(r => r.eventId));
+                    this.joinApprovalStatus = new Map(
+                        result.rsvps.map(r => [r.eventId, (r.approvalStatus || 'pending') as 'pending' | 'approved' | 'rejected'])
+                    );
+                    this.applyFilters();
+                },
+                error: (error) => {
+                    console.error('Polling error:', error);
+                }
+            });
+    }
+
+    private stopPolling(): void {
+        if (this.pollSubscription) {
+            this.pollSubscription.unsubscribe();
+            this.pollSubscription = null;
         }
     }
 
@@ -243,6 +288,20 @@ export class EventPage implements OnInit {
         if (this.isJoined(event.eventId) || this.isEventOngoing(event) || this.isEventCompleted(event)) {
             return;
         }
+        this.pendingJoinEvent = event;
+        this.showJoinConfirmModal = true;
+    }
+
+    closeJoinConfirmModal(): void {
+        this.showJoinConfirmModal = false;
+        this.pendingJoinEvent = null;
+    }
+
+    confirmJoinEvent(): void {
+        if (!this.pendingJoinEvent) return;
+        const event = this.pendingJoinEvent;
+        this.showJoinConfirmModal = false;
+        this.pendingJoinEvent = null;
 
         this.isLoading = true;
         this.eventService.rsvpEvent({ eventId: event.eventId, userId: this.userId }).subscribe({
@@ -253,10 +312,6 @@ export class EventPage implements OnInit {
                 this.showJoinModal = true;
                 this.showSuccessToast('Successfully joined the event!');
                 this.isLoading = false;
-
-                setTimeout(() => {
-                    this.closeJoinModal();
-                }, 2500);
             },
             error: (error) => {
                 console.error('Error joining event:', error);
@@ -270,13 +325,27 @@ export class EventPage implements OnInit {
         if (!this.canCancelJoin(event)) {
             return;
         }
+        this.pendingCancelEvent = event;
+        this.showCancelConfirmModal = true;
+    }
+
+    closeCancelConfirmModal(): void {
+        this.showCancelConfirmModal = false;
+        this.pendingCancelEvent = null;
+    }
+
+    confirmCancelJoin(): void {
+        if (!this.pendingCancelEvent) return;
+        const event = this.pendingCancelEvent;
+        this.showCancelConfirmModal = false;
+        this.pendingCancelEvent = null;
 
         this.isLoading = true;
         this.eventService.cancelRsvp(event.eventId, this.userId).subscribe({
             next: () => {
                 this.joinedEventIds.delete(event.eventId);
                 this.joinApprovalStatus.delete(event.eventId);
-                this.showSuccessToast('Successfully left the event.');
+                this.showSuccessToast('Your event join has been cancelled successfully.');
                 this.isLoading = false;
             },
             error: (error) => {
