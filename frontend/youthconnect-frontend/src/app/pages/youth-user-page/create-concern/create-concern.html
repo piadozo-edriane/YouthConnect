@@ -67,11 +67,11 @@
                     <div class="concern-meta">
                         <div class="meta-item">
                             <span class="meta-label">TYPE:</span>
-                            <span>{{ getConcernTypeLabel(concern.typeOfConcern) }}</span>
+                            <span>{{ getConcernTypeLabel(concern.typeOfConcern) }} Concern</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-label">SUBMITTED:</span>
-                            <span>{{ getTimeAgo(concern.createdAt) }}</span>
+                            <span class="meta-label">DATE:</span>
+                            <span>{{ formatDate(concern.createdAt) }}</span>
                         </div>
                         <div class="meta-item status-meta">
                             <span class="meta-label">STATUS:</span>

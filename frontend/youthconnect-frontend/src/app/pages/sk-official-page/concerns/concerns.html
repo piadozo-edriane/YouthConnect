@@ -74,8 +74,8 @@
                         </div>
                         <div class="meta-item status-meta">
                             <span class="meta-label">STATUS:</span>
-                            <span class="status-pill" [ngClass]="'status-' + getStatusClass(concern.status)">
-                                {{ concern.status | titlecase }}
+                            <span class="status-pill" [ngClass]="getStatusBadgeClass(concern.status)">
+                                {{ getStatusLabel(concern.status) }}
                             </span>
                         </div>
                     </div>

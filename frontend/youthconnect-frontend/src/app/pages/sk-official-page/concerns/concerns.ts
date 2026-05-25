@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, TitleCasePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -9,7 +9,7 @@ import { SkOfficialManagementService } from '../../../services/sk-official-manag
 
 @Component({
   selector: 'app-concerns',
-  imports: [CommonModule, TitleCasePipe, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './concerns.html',
   styleUrl: './concerns.scss',
 })
@@ -252,6 +252,26 @@ export class Concerns implements OnInit {
 
   getStatusClass(status: string): string {
     return status.toLowerCase().replace('_', '-');
+  }
+
+  getStatusBadgeClass(status: string): string {
+    const statusMap: { [key: string]: string } = {
+      'OPEN':        'status-open',
+      'IN_PROGRESS': 'status-in-progress',
+      'RESOLVED':    'status-resolved',
+      'CLOSED':      'status-closed'
+    };
+    return statusMap[status] || 'status-open';
+  }
+
+  getStatusLabel(status: string): string {
+    const labelMap: { [key: string]: string } = {
+      'OPEN':        'Open',
+      'IN_PROGRESS': 'In Progress',
+      'RESOLVED':    'Resolved',
+      'CLOSED':      'Closed'
+    };
+    return labelMap[status] || status;
   }
 
   formatDate(dateString: string): string {
