@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EventService, EventResponse } from '../../../services/event.service';
 import { AuthService } from '../../../services/auth.service';
 import { SkOfficialManagementService } from '../../../services/sk-official-management.service';
+import { interval, Subscription, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-events',
@@ -14,7 +15,7 @@ import { SkOfficialManagementService } from '../../../services/sk-official-manag
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule]
 })
-export class EventsComponent implements OnInit {
+export class EventsComponent implements OnInit, OnDestroy {
   isModalOpen = false;
   eventForm!: FormGroup;
   events: EventResponse[] = [];
@@ -50,6 +51,8 @@ export class EventsComponent implements OnInit {
   pendingEditPayload: any = null;
   private pendingEditEventId: number | null = null;
   private pendingDeleteEventId: number | null = null;
+  private pollSubscription: Subscription | null = null;
+  private readonly POLL_INTERVAL_MS = 10000; // poll every 10 seconds
 
   constructor(
     private fb: FormBuilder,
@@ -67,6 +70,40 @@ export class EventsComponent implements OnInit {
     this.loadSkOfficialProfile();
     this.loadEvents();
     this.watchRouteActions();
+    this.startPolling();
+  }
+
+  ngOnDestroy(): void {
+    this.stopPolling();
+  }
+
+  private startPolling(): void {
+    this.pollSubscription = interval(this.POLL_INTERVAL_MS)
+      .pipe(
+        switchMap(() => this.eventService.getAllEvents())
+      )
+      .subscribe({
+        next: (data) => {
+          // Only update if no modal is open to avoid disrupting the user mid-action
+          if (!this.isModalOpen && !this.isDeleteConfirmationModalOpen && !this.isEditConfirmationModalOpen) {
+            this.events = data.map(event => ({
+              ...event,
+              expectedCount: event.expectedCount ?? (event.rsvpCount || 0)
+            }));
+            this.applyFilters();
+          }
+        },
+        error: (error) => {
+          console.error('Polling error:', error);
+        }
+      });
+  }
+
+  private stopPolling(): void {
+    if (this.pollSubscription) {
+      this.pollSubscription.unsubscribe();
+      this.pollSubscription = null;
+    }
   }
 
   ngAfterViewInit() {

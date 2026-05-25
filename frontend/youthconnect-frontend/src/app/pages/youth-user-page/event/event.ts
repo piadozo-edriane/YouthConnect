@@ -1,8 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EventService, EventResponse } from '../../../services/event.service';
 import { AuthService } from '../../../services/auth.service';
-import { forkJoin } from 'rxjs';
+import { forkJoin, interval, Subscription, switchMap } from 'rxjs';
 
 @Component({
     selector: 'app-event',
@@ -10,7 +10,7 @@ import { forkJoin } from 'rxjs';
     templateUrl: './event.html',
     styleUrl: './event.scss',
 })
-export class EventPage implements OnInit {
+export class EventPage implements OnInit, OnDestroy {
     private eventService = inject(EventService);
     private authService = inject(AuthService);
 
@@ -35,6 +35,9 @@ export class EventPage implements OnInit {
     itemsPerPage = 5;
     totalPages = 1;
 
+    private pollSubscription: Subscription | null = null;
+    private readonly POLL_INTERVAL_MS = 10000; // poll every 10 seconds
+
     statusFilters = [
         { value: 'ALL', label: 'All Events' },
         { value: 'Upcoming', label: 'Upcoming' },
@@ -57,8 +60,43 @@ export class EventPage implements OnInit {
             }
             
             this.loadEvents();
+            this.startPolling();
         } else {
             this.errorMessage = 'Unable to load user information';
+        }
+    }
+
+    ngOnDestroy(): void {
+        this.stopPolling();
+    }
+
+    private startPolling(): void {
+        this.pollSubscription = interval(this.POLL_INTERVAL_MS)
+            .pipe(
+                switchMap(() => forkJoin({
+                    events: this.eventService.getAllEvents(),
+                    rsvps: this.eventService.getOwnRsvps(this.userId)
+                }))
+            )
+            .subscribe({
+                next: (result) => {
+                    this.events = result.events;
+                    this.joinedEventIds = new Set(result.rsvps.map(r => r.eventId));
+                    this.joinApprovalStatus = new Map(
+                        result.rsvps.map(r => [r.eventId, (r.approvalStatus || 'pending') as 'pending' | 'approved' | 'rejected'])
+                    );
+                    this.applyFilters();
+                },
+                error: (error) => {
+                    console.error('Polling error:', error);
+                }
+            });
+    }
+
+    private stopPolling(): void {
+        if (this.pollSubscription) {
+            this.pollSubscription.unsubscribe();
+            this.pollSubscription = null;
         }
     }
 
