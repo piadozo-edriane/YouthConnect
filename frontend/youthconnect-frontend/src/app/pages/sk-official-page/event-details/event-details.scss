@@ -1328,6 +1328,8 @@
   &.pending  { background: #fff3cd; color: #8a5a00; }
   &.approved { background: #e8f5e9; color: #1b5e20; }
   &.rejected { background: #ffebee; color: #c62828; }
+  &.present  { background: #d1fae5; color: #065f46; }
+  &.absent   { background: #fee2e2; color: #b91c1c; }
 }
 
 // ─── Toast Notifications ──────────────────────────────────────────────────────

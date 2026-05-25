@@ -71,6 +71,7 @@ export class EventDetailsPage implements OnInit, OnDestroy {
   // Attendee details modal
   isAttendeeDetailsModalOpen = false;
   selectedAttendeeProfile: any = null;
+  attendeeModalStatusLabel = '';
 
   // Toast notifications
   notifications: { id: number; message: string; type: 'success' | 'error' }[] = [];
@@ -679,7 +680,7 @@ export class EventDetailsPage implements OnInit, OnDestroy {
 
   // ─── Attendee Details Modal ───────────────────────────────────────────────
 
-  openAttendeeDetailsModal(attendee: AttendeeRecord): void {
+  openAttendeeDetailsModal(attendee: AttendeeRecord, statusOverride?: string): void {
     if (attendee.youthId === 0) return;
 
     forkJoin({
@@ -695,6 +696,7 @@ export class EventDetailsPage implements OnInit, OnDestroy {
             email: user?.email || attendee.email || 'No email',
             approvalStatus: attendee.approvalStatus
           };
+          this.attendeeModalStatusLabel = statusOverride ?? attendee.approvalStatus;
           this.isAttendeeDetailsModalOpen = true;
         }
       },
@@ -707,6 +709,7 @@ export class EventDetailsPage implements OnInit, OnDestroy {
   closeAttendeeDetailsModal(): void {
     this.isAttendeeDetailsModalOpen = false;
     this.selectedAttendeeProfile = null;
+    this.attendeeModalStatusLabel = '';
   }
 
   // ─── Chart helpers ────────────────────────────────────────────────────────

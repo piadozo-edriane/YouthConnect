@@ -350,7 +350,7 @@
             <div class="att-compact-list" *ngIf="filteredAttendancePanelAttendees.length > 0; else emptyCompact">
                 <div class="attendee-item clickable"
                     *ngFor="let attendee of filteredAttendancePanelAttendees; let i = index"
-                    (click)="openAttendeeDetailsModal(attendee)">
+                    (click)="openAttendeeDetailsModal(attendee, attendanceStatFilter!)">
                     <span class="attendee-index">{{ i + 1 }}.</span>
                     <span class="attendee-name">{{ attendee.name }}</span>
                     <span class="att-compact-badge"
@@ -405,9 +405,6 @@
                             (click)="toggleAttendance(attendee)">
                             {{ markingAttendanceId === attendee.attendanceId ? 'Marking...' : 'Mark Present' }}
                         </button>
-                        <span class="already-present-label" *ngIf="attendee.isAttended">
-                            ✓ Attended
-                        </span>
                     </div>
                 </div>
             </article>
@@ -604,10 +601,12 @@
                 </div>
                 <div class="modal-header-actions">
                     <span class="approval-status modal-status-badge"
-                        [class.pending]="selectedAttendeeProfile?.approvalStatus === 'pending'"
-                        [class.approved]="selectedAttendeeProfile?.approvalStatus === 'approved'"
-                        [class.rejected]="selectedAttendeeProfile?.approvalStatus === 'rejected'">
-                        {{ (selectedAttendeeProfile?.approvalStatus || 'pending') | uppercase }}
+                        [class.pending]="attendeeModalStatusLabel === 'pending'"
+                        [class.approved]="attendeeModalStatusLabel === 'approved'"
+                        [class.rejected]="attendeeModalStatusLabel === 'rejected'"
+                        [class.present]="attendeeModalStatusLabel === 'present'"
+                        [class.absent]="attendeeModalStatusLabel === 'absent'">
+                        {{ attendeeModalStatusLabel | uppercase }}
                     </span>
                     <button class="close-btn" (click)="closeAttendeeDetailsModal()">✕</button>
                 </div>
