@@ -66,6 +66,7 @@ export class EventDetailsPage implements OnInit, OnDestroy {
   markingAttendanceId: number | null = null;
   attendancePanelMessage = '';
   attendancePanelError = '';
+  attendanceStatFilter: 'present' | 'absent' | 'approved' | null = null;
 
   // Attendee details modal
   isAttendeeDetailsModalOpen = false;
@@ -451,6 +452,7 @@ export class EventDetailsPage implements OnInit, OnDestroy {
     this.attendanceCurrentPage = 1;
     this.attendancePanelMessage = '';
     this.attendancePanelError = '';
+    this.attendanceStatFilter = null;
   }
 
   closeAttendancePanel(): void {
@@ -458,10 +460,25 @@ export class EventDetailsPage implements OnInit, OnDestroy {
     this.isAttendancePanelOpen = false;
     this.attendancePanelMessage = '';
     this.attendancePanelError = '';
+    this.attendanceStatFilter = null;
+  }
+
+  setAttendanceStatFilter(filter: 'present' | 'absent' | 'approved'): void {
+    this.attendanceStatFilter = this.attendanceStatFilter === filter ? null : filter;
+    this.attendanceSearchQuery = '';
+    this.attendanceCurrentPage = 1;
   }
 
   get filteredAttendancePanelAttendees(): AttendeeRecord[] {
     let list = this.allAttendees.filter(a => a.approvalStatus === 'approved');
+
+    if (this.attendanceStatFilter === 'present') {
+      list = list.filter(a => a.isAttended);
+    } else if (this.attendanceStatFilter === 'absent') {
+      list = list.filter(a => !a.isAttended);
+    }
+    // 'approved' or null → show all approved (no extra filter)
+
     if (this.attendanceSearchQuery.trim()) {
       const q = this.attendanceSearchQuery.toLowerCase();
       list = list.filter(a =>

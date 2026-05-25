@@ -311,24 +311,62 @@
 
         <!-- Attendance Summary Bar -->
         <div class="attendance-summary-bar">
-            <div class="att-stat">
+            <div class="att-stat att-stat--clickable"
+                [class.att-stat--active]="attendanceStatFilter === 'present'"
+                (click)="setAttendanceStatFilter('present')">
                 <span class="att-stat-count attended-color">{{ attendedCount }}</span>
                 <span class="att-stat-label">Present</span>
             </div>
             <div class="att-stat-divider"></div>
-            <div class="att-stat">
+            <div class="att-stat att-stat--clickable"
+                [class.att-stat--active]="attendanceStatFilter === 'absent'"
+                (click)="setAttendanceStatFilter('absent')">
                 <span class="att-stat-count absent-color">{{ absentCount }}</span>
                 <span class="att-stat-label">Absent</span>
             </div>
             <div class="att-stat-divider"></div>
-            <div class="att-stat">
+            <div class="att-stat att-stat--clickable"
+                [class.att-stat--active]="attendanceStatFilter === 'approved'"
+                (click)="setAttendanceStatFilter('approved')">
                 <span class="att-stat-count total-color">{{ approvedCount }}</span>
-                <span class="att-stat-label">Total Approved</span>
+                <span class="att-stat-label">Approved</span>
             </div>
         </div>
 
-        <!-- Search -->
-        <div class="approval-search-section">
+        <!-- Compact list when a stat is selected -->
+        <div class="att-compact-section" *ngIf="attendanceStatFilter !== null">
+            <div class="att-compact-header">
+                <button class="att-compact-back" type="button" (click)="setAttendanceStatFilter(attendanceStatFilter!)" aria-label="Back">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <span class="att-compact-title">
+                    <ng-container *ngIf="attendanceStatFilter === 'present'">Present ({{ attendedCount }})</ng-container>
+                    <ng-container *ngIf="attendanceStatFilter === 'absent'">Absent ({{ absentCount }})</ng-container>
+                    <ng-container *ngIf="attendanceStatFilter === 'approved'">Approved ({{ approvedCount }})</ng-container>
+                </span>
+            </div>
+            <div class="att-compact-list" *ngIf="filteredAttendancePanelAttendees.length > 0; else emptyCompact">
+                <div class="attendee-item clickable"
+                    *ngFor="let attendee of filteredAttendancePanelAttendees; let i = index"
+                    (click)="openAttendeeDetailsModal(attendee)">
+                    <span class="attendee-index">{{ i + 1 }}.</span>
+                    <span class="attendee-name">{{ attendee.name }}</span>
+                    <span class="att-compact-badge"
+                        [class.present]="attendee.isAttended"
+                        [class.absent]="!attendee.isAttended">
+                        {{ attendee.isAttended ? '✓' : '—' }}
+                    </span>
+                </div>
+            </div>
+            <ng-template #emptyCompact>
+                <div class="approval-empty-state"><p>No attendees in this group.</p></div>
+            </ng-template>
+        </div>
+
+        <!-- Search (hidden when a stat filter is active) -->
+        <div class="approval-search-section" *ngIf="attendanceStatFilter === null">
             <input type="text" class="approval-search-input" placeholder="Search by name, email, or contact"
                 [(ngModel)]="attendanceSearchQuery" (input)="attendanceCurrentPage = 1" />
         </div>
@@ -337,7 +375,8 @@
         <div *ngIf="attendancePanelError" class="approval-alert approval-alert-error">{{ attendancePanelError }}</div>
         <div *ngIf="attendancePanelMessage" class="approval-alert approval-alert-success">{{ attendancePanelMessage }}</div>
 
-        <!-- Attendee Cards -->
+        <!-- Attendee Cards (hidden when a stat filter is active) -->
+        <ng-container *ngIf="attendanceStatFilter === null">
         <div class="approval-list" *ngIf="paginatedAttendancePanelAttendees.length > 0; else noAttendanceRows">
             <article class="approval-card attendance-card"
                 [class.is-present]="attendee.isAttended"
@@ -400,6 +439,7 @@
                 <p>No approved attendees found.</p>
             </div>
         </ng-template>
+        </ng-container>
     </aside>
 
     <!-- Edit Event Modal -->
