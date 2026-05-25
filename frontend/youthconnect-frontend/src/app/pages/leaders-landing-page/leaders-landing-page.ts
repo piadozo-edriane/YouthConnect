@@ -27,7 +27,7 @@ export class LeadersLandingPage implements OnInit, OnDestroy {
       officials: [
         {
           name: 'Yngrid Kurei Factuar',
-          position: 'SK Chairwoman',
+          position: 'SK Chairperson',
           image: '/assets/sk-official-1.png'
         },
         {
@@ -36,7 +36,7 @@ export class LeadersLandingPage implements OnInit, OnDestroy {
           image: '/assets/sk-official-2.png'
         },
         {
-          name: 'Aldwin C. Diroy',
+          name: 'Aldwin Rheynold C. Diroy',
           position: 'SK Kagawad',
           image: '/assets/sk-official-3.png'
         },
@@ -61,13 +61,13 @@ export class LeadersLandingPage implements OnInit, OnDestroy {
           image: '/assets/sk-official-6.png'
         },
         {
-          name: 'Sherradan Abdulla',
+          name: 'Sherredan A. Abdulla',
           position: 'SK Treasurer',
           image: '/assets/sk-official-7.png'
         },
         {
-          name: 'Erick Tan Baltazar',
-          position: 'SK Admin',
+          name: 'Erick T. Baltazar',
+          position: 'SK Secretary ',
           image: '/assets/sk-official-8.png'
         }
       ]
