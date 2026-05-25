@@ -28,9 +28,11 @@ body,
     background-color: #f2f2f2;
     width: 100%;
     height: 100%;
-    overflow-y: auto;
+    overflow: hidden;
     box-sizing: border-box;
     font-family: 'Poppins', Arial, Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
 
     .header-section {
       display: flex;
@@ -700,16 +702,13 @@ body,
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  overflow-x: auto;
+  overflow: hidden;
   position: relative;
-
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    height: 0;
-    display: none;
-  }
+  margin-bottom: 20px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .profiles-table {
@@ -717,10 +716,52 @@ body,
   border-collapse: collapse;
   font-size: 14px;
   font-family: 'Poppins', Arial, Helvetica, sans-serif;
+  table-layout: fixed;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 
   thead {
     background-color: #f2f2f2;
     border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  tbody {
+    display: block;
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1;
+    min-height: 0;
+    scrollbar-gutter: stable;
+
+    // Custom scrollbar styling
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f5f5f5;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #c0c0c0;
+      border-radius: 4px;
+
+      &:hover {
+        background: #a0a0a0;
+      }
+    }
+
+    tr {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
   }
 
   th {
@@ -731,6 +772,34 @@ body,
     white-space: nowrap;
     font-size: 12px;
     letter-spacing: 0.5px;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:nth-child(1) {
+      width: 32%;
+    }
+
+    &:nth-child(2) {
+      width: 8%;
+    }
+
+    &:nth-child(3) {
+      width: 10%;
+    }
+
+    &:nth-child(4) {
+      width: 18%;
+    }
+
+    &:nth-child(5) {
+      width: 20%;
+    }
+
+    &:nth-child(6) {
+      width: 110px;
+      min-width: 110px;
+    }
   }
 
   td {
@@ -738,6 +807,34 @@ body,
     border-bottom: 1px solid #f0f0f0;
     color: #555;
     font-size: 13px;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:nth-child(1) {
+      width: 32%;
+    }
+
+    &:nth-child(2) {
+      width: 8%;
+    }
+
+    &:nth-child(3) {
+      width: 10%;
+    }
+
+    &:nth-child(4) {
+      width: 18%;
+    }
+
+    &:nth-child(5) {
+      width: 20%;
+    }
+
+    &:nth-child(6) {
+      width: 110px;
+      min-width: 110px;
+    }
   }
 
   tbody tr {
@@ -795,9 +892,11 @@ body,
   display: flex;
   gap: 8px;
   align-items: center;
-  padding: 10px 20px;
+  justify-content: flex-end;
+  padding: 10px 20px !important;
   background-color: transparent;
-  margin-right: 60px;
+  white-space: nowrap;
+  overflow: visible;
 }
 
 .actions-th {
@@ -924,6 +1023,47 @@ body,
   /* Small horizontal padding for alignment */
   border-radius: 0 !important;
   box-shadow: none !important;
+}
+
+/* Youth Profiles Pagination Footer */
+.profiles-pagination-footer {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  padding: 20px 0 0 0;
+  margin-top: 0;
+  box-shadow: none;
+}
+
+.profiles-data-count {
+  text-align: center;
+  margin-bottom: 12px;
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: #667085;
+    font-weight: 500;
+  }
+}
+
+.profiles-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 6px;
+  color: #667085;
+  font-weight: 600;
+  letter-spacing: 2px;
+  user-select: none;
 }
 
 // Responsive Design
