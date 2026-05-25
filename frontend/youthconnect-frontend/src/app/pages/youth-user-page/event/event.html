@@ -95,9 +95,8 @@
                         <div class="meta-item status-meta">
                             <span class="status-label">STATUS:</span>
                             <span class="status-pill" [ngClass]="(event.status || 'upcoming').toLowerCase().replace(' ', '-')">
-                                {{ event.status || 'Upcoming' }}
-                            </span>
-                        </div>
+                                {{ (event.status || 'Upcoming') | titlecase }}
+                            </span>                        </div>
                     </div>
 
                     <!-- Full-width approval status bar removed; shown in footer instead -->
@@ -107,14 +106,17 @@
                 <div class="card-footer">
                     <!-- Approval status pill (left side) -->
                     <span class="approval-pill approval-pill--pending"
+                        [class.approval-pill--full]="isEventOngoing(event) || isEventCompleted(event)"
                         *ngIf="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'pending'">
                         Join Pending
                     </span>
                     <span class="approval-pill approval-pill--approved"
+                        [class.approval-pill--full]="isEventOngoing(event) || isEventCompleted(event)"
                         *ngIf="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'approved'">
                         Join Approved
                     </span>
                     <span class="approval-pill approval-pill--rejected"
+                        [class.approval-pill--full]="isEventOngoing(event) || isEventCompleted(event)"
                         *ngIf="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'rejected'">
                         Join Rejected
                     </span>

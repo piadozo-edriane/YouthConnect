@@ -1,12 +1,12 @@
 import { Component, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { EventService, EventResponse } from '../../../services/event.service';
 import { AuthService } from '../../../services/auth.service';
 import { forkJoin, interval, Subscription, switchMap } from 'rxjs';
 
 @Component({
     selector: 'app-event',
-    imports: [CommonModule],
+    imports: [CommonModule, TitleCasePipe],
     templateUrl: './event.html',
     styleUrl: './event.scss',
     encapsulation: ViewEncapsulation.None,
@@ -48,8 +48,6 @@ export class EventPage implements OnInit, OnDestroy {
     statusFilters = [
         { value: 'ALL', label: 'All Events' },
         { value: 'Upcoming', label: 'Upcoming' },
-        { value: 'Open for Registration', label: 'Open' },
-        { value: 'Registration Closed', label: 'Closed' },
         { value: 'Ongoing', label: 'Ongoing' },
         { value: 'Completed', label: 'Completed' }
     ];
@@ -283,6 +281,7 @@ export class EventPage implements OnInit, OnDestroy {
         if (!this.isJoined(event.eventId)) return false;
         if (this.getJoinApprovalStatus(event.eventId) === 'rejected') return false;
         if (this.isEventCompleted(event)) return false;
+        if (this.isEventOngoing(event)) return false;
         return true;
     }
 
