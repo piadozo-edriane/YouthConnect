@@ -22,6 +22,12 @@ export class EventPage implements OnInit, OnDestroy {
     errorMessage = '';
     successMessage = '';
 
+    // Confirmation modals
+    showJoinConfirmModal = false;
+    showCancelConfirmModal = false;
+    pendingJoinEvent: EventResponse | null = null;
+    pendingCancelEvent: EventResponse | null = null;
+
     events: EventResponse[] = [];
     filteredEvents: EventResponse[] = [];
     paginatedEvents: EventResponse[] = [];
@@ -282,6 +288,20 @@ export class EventPage implements OnInit, OnDestroy {
         if (this.isJoined(event.eventId) || this.isEventOngoing(event) || this.isEventCompleted(event)) {
             return;
         }
+        this.pendingJoinEvent = event;
+        this.showJoinConfirmModal = true;
+    }
+
+    closeJoinConfirmModal(): void {
+        this.showJoinConfirmModal = false;
+        this.pendingJoinEvent = null;
+    }
+
+    confirmJoinEvent(): void {
+        if (!this.pendingJoinEvent) return;
+        const event = this.pendingJoinEvent;
+        this.showJoinConfirmModal = false;
+        this.pendingJoinEvent = null;
 
         this.isLoading = true;
         this.eventService.rsvpEvent({ eventId: event.eventId, userId: this.userId }).subscribe({
@@ -292,10 +312,6 @@ export class EventPage implements OnInit, OnDestroy {
                 this.showJoinModal = true;
                 this.showSuccessToast('Successfully joined the event!');
                 this.isLoading = false;
-
-                setTimeout(() => {
-                    this.closeJoinModal();
-                }, 2500);
             },
             error: (error) => {
                 console.error('Error joining event:', error);
@@ -309,13 +325,27 @@ export class EventPage implements OnInit, OnDestroy {
         if (!this.canCancelJoin(event)) {
             return;
         }
+        this.pendingCancelEvent = event;
+        this.showCancelConfirmModal = true;
+    }
+
+    closeCancelConfirmModal(): void {
+        this.showCancelConfirmModal = false;
+        this.pendingCancelEvent = null;
+    }
+
+    confirmCancelJoin(): void {
+        if (!this.pendingCancelEvent) return;
+        const event = this.pendingCancelEvent;
+        this.showCancelConfirmModal = false;
+        this.pendingCancelEvent = null;
 
         this.isLoading = true;
         this.eventService.cancelRsvp(event.eventId, this.userId).subscribe({
             next: () => {
                 this.joinedEventIds.delete(event.eventId);
                 this.joinApprovalStatus.delete(event.eventId);
-                this.showSuccessToast('Successfully left the event.');
+                this.showSuccessToast('Your event join has been cancelled successfully.');
                 this.isLoading = false;
             },
             error: (error) => {

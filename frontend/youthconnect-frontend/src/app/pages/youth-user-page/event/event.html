@@ -166,12 +166,64 @@
 </div>
 
 <!-- Join Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showJoinConfirmModal" (click)="closeJoinConfirmModal()">
+    <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title">Join Event</h2>
+                <p class="modal-subtitle">You're about to register for this event and wait for approval</p>
+            </div>
+            <button class="close-btn" (click)="closeJoinConfirmModal()">✕</button>
+        </div>
+        <div class="modal-body-wrapper">
+            <div class="modal-body">
+                <p class="confirmation-text">
+                    Are you sure you want to join <strong>{{ pendingJoinEvent?.title }}</strong>?
+                </p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeJoinConfirmModal()" [disabled]="isLoading">Cancel</button>
+            <button type="button" class="btn-create" (click)="confirmJoinEvent()" [disabled]="isLoading">
+                {{ isLoading ? 'Joining...' : 'Join Now' }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Join Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showCancelConfirmModal" (click)="closeCancelConfirmModal()">
+    <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title">Cancel Registration</h2>
+                <p class="modal-subtitle">You're about to withdraw from this event</p>
+            </div>
+            <button class="close-btn" (click)="closeCancelConfirmModal()">✕</button>
+        </div>
+        <div class="modal-body-wrapper">
+            <div class="modal-body">
+                <p class="confirmation-text">
+                    Are you sure you want to cancel your registration for <strong>{{ pendingCancelEvent?.title }}</strong>?
+                </p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeCancelConfirmModal()" [disabled]="isLoading">Keep Registration</button>
+            <button type="button" class="btn-delete" (click)="confirmCancelJoin()" [disabled]="isLoading">
+                {{ isLoading ? 'Cancelling...' : 'Cancel Join' }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Join Success Modal -->
 <div class="modal-overlay" *ngIf="showJoinModal" (click)="closeJoinModal()">
     <div class="modal-content modal-small" (click)="$event.stopPropagation()">
         <div class="modal-header">
             <div>
                 <h2 class="modal-title">You're In!</h2>
-                <p class="modal-subtitle">Thank you for joining. See you at the event!</p>
+                <p class="modal-subtitle">You have successfully requested to join this event. Please wait for approval.</p>
             </div>
             <button class="close-btn" (click)="closeJoinModal()">✕</button>
         </div>
@@ -184,7 +236,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn-create" (click)="closeJoinModal()">Done</button>
+            <button type="button" class="btn-create" (click)="closeJoinModal()">Okay</button>
         </div>
     </div>
 </div>
