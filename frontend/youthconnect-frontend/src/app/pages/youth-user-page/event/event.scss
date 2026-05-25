@@ -302,51 +302,43 @@ body,
   letter-spacing: 0.5px;
 }
 
-// ─── Approval Status Bar ──────────────────────────────────────────────────────
-
-.approval-status-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 10px 20px;
-  border-radius: 999px;
-  font-size: .8rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  box-sizing: border-box;
-
-  &.approval-status-bar--pending {
-    background: #fef9e7;
-    color: #b45309;
-  }
-
-  &.approval-status-bar--approved {
-    background: #d1fae5;
-    color: #065f46;
-  }
-
-  &.approval-status-bar--rejected {
-    background: #fee2e2;
-    color: #7f1d1d;
-  }
-}
-
-// ─── Card Footer ─────────────────────────────────────────────────────────────
+// ─── Card Actions (legacy) ────────────────────────────────────────────────────
 
 .card-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   gap: 10px;
   padding: 14px 24px 18px;
   border-top: 1px solid #ebebeb;
 }
 
-// When rejected: card-body acts as the last section, so give it a bottom border
-.card--rejected .card-body {
-  border-bottom: 1px solid #ebebeb;
-  padding-bottom: 20px;
+// ─── Approval Pills (footer) ──────────────────────────────────────────────────
+
+.approval-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  flex: 1;
+
+  &.approval-pill--pending {
+    background: #fef9e7;
+    color: #b45309;
+  }
+
+  &.approval-pill--approved {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  &.approval-pill--rejected {
+    background: #fee2e2;
+    color: #7f1d1d;
+  }
 }
 
 // ─── Card Actions (legacy) ────────────────────────────────────────────────────
@@ -391,6 +383,7 @@ body,
 
 .btn-rsvp {
   padding: 10px 50px;
+  width: 100%;
   background-color: #a4151a;
   color: white;
   border: none;
