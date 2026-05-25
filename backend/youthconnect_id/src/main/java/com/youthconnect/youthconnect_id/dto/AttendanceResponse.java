@@ -2,6 +2,8 @@ package com.youthconnect.youthconnect_id.dto;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class AttendanceResponse {
     private int attendanceId;
     private int eventId;
@@ -29,6 +31,8 @@ public class AttendanceResponse {
     public void setUserId(int userId) {
         this.userId = userId; 
     }
+
+    @JsonProperty("isAttended")
     public boolean isAttended() {
         return isAttended; 
     }
