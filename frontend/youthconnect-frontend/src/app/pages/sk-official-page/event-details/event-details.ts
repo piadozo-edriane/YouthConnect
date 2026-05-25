@@ -1,8 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, interval, of, Subscription, switchMap } from 'rxjs';
 import { EventService, EventResponse, EventRequest, AttendanceResponse } from '../../../services/event.service';
 import { YouthMemberManagementService } from '../../../services/youth-member-management.service';
 import { AuthService } from '../../../services/auth.service';
@@ -25,7 +25,7 @@ export interface AttendeeRecord {
   styleUrl: './event-details.scss',
   standalone: true
 })
-export class EventDetailsPage implements OnInit {
+export class EventDetailsPage implements OnInit, OnDestroy {
   private eventService = inject(EventService);
   private youthMemberService = inject(YouthMemberManagementService);
   private authService = inject(AuthService);
@@ -80,12 +80,94 @@ export class EventDetailsPage implements OnInit {
   // Status update
   isStatusUpdating = false;
 
+  private pollSubscription: Subscription | null = null;
+  private readonly POLL_INTERVAL_MS = 10000; // poll every 10 seconds
+  private currentEventId: number = 0;
+
   ngOnInit(): void {
     this.initEditForm();
     this.loadCurrentAdmin();
     this.route.paramMap.subscribe(() => {
       this.loadEventDetails();
+      this.startPolling();
     });
+  }
+
+  ngOnDestroy(): void {
+    this.stopPolling();
+  }
+
+  private get isAnyModalOpen(): boolean {
+    return this.isEditModalOpen
+      || this.isEditConfirmModalOpen
+      || this.isDeleteModalOpen
+      || this.isRejectModalOpen
+      || this.isAttendeeDetailsModalOpen;
+  }
+
+  private startPolling(): void {
+    this.stopPolling();
+    this.pollSubscription = interval(this.POLL_INTERVAL_MS)
+      .pipe(
+        switchMap(() => forkJoin({
+          events: this.eventService.getAllEvents(),
+          rsvps: this.currentEventId ? this.eventService.getEventRsvps(this.currentEventId) : of([] as AttendanceResponse[]),
+          profiles: this.youthMemberService.getYouthProfiles(),
+          users: this.youthMemberService.getUsers()
+        }))
+      )
+      .subscribe({
+        next: ({ events, rsvps, profiles, users }) => {
+          // Skip update if a modal is open to avoid disrupting the user
+          if (this.isAnyModalOpen) return;
+
+          // Refresh event details
+          const event = events.find(e => e.eventId === this.currentEventId);
+          if (event) {
+            this.selectedEvent = {
+              ...event,
+              expectedCount: event.expectedCount ?? (event.rsvpCount || 0)
+            };
+          }
+
+          // Refresh attendees
+          const userToYouthMap = new Map(users.map(u => [u.userId, u.youthId]));
+          const profileMap = new Map(profiles.map(p => [p.youthId, p]));
+          const userMap = new Map(users.map(u => [u.userId, u]));
+
+          this.allAttendees = rsvps.map((rsvp) => {
+            const youthId = userToYouthMap.get(rsvp.userId) || 0;
+            const profile = youthId ? profileMap.get(youthId) : null;
+            const user = userMap.get(rsvp.userId);
+            const name = profile
+              ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim()
+              : 'Unknown User';
+            const email = user?.email || 'No email';
+            const contactNumber = profile?.contactNumber || 'N/A';
+
+            return {
+              attendanceId: rsvp.attendanceId,
+              userId: rsvp.userId,
+              youthId,
+              name,
+              email,
+              contactNumber,
+              approvalStatus: (rsvp.approvalStatus || 'pending') as 'pending' | 'approved' | 'rejected',
+              registeredAt: rsvp.registeredAt
+            };
+          });
+        },
+        error: (error) => {
+          console.error('Polling error:', error);
+        }
+      });
+  }
+
+  private stopPolling(): void {
+    if (this.pollSubscription) {
+      this.pollSubscription.unsubscribe();
+      this.pollSubscription = null;
+    }
   }
 
   private initEditForm(): void {
@@ -233,6 +315,7 @@ export class EventDetailsPage implements OnInit {
       return;
     }
 
+    this.currentEventId = eventId;
     this.isLoading = true;
     this.errorMessage = '';
 
