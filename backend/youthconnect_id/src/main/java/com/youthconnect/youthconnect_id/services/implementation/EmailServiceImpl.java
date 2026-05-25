@@ -39,14 +39,14 @@ public class EmailServiceImpl implements EmailService {
             System.out.println("📧 Building approval email...");
             System.out.println("From: " + fromEmail);
             System.out.println("To: " + to);
-            System.out.println("Subject: YouthConnect - Account Approved ✅");
+            System.out.println("Subject: YouthConnect - Account Approved");
             
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setFrom(fromEmail, "YouthConnect - Barangay 183");
             helper.setTo(to);
-            helper.setSubject("YouthConnect - Account Approved ✅");
+            helper.setSubject("YouthConnect - Account Approved");
             helper.setText(buildApprovalEmailTemplate(firstName, baseUrl), true);
 
             System.out.println("📤 Sending approval email via SMTP...");
@@ -144,7 +144,7 @@ public class EmailServiceImpl implements EmailService {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>🎉 Account Approved!</h1>
+                        <h1>Account Approved!</h1>
                     </div>
                     <div class="content">
                         <p>Hi <strong>%s</strong>,</p>
@@ -226,7 +226,7 @@ public class EmailServiceImpl implements EmailService {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>📋 New User Pending Approval</h1>
+                        <h1>New User Pending Approval</h1>
                     </div>
                     <div class="content">
                         <p>A new user has registered on YouthConnect and is waiting for approval:</p>
@@ -266,7 +266,7 @@ public class EmailServiceImpl implements EmailService {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>🎉 Account Registration Successful!</h1>
+                        <h1>Account Registration Successful!</h1>
                     </div>
                     <div class="content">
                         <p>Hi <strong>%s</strong>,</p>
@@ -341,7 +341,7 @@ public class EmailServiceImpl implements EmailService {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>🔐 Password Reset Request</h1>
+                        <h1>Password Reset Request</h1>
                     </div>
                     <div class="content">
                         <p>Hi <strong>%s</strong>,</p>
@@ -424,7 +424,7 @@ public class EmailServiceImpl implements EmailService {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>🎉 New Event Announcement!</h1>
+                        <h1>New Event Announcement!</h1>
                     </div>
                     <div class="content">
                         <p>Hi <strong>%s</strong>,</p>
@@ -529,7 +529,7 @@ public class EmailServiceImpl implements EmailService {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>🎉 Event Starting Now!</h1>
+                        <h1>Event Starting Now!</h1>
                     </div>
                     <div class="content">
                         <p>Hi <strong>%s</strong>,</p>
@@ -644,7 +644,7 @@ public class EmailServiceImpl implements EmailService {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>❌ Event Cancelled</h1>
+                        <h1>Event Cancelled</h1>
                     </div>
                     <div class="content">
                         <p>Hi <strong>%s</strong>,</p>
@@ -701,7 +701,7 @@ public class EmailServiceImpl implements EmailService {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>📢 Event Status Update</h1>
+                        <h1>Event Status Update</h1>
                     </div>
                     <div class="content">
                         <p>Hi <strong>%s</strong>,</p>
@@ -845,7 +845,7 @@ public class EmailServiceImpl implements EmailService {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>📋 New Task Assigned!</h1>
+                        <h1>New Task Assigned!</h1>
                     </div>
                     <div class="content">
                         <p>Hi <strong>%s</strong>,</p>
@@ -955,7 +955,7 @@ public class EmailServiceImpl implements EmailService {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>✅ Event Registration Approved!</h1>
+                        <h1>Event Registration Approved!</h1>
                     </div>
                     <div class="content">
                         <p>Hi <strong>%s</strong>,</p>
