@@ -53,36 +53,32 @@
 
             <div *ngFor="let concern of paginatedConcerns" class="concern-card" (click)="updateConcern(concern)">
                 <div class="card-header">
-                    <div class="header-content">
+                    <div class="card-title-group">
                         <h3>{{ concern.title }}</h3>
-                        <div class="badges-group">
-                            <span class="concern-type">{{ getConcernTypeDisplay(concern.typeOfConcern) }}</span>
-                            <span class="status-badge" [ngClass]="'status-' + getStatusClass(concern.status)">
-                                {{ concern.status }}
-                            </span>
-                        </div>
                     </div>
                 </div>
                 <div class="card-body">
                     <p class="description">{{ concern.description }}</p>
                     <div class="concern-meta">
                         <div class="meta-item">
-                            <span class="label">Youth:</span>
-                            <span class="value">{{ concern.youthFirstName }} {{ concern.youthLastName }}</span>
+                            <span class="meta-label">TYPE:</span>
+                            <span>{{ getConcernTypeDisplay(concern.typeOfConcern) }}</span>
                         </div>
                         <div class="meta-item">
-                            <span class="label">Created:</span>
-                            <span class="value">{{ formatDate(concern.createdAt) }}</span>
+                            <span class="meta-label">SUBMITTED BY:</span>
+                            <span>{{ concern.youthFirstName }} {{ concern.youthLastName }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">DATE:</span>
+                            <span>{{ formatDate(concern.createdAt) }}</span>
+                        </div>
+                        <div class="meta-item status-meta">
+                            <span class="meta-label">STATUS:</span>
+                            <span class="status-pill" [ngClass]="'status-' + getStatusClass(concern.status)">
+                                {{ concern.status | titlecase }}
+                            </span>
                         </div>
                     </div>
-                </div>
-                <div class="card-footer">
-                    <button 
-                        class="action-btn response-btn" 
-                        (click)="updateConcern(concern); $event.stopPropagation()"
-                        [title]="concern.status === 'CLOSED' ? 'View this closed concern' : 'Send a response to this concern'">
-                        {{ concern.status === 'CLOSED' ? 'View Concern' : 'Update Status' }}
-                    </button>
                 </div>
             </div>
         </div>

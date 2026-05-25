@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -9,7 +9,7 @@ import { SkOfficialManagementService } from '../../../services/sk-official-manag
 
 @Component({
   selector: 'app-concerns',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, TitleCasePipe, ReactiveFormsModule, FormsModule],
   templateUrl: './concerns.html',
   styleUrl: './concerns.scss',
 })
