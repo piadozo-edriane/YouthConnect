@@ -26,7 +26,7 @@ export class YouthProfiling implements OnInit {
 
   // Pagination for approval panel
   approvalCurrentPage: number = 1;
-  approvalItemsPerPage: number = 10;
+  approvalItemsPerPage: number = 15;
 
   // Pagination for youth profiles table
   profilesCurrentPage: number = 1;
@@ -461,6 +461,15 @@ export class YouthProfiling implements OnInit {
   }
 
   get paginatedApprovalProfiles(): YouthMemberListItem[] {
+    const totalPages = this.approvalTotalPages;
+    if (totalPages === 0) {
+      return [];
+    }
+
+    if (this.approvalCurrentPage > totalPages) {
+      this.approvalCurrentPage = totalPages;
+    }
+
     const startIndex = (this.approvalCurrentPage - 1) * this.approvalItemsPerPage;
     const endIndex = startIndex + this.approvalItemsPerPage;
     return this.filteredApprovalProfiles.slice(startIndex, endIndex);
@@ -470,35 +479,38 @@ export class YouthProfiling implements OnInit {
     return Math.ceil(this.filteredApprovalProfiles.length / this.approvalItemsPerPage);
   }
 
-  get approvalPageNumbers(): (number | string)[] {
+  get approvalVisiblePages(): number[] {
     const totalPages = this.approvalTotalPages;
     const currentPage = this.approvalCurrentPage;
-    const pages: (number | string)[] = [];
 
-    if (totalPages <= 5) {
-      // Show all pages if 5 or fewer
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      // Smart pagination with ellipsis
-      if (currentPage <= 2) {
-        // Near the start: 1 2 3 ... 7
-        pages.push(1, 2, 3, '...', totalPages);
-      } else if (currentPage >= totalPages - 1) {
-        // Near the end: 1 ... 5 6 7
-        pages.push(1, '...', totalPages - 2, totalPages - 1, totalPages);
-      } else {
-        // In the middle: 1 ... 3 4 5 ... 7
-        pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
-      }
+    if (totalPages <= 3) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
     }
 
-    return pages;
+    if (currentPage <= 2) {
+      return [1, 2, 3];
+    }
+
+    if (currentPage >= totalPages - 1) {
+      return [totalPages - 2, totalPages - 1, totalPages];
+    }
+
+    return [currentPage - 1, currentPage, currentPage + 1];
   }
 
-  goToApprovalPage(page: number | string): void {
-    if (typeof page === 'string') return; // Ignore ellipsis clicks
+  get showApprovalLeftEllipsis(): boolean {
+    return this.approvalTotalPages > 3 && this.approvalCurrentPage > 2;
+  }
+
+  get showApprovalRightEllipsis(): boolean {
+    return this.approvalTotalPages > 3 && this.approvalCurrentPage < this.approvalTotalPages - 1;
+  }
+
+  get showApprovalPagination(): boolean {
+    return this.filteredApprovalProfiles.length > this.approvalItemsPerPage;
+  }
+
+  goToApprovalPage(page: number): void {
     if (page >= 1 && page <= this.approvalTotalPages) {
       this.approvalCurrentPage = page;
     }

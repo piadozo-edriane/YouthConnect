@@ -239,7 +239,7 @@
     </ng-template>
 
     <!-- Sticky Pagination Footer -->
-    <div class="approval-pagination-footer" *ngIf="filteredApprovalProfiles.length > 0">
+    <div class="approval-pagination-footer" *ngIf="showApprovalPagination">
       <!-- Data Count Display -->
       <div class="approval-data-count">
         <p>Showing {{ paginatedApprovalProfiles.length }} of {{ filteredApprovalProfiles.length }} 
@@ -260,16 +260,18 @@
           </svg>
         </button>
 
+        <span *ngIf="showApprovalLeftEllipsis" class="pagination-ellipsis">...</span>
+
         <div class="pagination-numbers">
-          <button *ngFor="let page of approvalPageNumbers" 
+          <button *ngFor="let page of approvalVisiblePages" 
             class="pagination-number"
             [class.active]="page === approvalCurrentPage"
-            [class.ellipsis]="page === '...'"
-            [disabled]="page === '...'"
             (click)="goToApprovalPage(page)">
             {{ page }}
           </button>
         </div>
+
+        <span *ngIf="showApprovalRightEllipsis" class="pagination-ellipsis">...</span>
 
         <button class="pagination-btn" (click)="nextApprovalPage()"
           [disabled]="approvalCurrentPage === approvalTotalPages" title="Next Page">
