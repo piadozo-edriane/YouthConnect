@@ -35,6 +35,12 @@ export class Dashboard implements OnInit {
   notifications: NotificationResponse[] = [];
   notificationFilter: 'all' | 'unread' = 'all';
 
+  // Incremental loading state
+  visibleEventsCount = 10;
+  visibleNotificationsCount = 10;
+  displayedEvents: EventResponse[] = [];
+  displayedNotifications: NotificationResponse[] = [];
+
   ngOnInit(): void {
     const user = this.authService.getCurrentUser();
     if (user && user.email) {
@@ -72,6 +78,10 @@ export class Dashboard implements OnInit {
         // Update events and notifications
         this.upcomingEvents = data.upcomingEvents;
         this.notifications = data.notifications;
+        this.visibleEventsCount = 10;
+        this.visibleNotificationsCount = 10;
+        this.updateDisplayedEvents();
+        this.updateDisplayedNotifications();
 
         this.isLoading = false;
       },
@@ -88,6 +98,34 @@ export class Dashboard implements OnInit {
       return this.notifications.filter(n => !n.isRead);
     }
     return this.notifications;
+  }
+
+  updateDisplayedEvents(): void {
+    this.displayedEvents = this.upcomingEvents.slice(0, this.visibleEventsCount);
+  }
+
+  updateDisplayedNotifications(): void {
+    const source = this.filteredNotifications;
+    this.displayedNotifications = source.slice(0, this.visibleNotificationsCount);
+  }
+
+  showMoreEvents(): void {
+    this.visibleEventsCount = Math.min(this.visibleEventsCount + 10, this.upcomingEvents.length);
+    this.updateDisplayedEvents();
+  }
+
+  showMoreNotifications(): void {
+    const source = this.filteredNotifications;
+    this.visibleNotificationsCount = Math.min(this.visibleNotificationsCount + 10, source.length);
+    this.updateDisplayedNotifications();
+  }
+
+  trackByEventId(index: number, event: EventResponse): any {
+    return event.eventId ?? index;
+  }
+
+  trackByNotificationId(index: number, notification: NotificationResponse): any {
+    return notification.notificationId ?? index;
   }
 
   isNotificationRead(notification: NotificationResponse): boolean {
@@ -108,6 +146,8 @@ export class Dashboard implements OnInit {
 
   setNotificationFilter(filter: 'all' | 'unread') {
     this.notificationFilter = filter;
+    this.visibleNotificationsCount = 10;
+    this.updateDisplayedNotifications();
   }
 
   formatEventDate(dateString: string): string {

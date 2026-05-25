@@ -39,6 +39,12 @@ export class Dashboard implements OnInit {
   tasks: TaskResponse[] = [];
   concerns: ConcernResponse[] = [];
 
+  // Incremental loading state
+  visibleEventsCount = 10;
+  visibleTasksCount = 10;
+  displayedEvents: EventResponse[] = [];
+  displayedTasks: TaskResponse[] = [];
+
   // Modal state
   isEventModalOpen = false;
   isTaskModalOpen = false;
@@ -122,11 +128,15 @@ export class Dashboard implements OnInit {
       next: (eventsList) => {
         this.events = eventsList;
         this.eventsCount = eventsList.length;
+        this.visibleEventsCount = 10;
+        this.updateDisplayedEvents();
       },
       error: (err) => {
         console.error('Error loading events:', err);
         this.events = [];
         this.eventsCount = 0;
+        this.visibleEventsCount = 10;
+        this.updateDisplayedEvents();
       }
     });
   }
@@ -150,13 +160,39 @@ export class Dashboard implements OnInit {
       next: (tasksList) => {
         this.tasks = tasksList;
         this.tasksCount = tasksList.length;
+        this.visibleTasksCount = 10;
+        this.updateDisplayedTasks();
       },
       error: (err) => {
         console.error('Error loading tasks:', err);
         this.tasks = [];
         this.tasksCount = 0;
+        this.visibleTasksCount = 10;
+        this.updateDisplayedTasks();
       }
     });
+  }
+
+  updateDisplayedEvents(): void {
+    this.displayedEvents = this.events.slice(0, this.visibleEventsCount);
+  }
+
+  updateDisplayedTasks(): void {
+    this.displayedTasks = this.tasks.slice(0, this.visibleTasksCount);
+  }
+
+  showMoreEvents(): void {
+    this.visibleEventsCount = Math.min(this.visibleEventsCount + 10, this.events.length);
+    this.updateDisplayedEvents();
+  }
+
+  showMoreTasks(): void {
+    this.visibleTasksCount = Math.min(this.visibleTasksCount + 10, this.tasks.length);
+    this.updateDisplayedTasks();
+  }
+
+  trackByIndex(index: number): number {
+    return index;
   }
 
   getEventDate(dateString: string): string {

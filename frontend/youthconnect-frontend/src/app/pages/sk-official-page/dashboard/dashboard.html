@@ -50,7 +50,7 @@
             </div>
             <div class="card-content">
                 <div class="item-card" 
-                     *ngFor="let event of events; let i = index"
+                     *ngFor="let event of displayedEvents; let i = index; trackBy: trackByIndex"
                      [ngClass]="'item-border-' + getNotificationColor(i)"
                      (click)="openEventDetailsModal(event)">
                     <div class="item-header">
@@ -63,6 +63,9 @@
                     </div>
                 </div>
                 <div *ngIf="events.length === 0" class="no-data-message">No events available</div>
+                <div class="see-more-wrapper" *ngIf="events.length > visibleEventsCount">
+                    <button class="see-more-btn" type="button" (click)="showMoreEvents()">See More</button>
+                </div>
             </div>
         </div>
 
@@ -74,7 +77,7 @@
             </div>
             <div class="card-content">
                 <div class="item-card" 
-                     *ngFor="let task of tasks; let i = index"
+                     *ngFor="let task of displayedTasks; let i = index; trackBy: trackByIndex"
                      [ngClass]="'item-border-' + getNotificationColor(i)"
                      (click)="openTaskDetailsModal(task)">
                     <div class="item-header">
@@ -87,6 +90,9 @@
                     </div>
                 </div>
                 <div *ngIf="tasks.length === 0" class="no-data-message">No tasks available</div>
+                <div class="see-more-wrapper" *ngIf="tasks.length > visibleTasksCount">
+                    <button class="see-more-btn" type="button" (click)="showMoreTasks()">See More</button>
+                </div>
             </div>
         </div>
         

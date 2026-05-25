@@ -47,7 +47,7 @@
                     <span class="view-all" (click)="browseEvents()">{{ upcomingEvents.length }} ➜</span>
                 </div>
                 <div class="card-content">
-                    <div class="item-card" *ngFor="let event of upcomingEvents"
+                    <div class="item-card" *ngFor="let event of displayedEvents; trackBy: trackByEventId"
                          (click)="viewEvent(event)">
                         <div class="item-header">
                             <h3>{{ event.title }}</h3>
@@ -59,6 +59,9 @@
                     <div *ngIf="upcomingEvents.length === 0" class="no-data-message">
                         <p>No upcoming events</p>
                     </div>
+                    <div class="see-more-wrapper" *ngIf="visibleEventsCount < upcomingEvents.length">
+                        <button class="see-more-btn" type="button" (click)="showMoreEvents()">See More</button>
+                    </div>
                 </div>
             </div>
 
@@ -69,7 +72,7 @@
                     <span class="view-all">{{ filteredNotifications.length }} ➜</span>
                 </div>
                 <div class="card-content">
-                    <div class="notification-item" *ngFor="let notification of filteredNotifications">
+                    <div class="notification-item" *ngFor="let notification of displayedNotifications; trackBy: trackByNotificationId">
                         <div class="notification-header">
                             <span class="notification-title">{{ notification.updatedByAdminName || 'SK Official' }}</span>
                             <span class="notification-time">Due: {{ getTimeAgo(notification.createdAt) }}</span>
@@ -79,6 +82,9 @@
                     </div>
                     <div *ngIf="filteredNotifications.length === 0" class="no-data-message">
                         <p>No notifications yet</p>
+                    </div>
+                    <div class="see-more-wrapper" *ngIf="visibleNotificationsCount < filteredNotifications.length">
+                        <button class="see-more-btn" type="button" (click)="showMoreNotifications()">See More</button>
                     </div>
                 </div>
             </div>
