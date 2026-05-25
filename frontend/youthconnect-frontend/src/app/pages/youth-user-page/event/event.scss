@@ -80,7 +80,7 @@ body,
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   padding: 0px;
 
   .header-content {
@@ -368,25 +368,12 @@ body,
   flex-shrink: 0;
 }
 
-.rsvp-joined-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 7px 16px;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  background: #d1fae5;
-  color: #065f46;
-  white-space: nowrap;
-}
-
-.status-upcoming  { background: #fef3c7; color: #92400e; }
-.status-open      { background: #d1fae5; color: #065f46; }
-.status-closed    { background: #fee2e2; color: #7f1d1d; }
-.status-ongoing   { background: #dbeafe; color: #1e40af; }
-.status-completed { background: #e5e7eb; color: #374151; }
-.status-cancelled { background: #fee2e2; color: #7f1d1d; }
-.status-default   { background: #f3f4f6; color: #6b7280; }
+.status-pill.upcoming              { background: #f4be67; color: #1f1f1f; }
+.status-pill.open-for-registration { background: #bfe4c4; color: #1b4f26; }
+.status-pill.registration-closed   { background: #fee2e2; color: #7f1d1d; }
+.status-pill.ongoing               { background: #9bc6ff; color: #0f2f67; }
+.status-pill.completed             { background: #bfe4c4; color: #1b4f26; }
+.status-pill.cancelled             { background: #fee2e2; color: #7f1d1d; }
 
 @keyframes pillFadeIn {
   from { opacity: 0; transform: scale(0.85); }

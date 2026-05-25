@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EventService, EventResponse } from '../../../services/event.service';
 import { AuthService } from '../../../services/auth.service';
@@ -9,6 +9,7 @@ import { forkJoin, interval, Subscription, switchMap } from 'rxjs';
     imports: [CommonModule],
     templateUrl: './event.html',
     styleUrl: './event.scss',
+    encapsulation: ViewEncapsulation.None,
 })
 export class EventPage implements OnInit, OnDestroy {
     private eventService = inject(EventService);
