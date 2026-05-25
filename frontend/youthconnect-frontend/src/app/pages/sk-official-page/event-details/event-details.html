@@ -229,8 +229,6 @@
                         {{ attendee.approvalStatus | titlecase }}
                     </span>
                 </div>
-                <p class="approval-meta">{{ attendee.email }}</p>
-                <p class="approval-meta">Contact: {{ attendee.contactNumber }}</p>
 
                 <div class="approval-actions">
                     <button type="button" class="btn-see-details" (click)="openAttendeeDetailsModal(attendee)">
@@ -354,8 +352,6 @@
                         {{ attendee.isAttended ? 'Present' : 'Absent' }}
                     </span>
                 </div>
-                <p class="approval-meta">{{ attendee.email }}</p>
-                <p class="approval-meta">Contact: {{ attendee.contactNumber }}</p>
                 <p class="approval-meta attended-at-text" *ngIf="attendee.isAttended">
                     Marked present: {{ formatAttendedAt(attendee.attendedAt) }}
                 </p>
