@@ -92,4 +92,8 @@ export class EventService {
     updateAttendanceStatus(eventId: number, attendanceId: number, approvalStatus: 'approved' | 'rejected' | 'pending'): Observable<AttendanceResponse> {
         return this.http.patch<AttendanceResponse>(`${this.skApiUrl}/${eventId}/rsvp/${attendanceId}/status`, { approvalStatus });
     }
+
+    markAttendance(eventId: number, userId: number): Observable<AttendanceResponse> {
+        return this.http.patch<AttendanceResponse>(`${this.skApiUrl}/${eventId}/attendance`, { userId });
+    }
 }

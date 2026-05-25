@@ -1027,3 +1027,124 @@ body,
     font-size: 13px;
   }
 }
+
+// ─── Clickable Card ───────────────────────────────────────────────────────────
+
+.event-card--clickable {
+  cursor: pointer;
+}
+
+.event-card--clickable .card-header,
+.event-card--clickable .card-body {
+  user-select: none;
+}
+
+// ─── Event Info Modal ─────────────────────────────────────────────────────────
+
+.modal-event-info {
+  max-width: 580px;
+}
+
+.modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+// ─── Info Sections ────────────────────────────────────────────────────────────
+
+.info-section {
+  margin-bottom: 24px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.info-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-description {
+  font-size: 14px;
+  color: #444;
+  line-height: 1.7;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+// ─── Info Details Grid ────────────────────────────────────────────────────────
+
+.info-details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.info-detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.info-detail-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #f0f5ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  svg {
+    color: #0052cc;
+  }
+}
+
+.info-detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.info-detail-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-detail-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  word-break: break-word;
+}
+
+// ─── Approval status inside modal ────────────────────────────────────────────
+
+.info-approval-value {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  width: fit-content;
+
+  &.approval-pending  { background: #fef9e7; color: #b45309; }
+  &.approval-approved { background: #d1fae5; color: #065f46; }
+  &.approval-rejected { background: #fee2e2; color: #7f1d1d; }
+}
