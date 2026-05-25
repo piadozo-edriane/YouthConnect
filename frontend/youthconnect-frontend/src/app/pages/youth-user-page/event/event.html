@@ -49,10 +49,11 @@
             </div>
 
             <div *ngFor="let event of paginatedEvents; let i = index"
-                class="event-card"
+                class="event-card event-card--clickable"
                 [id]="'event-' + event.eventId"
                 [class.highlight-event]="isHighlighted(event.eventId)"
-                [class.card--rejected]="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'rejected'">
+                [class.card--rejected]="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'rejected'"
+                (click)="openEventInfoModal(event)">
 
                 <!-- Card Header: title only -->
                 <div class="card-header">
@@ -103,7 +104,7 @@
                 </div>
 
                 <!-- Card Footer -->
-                <div class="card-footer">
+                <div class="card-footer" (click)="$event.stopPropagation()">
                     <!-- Approval status pill (left side) -->
                     <span class="approval-pill approval-pill--pending"
                         [class.approval-pill--full]="isEventOngoing(event) || isEventCompleted(event)"
@@ -242,5 +243,106 @@
         <div class="modal-footer">
             <button type="button" class="btn-create" (click)="closeJoinModal()">Okay</button>
         </div>
+    </div>
+</div>
+
+<!-- Event Info Modal -->
+<div class="modal-overlay" *ngIf="showEventInfoModal && infoEvent" (click)="closeEventInfoModal()">
+    <div class="modal-content modal-event-info" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title">{{ infoEvent.title }}</h2>
+                <p class="modal-subtitle">Event Details</p>
+            </div>
+            <div class="modal-header-actions">
+                <span class="status-pill" [ngClass]="(infoEvent.status || 'upcoming').toLowerCase().replace(' ', '-')">
+                    {{ (infoEvent.status || 'Upcoming') | titlecase }}
+                </span>
+                <button class="close-btn" (click)="closeEventInfoModal()">✕</button>
+            </div>
+        </div>
+
+        <div class="modal-body-wrapper">
+            <div class="modal-body">
+
+                <!-- Description -->
+                <div class="info-section">
+                    <h3 class="info-section-title">About this Event</h3>
+                    <p class="info-description">{{ infoEvent.description }}</p>
+                </div>
+
+                <!-- Details Grid -->
+                <div class="info-section">
+                    <h3 class="info-section-title">Event Details</h3>
+                    <div class="info-details-grid">
+
+                        <div class="info-detail-item">
+                            <div class="info-detail-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                            </div>
+                            <div class="info-detail-content">
+                                <span class="info-detail-label">Date & Time</span>
+                                <span class="info-detail-value">{{ formatEventDate(infoEvent.eventDate) }}</span>
+                            </div>
+                        </div>
+
+                        <div class="info-detail-item" *ngIf="infoEvent.location">
+                            <div class="info-detail-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                            </div>
+                            <div class="info-detail-content">
+                                <span class="info-detail-label">Location</span>
+                                <span class="info-detail-value">{{ infoEvent.location }}</span>
+                            </div>
+                        </div>
+
+                        <div class="info-detail-item" *ngIf="infoEvent.attendeeLimit">
+                            <div class="info-detail-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                            </div>
+                            <div class="info-detail-content">
+                                <span class="info-detail-label">Max. Attendees</span>
+                                <span class="info-detail-value">{{ infoEvent.attendeeLimit }}</span>
+                            </div>
+                        </div>
+
+                        <div class="info-detail-item" *ngIf="isJoined(infoEvent.eventId)">
+                            <div class="info-detail-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                            </div>
+                            <div class="info-detail-content">
+                                <span class="info-detail-label">Your Registration</span>
+                                <span class="info-detail-value info-approval-value"
+                                    [class.approval-pending]="getJoinApprovalStatus(infoEvent.eventId) === 'pending'"
+                                    [class.approval-approved]="getJoinApprovalStatus(infoEvent.eventId) === 'approved'"
+                                    [class.approval-rejected]="getJoinApprovalStatus(infoEvent.eventId) === 'rejected'">
+                                    {{ getJoinApprovalStatus(infoEvent.eventId) | titlecase }}
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
     </div>
 </div>

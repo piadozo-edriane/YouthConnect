@@ -28,6 +28,10 @@ export class EventPage implements OnInit, OnDestroy {
     pendingJoinEvent: EventResponse | null = null;
     pendingCancelEvent: EventResponse | null = null;
 
+    // Event info modal
+    showEventInfoModal = false;
+    infoEvent: EventResponse | null = null;
+
     events: EventResponse[] = [];
     filteredEvents: EventResponse[] = [];
     paginatedEvents: EventResponse[] = [];
@@ -412,5 +416,15 @@ export class EventPage implements OnInit, OnDestroy {
 
     isHighlighted(eventId: number): boolean {
         return this.highlightedEventId === eventId;
+    }
+
+    openEventInfoModal(event: EventResponse): void {
+        this.infoEvent = event;
+        this.showEventInfoModal = true;
+    }
+
+    closeEventInfoModal(): void {
+        this.showEventInfoModal = false;
+        this.infoEvent = null;
     }
 }
