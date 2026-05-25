@@ -16,6 +16,8 @@ export interface AttendeeRecord {
   contactNumber: string;
   approvalStatus: 'pending' | 'approved' | 'rejected';
   registeredAt: string;
+  isAttended: boolean;
+  attendedAt?: string;
 }
 
 @Component({
@@ -55,6 +57,15 @@ export class EventDetailsPage implements OnInit, OnDestroy {
   // Rejection modal
   isRejectModalOpen = false;
   rejectingAttendee: AttendeeRecord | null = null;
+
+  // Post-Event Attendance Panel
+  isAttendancePanelOpen = false;
+  attendanceSearchQuery = '';
+  attendanceCurrentPage = 1;
+  attendanceItemsPerPage = 10;
+  markingAttendanceId: number | null = null;
+  attendancePanelMessage = '';
+  attendancePanelError = '';
 
   // Attendee details modal
   isAttendeeDetailsModalOpen = false;
@@ -104,7 +115,8 @@ export class EventDetailsPage implements OnInit, OnDestroy {
       || this.isEditConfirmModalOpen
       || this.isDeleteModalOpen
       || this.isAttendeeDetailsModalOpen
-      || this.isStatusConfirmModalOpen;
+      || this.isStatusConfirmModalOpen
+      || this.isAttendancePanelOpen;
   }
 
   private startPolling(): void {
@@ -155,7 +167,9 @@ export class EventDetailsPage implements OnInit, OnDestroy {
               email,
               contactNumber,
               approvalStatus: (rsvp.approvalStatus || 'pending') as 'pending' | 'approved' | 'rejected',
-              registeredAt: rsvp.registeredAt
+              registeredAt: rsvp.registeredAt,
+              isAttended: rsvp.isAttended ?? false,
+              attendedAt: rsvp.attendedAt ?? undefined
             };
           });
         },
@@ -378,7 +392,9 @@ export class EventDetailsPage implements OnInit, OnDestroy {
             email,
             contactNumber,
             approvalStatus: (rsvp.approvalStatus || 'pending') as 'pending' | 'approved' | 'rejected',
-            registeredAt: rsvp.registeredAt
+            registeredAt: rsvp.registeredAt,
+            isAttended: rsvp.isAttended ?? false,
+            attendedAt: rsvp.attendedAt ?? undefined
           };
         });
 
@@ -412,6 +428,115 @@ export class EventDetailsPage implements OnInit, OnDestroy {
   get isApprovalLocked(): boolean {
     const s = (this.selectedEvent?.status || '').toLowerCase();
     return s === 'ongoing' || s === 'completed';
+  }
+
+  get attendedCount(): number {
+    return this.allAttendees.filter(a => a.approvalStatus === 'approved' && a.isAttended).length;
+  }
+
+  get absentCount(): number {
+    return this.allAttendees.filter(a => a.approvalStatus === 'approved' && !a.isAttended).length;
+  }
+
+  get isAttendancePanelAvailable(): boolean {
+    const s = (this.selectedEvent?.status || '').toLowerCase();
+    return s === 'ongoing' || s === 'completed';
+  }
+
+  // ─── Post-Event Attendance Panel ──────────────────────────────────────────
+
+  openAttendancePanel(): void {
+    this.isAttendancePanelOpen = true;
+    this.attendanceSearchQuery = '';
+    this.attendanceCurrentPage = 1;
+    this.attendancePanelMessage = '';
+    this.attendancePanelError = '';
+  }
+
+  closeAttendancePanel(): void {
+    if (this.markingAttendanceId !== null) return;
+    this.isAttendancePanelOpen = false;
+    this.attendancePanelMessage = '';
+    this.attendancePanelError = '';
+  }
+
+  get filteredAttendancePanelAttendees(): AttendeeRecord[] {
+    let list = this.allAttendees.filter(a => a.approvalStatus === 'approved');
+    if (this.attendanceSearchQuery.trim()) {
+      const q = this.attendanceSearchQuery.toLowerCase();
+      list = list.filter(a =>
+        a.name.toLowerCase().includes(q) ||
+        a.email.toLowerCase().includes(q) ||
+        a.contactNumber.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }
+
+  get paginatedAttendancePanelAttendees(): AttendeeRecord[] {
+    const start = (this.attendanceCurrentPage - 1) * this.attendanceItemsPerPage;
+    return this.filteredAttendancePanelAttendees.slice(start, start + this.attendanceItemsPerPage);
+  }
+
+  get attendanceTotalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredAttendancePanelAttendees.length / this.attendanceItemsPerPage));
+  }
+
+  get attendancePageNumbers(): number[] {
+    return Array.from({ length: this.attendanceTotalPages }, (_, i) => i + 1);
+  }
+
+  goToAttendancePage(page: number): void {
+    if (page >= 1 && page <= this.attendanceTotalPages) {
+      this.attendanceCurrentPage = page;
+    }
+  }
+
+  nextAttendancePage(): void {
+    if (this.attendanceCurrentPage < this.attendanceTotalPages) this.attendanceCurrentPage++;
+  }
+
+  previousAttendancePage(): void {
+    if (this.attendanceCurrentPage > 1) this.attendanceCurrentPage--;
+  }
+
+  toggleAttendance(attendee: AttendeeRecord): void {
+    if (!this.selectedEvent || this.markingAttendanceId !== null) return;
+
+    // If already attended, we don't allow un-marking (attendance is a one-way record)
+    if (attendee.isAttended) return;
+
+    this.markingAttendanceId = attendee.attendanceId;
+    this.attendancePanelError = '';
+    this.attendancePanelMessage = '';
+
+    this.eventService.markAttendance(this.selectedEvent.eventId, attendee.userId).subscribe({
+      next: (updated) => {
+        this.allAttendees = this.allAttendees.map(a =>
+          a.attendanceId === attendee.attendanceId
+            ? { ...a, isAttended: updated.isAttended, attendedAt: updated.attendedAt ?? undefined }
+            : a
+        );
+        this.attendancePanelMessage = `${attendee.name} marked as present.`;
+        this.markingAttendanceId = null;
+        setTimeout(() => { this.attendancePanelMessage = ''; }, 3000);
+      },
+      error: (error) => {
+        console.error('Error marking attendance:', error);
+        this.attendancePanelError = 'Failed to mark attendance. Please try again.';
+        this.markingAttendanceId = null;
+        setTimeout(() => { this.attendancePanelError = ''; }, 3000);
+      }
+    });
+  }
+
+  formatAttendedAt(dateString?: string): string {
+    if (!dateString) return '—';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'short', day: 'numeric', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
   }
 
   // ─── Approval Panel ───────────────────────────────────────────────────────

@@ -84,6 +84,10 @@
                             <span class="chip-count">{{ rejectedCount }}</span>
                             <span class="chip-label">Rejected</span>
                         </div>
+                        <div class="summary-chip attended-chip" *ngIf="isAttendancePanelAvailable">
+                            <span class="chip-count">{{ attendedCount }}</span>
+                            <span class="chip-label">Attended</span>
+                        </div>
                     </div>
                     <button class="details-status-btn" [ngClass]="getStatusActionClass(selectedEvent.status)"
                         [disabled]="isStatusActionDisabled(selectedEvent.status)"
@@ -134,10 +138,21 @@
                             <h4 class="attendees-title">
                                 {{ approvedCount }} / {{ selectedEvent.attendeeLimit ?? '—' }} Approved
                             </h4>
-                            <button class="btn-approval-panel" (click)="openApprovalPanel()" [disabled]="isApprovalLocked">
-                                Attendee Approval
-                                <span class="notification-badge" *ngIf="pendingCount > 0 && !isApprovalLocked">{{ pendingCount }}</span>
-                            </button>
+                            <div class="attendees-title-actions">
+                                <!-- Upcoming: show Attendee Approval only -->
+                                <button class="btn-approval-panel" (click)="openApprovalPanel()"
+                                    *ngIf="!isAttendancePanelAvailable">
+                                    Attendee Approval
+                                    <span class="notification-badge" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
+                                </button>
+                                <!-- Ongoing / Completed: show Post-Event Attendance only -->
+                                <button class="btn-attendance-panel" (click)="openAttendancePanel()"
+                                    *ngIf="isAttendancePanelAvailable"
+                                    title="Mark post-event attendance">
+                                    Post-Event Attendance
+                                    <span class="attendance-badge" *ngIf="attendedCount > 0">{{ attendedCount }}</span>
+                                </button>
+                            </div>
                         </div>
 
                         <div *ngIf="isLoadingAttendees" class="attendees-loading">
@@ -280,6 +295,114 @@
         <ng-template #noApprovalRows>
             <div class="approval-empty-state">
                 <p>No attendees found for this filter.</p>
+            </div>
+        </ng-template>
+    </aside>
+
+    <!-- Post-Event Attendance Panel Backdrop -->
+    <div class="approval-panel-backdrop" *ngIf="isAttendancePanelOpen" (click)="closeAttendancePanel()"></div>
+
+    <!-- Post-Event Attendance Panel -->
+    <aside class="approval-panel attendance-panel" [class.open]="isAttendancePanelOpen" [attr.aria-hidden]="!isAttendancePanelOpen">
+        <div class="approval-panel-header">
+            <div>
+                <h2>Post-Event Attendance</h2>
+                <p>Mark which approved attendees actually showed up</p>
+            </div>
+            <button class="close-btn" type="button" (click)="closeAttendancePanel()" aria-label="Close">&times;</button>
+        </div>
+
+        <!-- Attendance Summary Bar -->
+        <div class="attendance-summary-bar">
+            <div class="att-stat">
+                <span class="att-stat-count attended-color">{{ attendedCount }}</span>
+                <span class="att-stat-label">Present</span>
+            </div>
+            <div class="att-stat-divider"></div>
+            <div class="att-stat">
+                <span class="att-stat-count absent-color">{{ absentCount }}</span>
+                <span class="att-stat-label">Absent</span>
+            </div>
+            <div class="att-stat-divider"></div>
+            <div class="att-stat">
+                <span class="att-stat-count total-color">{{ approvedCount }}</span>
+                <span class="att-stat-label">Total Approved</span>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="approval-search-section">
+            <input type="text" class="approval-search-input" placeholder="Search by name, email, or contact"
+                [(ngModel)]="attendanceSearchQuery" (input)="attendanceCurrentPage = 1" />
+        </div>
+
+        <!-- Messages -->
+        <div *ngIf="attendancePanelError" class="approval-alert approval-alert-error">{{ attendancePanelError }}</div>
+        <div *ngIf="attendancePanelMessage" class="approval-alert approval-alert-success">{{ attendancePanelMessage }}</div>
+
+        <!-- Attendee Cards -->
+        <div class="approval-list" *ngIf="paginatedAttendancePanelAttendees.length > 0; else noAttendanceRows">
+            <article class="approval-card attendance-card"
+                [class.is-present]="attendee.isAttended"
+                [class.is-absent]="!attendee.isAttended"
+                *ngFor="let attendee of paginatedAttendancePanelAttendees">
+                <div class="approval-card-head">
+                    <h3>{{ attendee.name }}</h3>
+                    <span class="attendance-status-badge"
+                        [class.present]="attendee.isAttended"
+                        [class.absent]="!attendee.isAttended">
+                        {{ attendee.isAttended ? 'Present' : 'Absent' }}
+                    </span>
+                </div>
+                <p class="approval-meta">{{ attendee.email }}</p>
+                <p class="approval-meta">Contact: {{ attendee.contactNumber }}</p>
+                <p class="approval-meta attended-at-text" *ngIf="attendee.isAttended">
+                    Marked present: {{ formatAttendedAt(attendee.attendedAt) }}
+                </p>
+
+                <div class="approval-actions">
+                    <button type="button" class="btn-see-details" (click)="openAttendeeDetailsModal(attendee)">
+                        See Details
+                    </button>
+                    <div class="action-buttons-right">
+                        <button type="button" class="btn-mark-present"
+                            *ngIf="!attendee.isAttended"
+                            [disabled]="markingAttendanceId !== null"
+                            (click)="toggleAttendance(attendee)">
+                            {{ markingAttendanceId === attendee.attendanceId ? 'Marking...' : 'Mark Present' }}
+                        </button>
+                        <span class="already-present-label" *ngIf="attendee.isAttended">
+                            ✓ Attended
+                        </span>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <!-- Pagination -->
+        <div class="approval-pagination" *ngIf="filteredAttendancePanelAttendees.length > attendanceItemsPerPage">
+            <button class="pagination-btn" (click)="previousAttendancePage()" [disabled]="attendanceCurrentPage === 1">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+                </svg>
+            </button>
+            <div class="pagination-numbers">
+                <button *ngFor="let page of attendancePageNumbers" class="pagination-number"
+                    [class.active]="page === attendanceCurrentPage" (click)="goToAttendancePage(page)">
+                    {{ page }}
+                </button>
+            </div>
+            <button class="pagination-btn" (click)="nextAttendancePage()"
+                [disabled]="attendanceCurrentPage === attendanceTotalPages">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                </svg>
+            </button>
+        </div>
+
+        <ng-template #noAttendanceRows>
+            <div class="approval-empty-state">
+                <p>No approved attendees found.</p>
             </div>
         </ng-template>
     </aside>

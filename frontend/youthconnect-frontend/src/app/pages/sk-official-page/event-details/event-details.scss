@@ -1395,3 +1395,196 @@
     padding: 7px 12px;
   }
 }
+
+// ─── Post-Event Attendance Button ─────────────────────────────────────────────
+
+.attendees-title-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.btn-attendance-panel {
+  background-color: #7c3aed;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Poppins', Arial, Helvetica, sans-serif;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &:hover:not(:disabled) {
+    background-color: #6d28d9;
+  }
+
+  &:disabled {
+    background-color: #c8c8c8;
+    color: #888;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+}
+
+.attendance-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: #059669;
+  color: white;
+  border-radius: 10px;
+  min-width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 5px;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.4);
+  border: 2px solid #f2f2f2;
+  line-height: 1;
+}
+
+// ─── Attended Summary Chip ────────────────────────────────────────────────────
+
+.summary-chip.attended-chip {
+  background: #ede9fe;
+  .chip-count { color: #4c1d95; }
+  .chip-label { color: #5b21b6; }
+}
+
+// ─── Attendance Panel ─────────────────────────────────────────────────────────
+
+.attendance-panel {
+  // inherits .approval-panel layout; override z-index so it stacks above approval panel if both open
+  z-index: 1310;
+}
+
+// ─── Attendance Summary Bar ───────────────────────────────────────────────────
+
+.attendance-summary-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 12px 20px;
+  background: #f7f9fc;
+  border-bottom: 1px solid #eef1f6;
+}
+
+.att-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.att-stat-count {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+
+  &.attended-color { color: #059669; }
+  &.absent-color   { color: #dc2626; }
+  &.total-color    { color: #0052cc; }
+}
+
+.att-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #667085;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.att-stat-divider {
+  width: 1px;
+  height: 36px;
+  background: #d0d7e3;
+  flex-shrink: 0;
+}
+
+// ─── Attendance Card States ───────────────────────────────────────────────────
+
+.attendance-card {
+  transition: border-color 0.2s ease, background 0.2s ease;
+
+  &.is-present {
+    border-color: #a7f3d0;
+    background: linear-gradient(180deg, #f0fdf4 0%, #ecfdf5 100%);
+  }
+
+  &.is-absent {
+    border-color: #e6ebf3;
+    background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+  }
+}
+
+.attendance-status-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 4px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+
+  &.present { background: #d1fae5; color: #065f46; }
+  &.absent  { background: #f3f4f6; color: #6b7280; }
+}
+
+.attended-at-text {
+  font-size: 12px;
+  color: #059669;
+  font-style: italic;
+}
+
+// ─── Mark Present Button ──────────────────────────────────────────────────────
+
+.btn-mark-present {
+  background: #7c3aed;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Poppins', Arial, Helvetica, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) { background: #6d28d9; }
+  &:disabled { background: #c4b5fd; cursor: not-allowed; }
+}
+
+.already-present-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #059669;
+  padding: 10px 12px;
+  background: #d1fae5;
+  border-radius: 10px;
+}
+
+// ─── Responsive tweaks for attendance panel ───────────────────────────────────
+
+@media (max-width: 600px) {
+  .attendees-title-actions {
+    gap: 6px;
+  }
+
+  .btn-attendance-panel {
+    font-size: 12px;
+    padding: 7px 12px;
+  }
+}
