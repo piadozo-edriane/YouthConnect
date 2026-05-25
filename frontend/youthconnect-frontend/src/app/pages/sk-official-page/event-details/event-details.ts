@@ -55,7 +55,6 @@ export class EventDetailsPage implements OnInit, OnDestroy {
   // Rejection modal
   isRejectModalOpen = false;
   rejectingAttendee: AttendeeRecord | null = null;
-  rejectionNote = '';
 
   // Attendee details modal
   isAttendeeDetailsModalOpen = false;
@@ -79,6 +78,9 @@ export class EventDetailsPage implements OnInit, OnDestroy {
 
   // Status update
   isStatusUpdating = false;
+  isStatusConfirmModalOpen = false;
+  pendingStatusEvent: EventResponse | null = null;
+  pendingNextStatus: string = '';
 
   private pollSubscription: Subscription | null = null;
   private readonly POLL_INTERVAL_MS = 10000; // poll every 10 seconds
@@ -101,8 +103,8 @@ export class EventDetailsPage implements OnInit, OnDestroy {
     return this.isEditModalOpen
       || this.isEditConfirmModalOpen
       || this.isDeleteModalOpen
-      || this.isRejectModalOpen
-      || this.isAttendeeDetailsModalOpen;
+      || this.isAttendeeDetailsModalOpen
+      || this.isStatusConfirmModalOpen;
   }
 
   private startPolling(): void {
@@ -506,38 +508,21 @@ export class EventDetailsPage implements OnInit, OnDestroy {
   }
 
   openRejectModal(attendee: AttendeeRecord): void {
-    this.rejectingAttendee = attendee;
-    this.rejectionNote = '';
-    this.isRejectModalOpen = true;
-  }
-
-  closeRejectModal(): void {
-    this.isRejectModalOpen = false;
-    this.rejectingAttendee = null;
-    this.rejectionNote = '';
-    this.updatingAttendanceId = null;
-    this.updatingAction = null;
-  }
-
-  confirmRejectAttendee(): void {
-    if (!this.rejectingAttendee || !this.selectedEvent) return;
-
-    this.updatingAttendanceId = this.rejectingAttendee.attendanceId;
+    if (!this.selectedEvent) return;
+    this.updatingAttendanceId = attendee.attendanceId;
     this.updatingAction = 'reject';
     this.approvalError = '';
 
-    this.eventService.updateAttendanceStatus(this.selectedEvent.eventId, this.rejectingAttendee.attendanceId, 'rejected').subscribe({
+    this.eventService.updateAttendanceStatus(this.selectedEvent.eventId, attendee.attendanceId, 'rejected').subscribe({
       next: (updated) => {
-        const name = this.rejectingAttendee!.name;
         this.allAttendees = this.allAttendees.map(a =>
-          a.attendanceId === this.rejectingAttendee!.attendanceId
+          a.attendanceId === attendee.attendanceId
             ? { ...a, approvalStatus: updated.approvalStatus }
             : a
         );
-        this.approvalMessage = `${name} has been rejected.`;
+        this.approvalMessage = `${attendee.name} has been rejected.`;
         this.updatingAttendanceId = null;
         this.updatingAction = null;
-        this.closeRejectModal();
         setTimeout(() => { this.approvalMessage = ''; }, 3000);
       },
       error: (error) => {
@@ -636,7 +621,22 @@ export class EventDetailsPage implements OnInit, OnDestroy {
     if (this.isStatusActionDisabled(event.status)) return;
 
     const currentStatus = (event.status || 'Upcoming').toLowerCase();
-    const nextStatus = currentStatus === 'upcoming' ? 'Ongoing' : 'Completed';
+    this.pendingNextStatus = currentStatus === 'upcoming' ? 'Ongoing' : 'Completed';
+    this.pendingStatusEvent = event;
+    this.isStatusConfirmModalOpen = true;
+  }
+
+  closeStatusConfirmModal(): void {
+    this.isStatusConfirmModalOpen = false;
+    this.pendingStatusEvent = null;
+    this.pendingNextStatus = '';
+  }
+
+  confirmStatusUpdate(): void {
+    if (!this.pendingStatusEvent) return;
+    const event = this.pendingStatusEvent;
+    const nextStatus = this.pendingNextStatus;
+    this.closeStatusConfirmModal();
 
     const request = {
       title: event.title,
@@ -655,10 +655,12 @@ export class EventDetailsPage implements OnInit, OnDestroy {
           this.selectedEvent = { ...this.selectedEvent, status: nextStatus };
         }
         this.isStatusUpdating = false;
+        this.showNotification(`Event status updated to ${nextStatus}`, 'success');
       },
       error: (error) => {
         console.error('Error updating event status:', error);
         this.isStatusUpdating = false;
+        this.showNotification('Failed to update event status. Please try again.', 'error');
       }
     });
   }

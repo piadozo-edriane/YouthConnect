@@ -82,12 +82,21 @@
                             <span class="meta-label">LOCATION:</span>
                             <span>{{ event.location }}</span>
                         </div>
+                        <div class="meta-item" *ngIf="event.attendeeLimit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <span class="meta-label">MAX. ATTENDEES:</span>
+                            <span>{{ event.attendeeLimit }}</span>
+                        </div>
                         <div class="meta-item status-meta">
                             <span class="status-label">STATUS:</span>
                             <span class="status-pill" [ngClass]="(event.status || 'upcoming').toLowerCase().replace(' ', '-')">
-                                {{ event.status || 'Upcoming' }}
-                            </span>
-                        </div>
+                                {{ (event.status || 'Upcoming') | titlecase }}
+                            </span>                        </div>
                     </div>
 
                     <!-- Full-width approval status bar removed; shown in footer instead -->
@@ -97,14 +106,17 @@
                 <div class="card-footer">
                     <!-- Approval status pill (left side) -->
                     <span class="approval-pill approval-pill--pending"
+                        [class.approval-pill--full]="isEventOngoing(event) || isEventCompleted(event)"
                         *ngIf="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'pending'">
                         Join Pending
                     </span>
                     <span class="approval-pill approval-pill--approved"
+                        [class.approval-pill--full]="isEventOngoing(event) || isEventCompleted(event)"
                         *ngIf="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'approved'">
                         Join Approved
                     </span>
                     <span class="approval-pill approval-pill--rejected"
+                        [class.approval-pill--full]="isEventOngoing(event) || isEventCompleted(event)"
                         *ngIf="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'rejected'">
                         Join Rejected
                     </span>
@@ -119,24 +131,16 @@
                     </button>
 
                     <!-- Cancel Join button -->
-                    <button class="btn-cancel-rsvp"
-                        *ngIf="canCancelJoin(event)"
-                        (click)="cancelJoin(event)"
-                        [disabled]="isLoading">
-                        Cancel Join
-                    </button>
-
-                    <!-- Cancellation locked notice -->
-                    <div class="cancel-locked"
-                        *ngIf="isJoined(event.eventId)
-                            && getJoinApprovalStatus(event.eventId) === 'approved'
-                            && isWithin24Hours(event)
-                            && !isEventCompleted(event)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
-                        Cancellation unavailable — the event starts within 24 hours
+                    <div class="cancel-join-tooltip-wrap"
+                        *ngIf="canShowCancelJoinButton(event)"
+                        [class.has-tooltip]="isWithin24Hours(event)"
+                        [attr.data-tooltip]="getCancelJoinTooltip(event)">
+                        <button class="btn-cancel-rsvp"
+                            [class.btn-cancel-rsvp--disabled]="isWithin24Hours(event)"
+                            (click)="cancelJoin(event)"
+                            [disabled]="isLoading || !canCancelJoin(event)">
+                            Cancel Join
+                        </button>
                     </div>
                 </div>
 

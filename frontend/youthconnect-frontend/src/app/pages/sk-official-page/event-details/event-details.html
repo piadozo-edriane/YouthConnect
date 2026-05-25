@@ -284,39 +284,6 @@
         </ng-template>
     </aside>
 
-    <!-- Rejection Modal -->
-    <div class="modal-overlay" *ngIf="isRejectModalOpen">
-        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <div>
-                    <h2 class="modal-title">Reject Attendee</h2>
-                    <p class="modal-subtitle">Rejecting {{ rejectingAttendee?.name }}'s attendance request</p>
-                </div>
-                <button class="close-btn" (click)="closeRejectModal()">✕</button>
-            </div>
-            <div class="modal-body-wrapper">
-                <div *ngIf="approvalError" class="modal-alert alert-error">{{ approvalError }}</div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label class="form-label">Note (optional)</label>
-                        <textarea [(ngModel)]="rejectionNote" rows="4"
-                            placeholder="Provide an optional note for this rejection..."
-                            class="form-control"
-                            [disabled]="updatingAttendanceId !== null"></textarea>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-cancel" (click)="closeRejectModal()"
-                    [disabled]="updatingAttendanceId !== null">Cancel</button>
-                <button type="button" class="btn-reject-confirm" (click)="confirmRejectAttendee()"
-                    [disabled]="updatingAttendanceId !== null">
-                    {{ updatingAttendanceId !== null ? 'Rejecting...' : 'Confirm Rejection' }}
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- Edit Event Modal -->
     <div class="modal-overlay" *ngIf="isEditModalOpen">
         <div class="modal-content" (click)="$event.stopPropagation()">
@@ -438,6 +405,32 @@
                 <button type="button" class="btn-cancel" (click)="closeDeleteModal()" [disabled]="isLoading">Cancel</button>
                 <button type="button" class="btn-delete" (click)="confirmDeleteEvent()" [disabled]="isLoading">
                     {{ isLoading ? 'Deleting...' : 'Delete' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Update Confirmation Modal -->
+    <div class="modal-overlay" *ngIf="isStatusConfirmModalOpen">
+        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Confirm Status Update</h2>
+                </div>
+                <button class="close-btn" (click)="closeStatusConfirmModal()">✕</button>
+            </div>
+            <div class="modal-body-wrapper">
+                <div class="modal-body">
+                    <p class="confirmation-text">
+                        Are you sure you want to set <strong>{{ pendingStatusEvent?.title }}</strong> to
+                        <strong>{{ pendingNextStatus }}</strong>?
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" (click)="closeStatusConfirmModal()" [disabled]="isStatusUpdating">Cancel</button>
+                <button type="button" class="btn-confirm-edit" (click)="confirmStatusUpdate()" [disabled]="isStatusUpdating">
+                    {{ isStatusUpdating ? 'Updating...' : 'Confirm' }}
                 </button>
             </div>
         </div>
