@@ -89,8 +89,12 @@ export class EventService {
         return this.http.get<AttendanceResponse[]>(`${this.skApiUrl}/${eventId}/rsvp`);
     }
 
-    updateAttendanceStatus(eventId: number, attendanceId: number, approvalStatus: 'approved' | 'rejected' | 'pending'): Observable<AttendanceResponse> {
-        return this.http.patch<AttendanceResponse>(`${this.skApiUrl}/${eventId}/rsvp/${attendanceId}/status`, { approvalStatus });
+    updateAttendanceStatus(eventId: number, attendanceId: number, approvalStatus: 'approved' | 'rejected' | 'pending', rejectionReason?: string): Observable<AttendanceResponse> {
+        const body: any = { approvalStatus };
+        if (rejectionReason) {
+            body.rejectionReason = rejectionReason;
+        }
+        return this.http.patch<AttendanceResponse>(`${this.skApiUrl}/${eventId}/rsvp/${attendanceId}/status`, body);
     }
 
     markAttendance(eventId: number, userId: number): Observable<AttendanceResponse> {

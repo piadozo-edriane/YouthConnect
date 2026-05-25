@@ -880,4 +880,166 @@ public class EmailServiceImpl implements EmailService {
             </html>
         """.formatted(skOfficialName, assignedBy, taskTitle, taskDescription, dueDate, assignedBy, tasksUrl);
     }
+
+    @Override
+    public void sendAttendeeApprovalEmail(String toEmail, String userName, String eventTitle, String eventDate, String eventLocation) {
+        try {
+            System.out.println("📧 Building attendee approval email...");
+            System.out.println("From: " + fromEmail);
+            System.out.println("To: " + toEmail);
+            System.out.println("Event: " + eventTitle);
+            
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail, "YouthConnect - Barangay 183");
+            helper.setTo(toEmail);
+            helper.setSubject("YouthConnect - Event Registration Approved ✅");
+            helper.setText(buildAttendeeApprovalTemplate(userName, eventTitle, eventDate, eventLocation), true);
+
+            System.out.println("📤 Sending attendee approval email via SMTP...");
+            mailSender.send(message);
+            System.out.println("✅ Attendee approval email sent successfully!");
+
+        } catch (Exception e) {
+            System.err.println("❌ Failed to send attendee approval email: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void sendAttendeeRejectionEmail(String toEmail, String userName, String eventTitle, String rejectionReason) {
+        try {
+            System.out.println("📧 Building attendee rejection email...");
+            System.out.println("From: " + fromEmail);
+            System.out.println("To: " + toEmail);
+            System.out.println("Event: " + eventTitle);
+            
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail, "YouthConnect - Barangay 183");
+            helper.setTo(toEmail);
+            helper.setSubject("YouthConnect - Event Registration Update");
+            helper.setText(buildAttendeeRejectionTemplate(userName, eventTitle, rejectionReason), true);
+
+            System.out.println("📤 Sending attendee rejection email via SMTP...");
+            mailSender.send(message);
+            System.out.println("✅ Attendee rejection email sent successfully!");
+
+        } catch (Exception e) {
+            System.err.println("❌ Failed to send attendee rejection email: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private String buildAttendeeApprovalTemplate(String userName, String eventTitle, String eventDate, String eventLocation) {
+        String eventsUrl = baseUrl + "/youth/events";
+        
+        return """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+                    .content { background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px; }
+                    .event-box { background-color: white; border: 2px solid #4CAF50; padding: 20px; margin: 20px 0; border-radius: 5px; }
+                    .event-detail { margin: 10px 0; padding: 10px; background-color: #e8f5e9; border-radius: 3px; }
+                    .highlight { background-color: #c8e6c9; border-left: 4px solid #4CAF50; padding: 15px; margin: 20px 0; }
+                    .button { display: inline-block; padding: 12px 30px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+                    .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>✅ Event Registration Approved!</h1>
+                    </div>
+                    <div class="content">
+                        <p>Hi <strong>%s</strong>,</p>
+                        <div class="highlight">
+                            <p style="margin: 0; font-size: 18px;"><strong>🎉 Great news! Your event registration has been approved!</strong></p>
+                        </div>
+                        <p>The SK Officials have approved your registration for the following event:</p>
+                        <div class="event-box">
+                            <h2 style="color: #4CAF50; margin-top: 0;">%s</h2>
+                            <div class="event-detail">
+                                <strong>📅 Date:</strong> %s
+                            </div>
+                            <div class="event-detail">
+                                <strong>📍 Location:</strong> %s
+                            </div>
+                        </div>
+                        <p>We're excited to see you at the event! Please make sure to:</p>
+                        <ul>
+                            <li>Mark your calendar for the event date</li>
+                            <li>Arrive on time at the venue</li>
+                            <li>Check in when you arrive</li>
+                            <li>Bring any required materials or documents</li>
+                        </ul>
+                        <center>
+                            <a href="%s" class="button">View Event Details</a>
+                        </center>
+                        <p>See you there!</p>
+                    </div>
+                    <div class="footer">
+                        <p>YouthConnect - Sangguniang Kabataan, Barangay 183</p>
+                        <p>This is an automated notification. Please do not reply.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        """.formatted(userName, eventTitle, eventDate, eventLocation, eventsUrl);
+    }
+
+    private String buildAttendeeRejectionTemplate(String userName, String eventTitle, String rejectionReason) {
+        String eventsUrl = baseUrl + "/youth/events";
+        
+        return """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background-color: #f44336; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+                    .content { background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px; }
+                    .event-box { background-color: white; border: 2px solid #f44336; padding: 20px; margin: 20px 0; border-radius: 5px; }
+                    .reason-box { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; }
+                    .button { display: inline-block; padding: 12px 30px; background-color: #2196F3; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+                    .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>Event Registration Update</h1>
+                    </div>
+                    <div class="content">
+                        <p>Hi <strong>%s</strong>,</p>
+                        <p>We regret to inform you that your registration for the following event was not approved:</p>
+                        <div class="event-box">
+                            <h2 style="color: #f44336; margin-top: 0;">%s</h2>
+                        </div>
+                        <div class="reason-box">
+                            <strong>Reason:</strong> %s
+                        </div>
+                        <p>If you have questions about this decision or believe this is an error, please contact the SK Officials at Barangay 183.</p>
+                        <p>You can still browse and register for other upcoming events on YouthConnect.</p>
+                        <center>
+                            <a href="%s" class="button">View Other Events</a>
+                        </center>
+                    </div>
+                    <div class="footer">
+                        <p>YouthConnect - Sangguniang Kabataan, Barangay 183</p>
+                        <p>This is an automated notification. Please do not reply.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        """.formatted(userName, eventTitle, rejectionReason != null && !rejectionReason.isBlank() ? rejectionReason : "Not specified", eventsUrl);
+    }
 }
+
