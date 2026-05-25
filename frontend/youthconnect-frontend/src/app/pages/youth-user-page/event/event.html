@@ -119,24 +119,16 @@
                     </button>
 
                     <!-- Cancel Join button -->
-                    <button class="btn-cancel-rsvp"
-                        *ngIf="canCancelJoin(event)"
-                        (click)="cancelJoin(event)"
-                        [disabled]="isLoading">
-                        Cancel Join
-                    </button>
-
-                    <!-- Cancellation locked notice -->
-                    <div class="cancel-locked"
-                        *ngIf="isJoined(event.eventId)
-                            && getJoinApprovalStatus(event.eventId) === 'approved'
-                            && isWithin24Hours(event)
-                            && !isEventCompleted(event)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
-                        Cancellation unavailable — the event starts within 24 hours
+                    <div class="cancel-join-tooltip-wrap"
+                        *ngIf="canShowCancelJoinButton(event)"
+                        [class.has-tooltip]="isWithin24Hours(event)"
+                        [attr.data-tooltip]="getCancelJoinTooltip(event)">
+                        <button class="btn-cancel-rsvp"
+                            [class.btn-cancel-rsvp--disabled]="isWithin24Hours(event)"
+                            (click)="cancelJoin(event)"
+                            [disabled]="isLoading || !canCancelJoin(event)">
+                            Cancel Join
+                        </button>
                     </div>
                 </div>
 

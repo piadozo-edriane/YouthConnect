@@ -275,13 +275,22 @@ export class EventPage implements OnInit, OnDestroy {
         if (!this.isJoined(event.eventId)) return false;
         if (this.isEventOngoing(event) || this.isEventCompleted(event)) return false;
         if (this.getJoinApprovalStatus(event.eventId) === 'rejected') return false;
-
-        // Approved attendees cannot cancel within 24 hours of the event
-        if (this.getJoinApprovalStatus(event.eventId) === 'approved' && this.isWithin24Hours(event)) {
-            return false;
-        }
-
+        if (this.isWithin24Hours(event)) return false;
         return true;
+    }
+
+    canShowCancelJoinButton(event: EventResponse): boolean {
+        if (!this.isJoined(event.eventId)) return false;
+        if (this.getJoinApprovalStatus(event.eventId) === 'rejected') return false;
+        if (this.isEventCompleted(event)) return false;
+        return true;
+    }
+
+    getCancelJoinTooltip(event: EventResponse): string {
+        if (this.isWithin24Hours(event)) {
+            return 'Cancellation unavailable — the event starts within 24 hours';
+        }
+        return '';
     }
 
     joinEvent(event: EventResponse): void {
