@@ -54,12 +54,9 @@
                 [class.highlight-event]="isHighlighted(event.eventId)"
                 [class.card--rejected]="isJoined(event.eventId) && getJoinApprovalStatus(event.eventId) === 'rejected'">
 
-                <!-- Card Header: title + status pill -->
+                <!-- Card Header: title only -->
                 <div class="card-header">
                     <h3 class="card-title">{{ event.title }}</h3>
-                    <span class="status-pill" [ngClass]="(event.status || 'upcoming').toLowerCase().replace(' ', '-')">
-                        {{ event.status }}
-                    </span>
                 </div>
 
                 <!-- Card Body: description + meta -->
@@ -84,6 +81,12 @@
                             </svg>
                             <span class="meta-label">LOCATION:</span>
                             <span>{{ event.location }}</span>
+                        </div>
+                        <div class="meta-item status-meta">
+                            <span class="status-label">STATUS:</span>
+                            <span class="status-pill" [ngClass]="(event.status || 'upcoming').toLowerCase().replace(' ', '-')">
+                                {{ event.status || 'Upcoming' }}
+                            </span>
                         </div>
                     </div>
 
