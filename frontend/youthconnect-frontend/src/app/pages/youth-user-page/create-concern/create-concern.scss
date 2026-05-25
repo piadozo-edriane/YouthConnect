@@ -80,7 +80,7 @@ body,
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   padding: 0px;
 
   .header-content {
@@ -142,7 +142,7 @@ body,
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 400px;
+  width: 500px;
   max-width: 100%;
   flex-shrink: 0;
   background: #fff;
@@ -200,6 +200,9 @@ body,
   background-position: right 14px center;
   transition: border-color 0.2s, box-shadow 0.2s;
   white-space: nowrap;
+  width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &:focus {
     outline: none;
@@ -1055,7 +1058,7 @@ body,
 
     .filter-select {
       flex: 1;
-      min-width: 120px;
+      min-width: 100px;
     }
   }
 
