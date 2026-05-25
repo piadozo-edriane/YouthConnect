@@ -395,6 +395,40 @@ html, body, :host, .dashboard-container {
   font-size: 14px;
 }
 
+.see-more-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 16px 20px 22px;
+  border-top: 1px solid #f0f0f0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 255, 0.95));
+}
+
+.see-more-btn {
+  border: 1px solid #c6d6ff;
+  background: #f1f5ff;
+  color: #0038a7;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', Arial, Helvetica, sans-serif;
+  box-shadow: 0 2px 6px rgba(0, 56, 167, 0.12);
+
+  &:hover {
+    background: #e6eeff;
+    border-color: #9fb7ff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 56, 167, 0.18);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 56, 167, 0.12);
+  }
+}
+
 /* Modal Styles */
 .modal-overlay {
   position: fixed;
