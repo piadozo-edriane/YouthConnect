@@ -79,6 +79,9 @@ export class EventDetailsPage implements OnInit, OnDestroy {
 
   // Status update
   isStatusUpdating = false;
+  isStatusConfirmModalOpen = false;
+  pendingStatusEvent: EventResponse | null = null;
+  pendingNextStatus: string = '';
 
   private pollSubscription: Subscription | null = null;
   private readonly POLL_INTERVAL_MS = 10000; // poll every 10 seconds
@@ -102,7 +105,8 @@ export class EventDetailsPage implements OnInit, OnDestroy {
       || this.isEditConfirmModalOpen
       || this.isDeleteModalOpen
       || this.isRejectModalOpen
-      || this.isAttendeeDetailsModalOpen;
+      || this.isAttendeeDetailsModalOpen
+      || this.isStatusConfirmModalOpen;
   }
 
   private startPolling(): void {
@@ -636,7 +640,22 @@ export class EventDetailsPage implements OnInit, OnDestroy {
     if (this.isStatusActionDisabled(event.status)) return;
 
     const currentStatus = (event.status || 'Upcoming').toLowerCase();
-    const nextStatus = currentStatus === 'upcoming' ? 'Ongoing' : 'Completed';
+    this.pendingNextStatus = currentStatus === 'upcoming' ? 'Ongoing' : 'Completed';
+    this.pendingStatusEvent = event;
+    this.isStatusConfirmModalOpen = true;
+  }
+
+  closeStatusConfirmModal(): void {
+    this.isStatusConfirmModalOpen = false;
+    this.pendingStatusEvent = null;
+    this.pendingNextStatus = '';
+  }
+
+  confirmStatusUpdate(): void {
+    if (!this.pendingStatusEvent) return;
+    const event = this.pendingStatusEvent;
+    const nextStatus = this.pendingNextStatus;
+    this.closeStatusConfirmModal();
 
     const request = {
       title: event.title,
@@ -655,10 +674,12 @@ export class EventDetailsPage implements OnInit, OnDestroy {
           this.selectedEvent = { ...this.selectedEvent, status: nextStatus };
         }
         this.isStatusUpdating = false;
+        this.showNotification(`Event status updated to ${nextStatus}`, 'success');
       },
       error: (error) => {
         console.error('Error updating event status:', error);
         this.isStatusUpdating = false;
+        this.showNotification('Failed to update event status. Please try again.', 'error');
       }
     });
   }
