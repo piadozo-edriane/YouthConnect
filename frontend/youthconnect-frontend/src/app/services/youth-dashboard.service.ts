@@ -48,13 +48,13 @@ export class YouthDashboardService {
                     resolvedConcerns: result.concerns.filter(c => c.status === 'RESOLVED').length
                 };
 
-                // Get upcoming events (limit to 5)
+                    // Get upcoming events (no hard limit; UI handles incremental display)
                 const upcomingEvents = result.events
                     .filter(e => e.status === 'Upcoming' || e.status === 'Open for Registration')
-                    .slice(0, 5);
+                        ;
 
-                // Get recent notifications (limit to 6)
-                const notifications = result.notifications.slice(0, 6);
+                    // Get notifications (no hard limit; UI handles incremental display)
+                    const notifications = result.notifications;
 
                 return {
                     stats,
