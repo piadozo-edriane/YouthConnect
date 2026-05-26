@@ -5,7 +5,7 @@
     <div class="header-section">
         <div class="greeting-area">
             <h1>Welcome, SK Official!</h1>
-            <p>{{ skOfficialEmail }}</p>
+            <p>{{ todayLabel }} &nbsp;·&nbsp; {{ currentTime }}</p>
         </div>
         <div class="user-profile">
             <div class="profile-badge">
@@ -45,8 +45,11 @@
         <!-- Events -->
         <div class="content-card">
             <div class="card-header" (click)="navigateToEvents()" style="cursor: pointer;">
-                <h2>Upcoming Events</h2>
-                <span class="view-all">{{ eventsCount }} ➜</span>
+                <div class="card-header-title">
+                    <h2>Upcoming Events</h2>
+                    <span class="count-badge">{{ eventsCount }}</span>
+                </div>
+                <span class="view-all">View All</span>
             </div>
             <div class="card-content">
                 <div class="item-card" 
@@ -54,12 +57,11 @@
                      [ngClass]="'item-border-' + getNotificationColor(i)"
                      (click)="openEventDetailsModal(event)">
                     <div class="item-header">
-                        <h3>{{ event.title }}</h3>
+                        <h3 class="item-title-fade">{{ event.title }}</h3>
+                        <span class="item-date">{{ getEventDate(event.eventDate) }}</span>
                     </div>
-                    <p class="item-description">{{ event.description }}</p>
                     <div class="item-meta">
                         <p class="item-location">{{ event.location }}</p>
-                        <span class="item-date">{{ getEventDate(event.eventDate) }}</span>
                     </div>
                 </div>
                 <div *ngIf="events.length === 0" class="no-data-message">No events available</div>
@@ -72,8 +74,11 @@
         <!-- Tasks -->
         <div class="content-card">
             <div class="card-header" (click)="navigateToTasks()" style="cursor: pointer;">
-                <h2>Pending Tasks</h2>
-                <span class="view-all">{{ tasksCount }} ➜</span>
+                <div class="card-header-title">
+                    <h2>My Pending Tasks</h2>
+                    <span class="count-badge">{{ tasksCount }}</span>
+                </div>
+                <span class="view-all">View All</span>
             </div>
             <div class="card-content">
                 <div class="item-card" 
@@ -81,10 +86,9 @@
                      [ngClass]="'item-border-' + getNotificationColor(i)"
                      (click)="openTaskDetailsModal(task)">
                     <div class="item-header">
-                        <h3>{{ task.tasking }}</h3>
+                        <h3 class="item-title-fade">{{ task.tasking }}</h3>
                         <span class="item-date">Due: {{ getTaskDueDate(task.dueDate) }}</span>
                     </div>
-                    <p class="item-description">{{ task.taskDescription }}</p>
                     <div class="item-footer">
                         <span class="item-status" [ngClass]="'status-' + task.status.toLowerCase()">{{ task.status }}</span>
                     </div>
@@ -100,75 +104,3 @@
 
 </div>
 
-<!-- Event Details Modal -->
-<div class="modal-overlay" *ngIf="isEventModalOpen && selectedEvent">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-            <h2 class="modal-title">{{ selectedEvent.title }}</h2>
-            <button class="close-btn" (click)="closeEventModal()">✕</button>
-        </div>
-        <div class="modal-body">
-            <p class="modal-description">{{ selectedEvent.description }}</p>
-            
-            <div class="modal-info-row">
-                <span class="modal-label">LOCATION:</span>
-                <span class="modal-value">{{ selectedEvent.location }}</span>
-            </div>
-            
-            <div class="modal-info-row">
-                <span class="modal-label">DATE & TIME:</span>
-                <span class="modal-value">{{ formatEventDateTime(selectedEvent.eventDate) }}</span>
-            </div>
-            
-            <div class="modal-info-row">
-                <span class="modal-label">RSVPs:</span>
-                <span class="modal-value">{{ selectedEvent.rsvpCount || 0 }}</span>
-            </div>
-            
-            <div class="modal-info-row">
-                <span class="modal-label">STATUS:</span>
-                <span class="event-status-badge" [ngClass]="'status-' + (selectedEvent.status || 'upcoming').toLowerCase()">
-                    {{ selectedEvent.status || 'Upcoming' }}
-                </span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Task Details Modal -->
-<div class="modal-overlay" *ngIf="isTaskModalOpen && selectedTask">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-            <h2 class="modal-title">{{ getTaskingDisplayName(selectedTask.tasking) }}</h2>
-            <button class="close-btn" (click)="closeTaskModal()">✕</button>
-        </div>
-        <div class="modal-body">
-            <p class="modal-description">{{ selectedTask.taskDescription }}</p>
-            
-            <div class="modal-info-row">
-                <span class="modal-label">SK INCHARGE:</span>
-                <span class="modal-value">{{ selectedTask.skIncharge || 'Not assigned' }}</span>
-            </div>
-            
-            <div class="modal-info-row">
-                <span class="modal-label">NOTE/HYPERLINK:</span>
-                <span class="modal-value">
-                    <a *ngIf="selectedTask.hyperlink" [href]="selectedTask.hyperlink" target="_blank" rel="noopener noreferrer">{{ selectedTask.hyperlink }}</a>
-                    <span *ngIf="!selectedTask.hyperlink">-</span>
-                </span>
-            </div>
-            
-            <div class="modal-info-row">
-                <span class="modal-label">STATUS:</span>
-                <span class="task-status-badge" [ngClass]="'status-' + selectedTask.status.toLowerCase()">
-                    {{ selectedTask.status }}
-                </span>
-            </div>
-            
-            <div class="modal-info-row">
-                <span class="modal-label">DUE DATE:</span>
-                <span class="modal-value">{{ selectedTask.dueDate ? formatTaskDateTime(selectedTask.dueDate) : 'No due date set' }}</span>
-            </div>
-        </div>
-    </div>
-</div>

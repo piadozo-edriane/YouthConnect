@@ -68,6 +68,14 @@ export class EventsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.getCurrentUser();
     this.loadSkOfficialProfile();
+
+    // Apply pre-filter from dashboard navigation state BEFORE loading events
+    // so applyFilters() inside loadEvents() picks it up correctly
+    const navState = history.state;
+    if (navState?.statusFilter) {
+      this.selectedStatusFilter = navState.statusFilter;
+    }
+
     this.loadEvents();
     this.watchRouteActions();
     this.startPolling();
@@ -295,7 +303,7 @@ export class EventsComponent implements OnInit, OnDestroy {
   }
 
   viewEvent(event: EventResponse): void {
-    this.router.navigate(['/sk-official/events', event.eventId]);
+    this.router.navigate(['/sk-official/events', event.eventId], { state: { returnTo: 'events' } });
   }
 
   searchEvents(term: string) {

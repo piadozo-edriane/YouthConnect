@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { EventService, EventResponse } from '../../../services/event.service';
@@ -14,7 +14,7 @@ import { TaskResponse } from '../../../models/task.model';
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class Dashboard implements OnInit {
+export class Dashboard implements OnInit, OnDestroy {
   private eventService = inject(EventService);
   private taskService = inject(TaskTrackerService);
   private concernService = inject(ConcernService);
@@ -27,6 +27,9 @@ export class Dashboard implements OnInit {
   skOfficialEmail = '';
   skOfficialPosition = '';
   skOfficialInitials = 'SK';
+  todayLabel = '';
+  currentTime = '';
+  private clockInterval: any;
 
   // Counts
   youthMembersCount = 0;
@@ -37,6 +40,7 @@ export class Dashboard implements OnInit {
   // Data lists
   events: EventResponse[] = [];
   tasks: TaskResponse[] = [];
+  allTasks: TaskResponse[] = [];
   concerns: ConcernResponse[] = [];
 
   // Incremental loading state
@@ -45,14 +49,26 @@ export class Dashboard implements OnInit {
   displayedEvents: EventResponse[] = [];
   displayedTasks: TaskResponse[] = [];
 
-  // Modal state
-  isEventModalOpen = false;
+  // Modal state - tasks now open in task tracker directly
   isTaskModalOpen = false;
-  selectedEvent: EventResponse | null = null;
   selectedTask: TaskResponse | null = null;
 
   ngOnInit(): void {
+    this.updateClock();
+    this.clockInterval = setInterval(() => this.updateClock(), 1000);
     this.loadDashboardData();
+  }
+
+  ngOnDestroy(): void {
+    if (this.clockInterval) {
+      clearInterval(this.clockInterval);
+    }
+  }
+
+  updateClock(): void {
+    const now = new Date();
+    this.todayLabel = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    this.currentTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   }
 
   loadDashboardData(): void {
@@ -89,6 +105,9 @@ export class Dashboard implements OnInit {
         localStorage.setItem('sk_official_id', matched.adminId.toString());
         localStorage.setItem('sk_official_name', this.skOfficialName);
         localStorage.setItem('sk_official_email', matched.email);
+
+        // Re-filter tasks now that we have the resolved name (catches skIncharge matches)
+        this.applyTaskFilter();
       },
       error: (err) => {
         console.error('Error loading SK Official profile:', err);
@@ -158,19 +177,29 @@ export class Dashboard implements OnInit {
   loadTasks(): void {
     this.taskService.getAllTasks().subscribe({
       next: (tasksList) => {
-        this.tasks = tasksList;
-        this.tasksCount = tasksList.length;
-        this.visibleTasksCount = 10;
-        this.updateDisplayedTasks();
+        this.allTasks = tasksList;
+        this.applyTaskFilter();
       },
       error: (err) => {
         console.error('Error loading tasks:', err);
+        this.allTasks = [];
         this.tasks = [];
         this.tasksCount = 0;
         this.visibleTasksCount = 10;
         this.updateDisplayedTasks();
       }
     });
+  }
+
+  applyTaskFilter(): void {
+    const currentAdminId = Number(localStorage.getItem('sk_official_id') || localStorage.getItem('adminId'));
+    this.tasks = this.allTasks.filter(task =>
+      task.adminId === currentAdminId ||
+      task.skIncharge === this.skOfficialName
+    );
+    this.tasksCount = this.tasks.length;
+    this.visibleTasksCount = 10;
+    this.updateDisplayedTasks();
   }
 
   updateDisplayedEvents(): void {
@@ -213,54 +242,20 @@ export class Dashboard implements OnInit {
   }
 
   navigateToEvents(): void {
-    this.router.navigate(['/sk-official/events']);
+    this.router.navigate(['/sk-official/events'], { state: { statusFilter: 'Upcoming' } });
   }
 
   navigateToTasks(): void {
-    this.router.navigate(['/sk-official/task-tracker']);
+    this.router.navigate(['/sk-official/task-tracker'], { state: { activeTab: 'assigned' } });
   }
 
   openEventDetailsModal(event: EventResponse): void {
-    this.selectedEvent = event;
-    this.isEventModalOpen = true;
-  }
-
-  closeEventModal(): void {
-    this.isEventModalOpen = false;
-    this.selectedEvent = null;
+    this.router.navigate(['/sk-official/events', event.eventId], { state: { returnTo: 'dashboard' } });
   }
 
   openTaskDetailsModal(task: TaskResponse): void {
-    this.selectedTask = task;
-    this.isTaskModalOpen = true;
-  }
-
-  closeTaskModal(): void {
-    this.isTaskModalOpen = false;
-    this.selectedTask = null;
-  }
-
-  formatEventDateTime(dateString: string): string {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  formatTaskDateTime(dateString: string): string {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    this.router.navigate(['/sk-official/task-tracker'], {
+      state: { activeTab: 'assigned', openTaskId: task.taskId }
     });
   }
 
