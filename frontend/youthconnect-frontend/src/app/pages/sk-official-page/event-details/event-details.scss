@@ -100,7 +100,7 @@
   gap: 24px;
   align-items: stretch;
   height: min(750px, calc(100vh - 150px));
-  min-height: 600px;
+  min-height: 645px;
 }
 
 .details-card {
@@ -111,8 +111,8 @@
   padding: 22px 24px;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  min-height: 600px;
+  height: min(750px, calc(100vh - 150px));
+  min-height: 645px;
 }
 
 .details-card-body {
@@ -129,10 +129,6 @@
 
 .details-card-side .details-card-body {
   overflow: hidden;
-}
-
-.details-card-side {
-  padding-top: 18px;
 }
 
 .details-header {

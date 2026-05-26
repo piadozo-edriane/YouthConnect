@@ -10,12 +10,12 @@
 .update-concern-root {
   min-height: 100vh;
   background-color: #f2f2f2;
-  padding: 20px;
+  padding: 14px 24px 24px;
   overflow-x: hidden;
 }
 
 .update-concern-container {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   width: 100%;
 }
@@ -29,7 +29,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-top: 5px;
+  margin-bottom: 15px;
   transition: opacity 0.2s ease;
 
   svg {
@@ -162,26 +163,30 @@
 // Main Content Layout
 .content-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
+  gap: 24px;
   align-items: stretch;
+  height: min(750px, calc(100vh - 150px));
+  min-height: 600px;
 
-  @media (max-width: 1024px) {
+  @media (max-width: 900px) {
     grid-template-columns: 1fr;
+    height: auto;
+    min-height: 0;
   }
 }
 
 // LEFT SIDE: Concern Card
 .concern-card {
-  background: white;
-  border-radius: 8px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e8e8e8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 22px 24px;
   display: flex;
   flex-direction: column;
-  height: 600px;
-  max-height: 600px;
-  min-height: 600px;
+  height: min(750px, calc(100vh - 150px));
+  min-height: 690px;
 
   .concern-title {
     font-size: 20px;
@@ -285,15 +290,15 @@
 }
 
 .right-card {
-  background: white;
-  border-radius: 8px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e8e8e8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 18px 24px 22px;
   display: flex;
   flex-direction: column;
-  height: 600px;
-  max-height: 600px;
-  min-height: 600px;
+  height: min(750px, calc(100vh - 150px));
+  min-height: 690px;
 }
 
 // Update History Section
@@ -568,7 +573,7 @@
 // Responsive
 @media (max-width: 768px) {
   .update-concern-root {
-    padding: 16px;
+    padding: 16px 14px;
   }
 
   .concern-card,
