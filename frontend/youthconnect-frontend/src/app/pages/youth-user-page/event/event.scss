@@ -594,7 +594,7 @@ body,
 }
 
 .loading-indicator {
-  color: #0052cc;
+  color: #a4151a;
   font-weight: 600;
 }
 
@@ -639,12 +639,12 @@ body,
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #385079;
+  color: #a4151a;
 
   &:hover:not(:disabled) {
     background: #f7f9fc;
-    border-color: #0052cc;
-    color: #0052cc;
+    border-color: #a4151a;
+    color: #a4151a;
   }
 
   &:disabled {
@@ -677,18 +677,18 @@ body,
   transition: background-color 0.22s ease, color 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
   font-size: 13px;
   font-weight: 500;
-  color: #385079;
+  color: #a4151a;
   will-change: transform, box-shadow;
 
   &:hover:not(.active):not(.ellipsis):not(:disabled) {
     background: #f7f9fc;
-    border-color: #0052cc;
-    color: #0052cc;
+    border-color: #a4151a;
+    color: #a4151a;
   }
 
   &.active {
-    background: #0052cc;
-    border-color: #0052cc;
+    background: #a4151a;
+    border-color: #a4151a;
     color: #ffffff;
     font-weight: 600;
     box-shadow: 0 6px 12px rgba(0, 82, 204, 0.2);
