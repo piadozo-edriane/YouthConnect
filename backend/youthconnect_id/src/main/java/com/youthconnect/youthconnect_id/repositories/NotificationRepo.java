@@ -46,4 +46,9 @@ public interface NotificationRepo extends JpaRepository<Notification, Integer> {
      * Check if a notification exists for a user about a specific concern with the same message and type
      */
     boolean existsByUserIdAndRelatedConcernIdAndTypeAndMessage(int userId, Integer relatedConcernId, String type, String message);
+
+    /**
+     * Check if an attendee decision notification already exists for the same user, event, attendance record, and title.
+     */
+    boolean existsByUserIdAndRelatedEventIdAndRelatedAttendanceIdAndTypeAndTitle(int userId, int relatedEventId, int relatedAttendanceId, String type, String title);
 }

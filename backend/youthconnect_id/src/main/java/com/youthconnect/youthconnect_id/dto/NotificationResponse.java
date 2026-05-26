@@ -14,6 +14,7 @@ public class NotificationResponse {
     private String message;
     private String type;
     private Integer relatedEventId;
+    private Integer relatedAttendanceId;
     private Integer relatedConcernId;
     @JsonProperty("isRead")
     @JsonAlias({"read"})
@@ -85,6 +86,14 @@ public class NotificationResponse {
 
     public void setRelatedEventId(Integer relatedEventId) {
         this.relatedEventId = relatedEventId;
+    }
+
+    public Integer getRelatedAttendanceId() {
+        return relatedAttendanceId;
+    }
+
+    public void setRelatedAttendanceId(Integer relatedAttendanceId) {
+        this.relatedAttendanceId = relatedAttendanceId;
     }
 
     public Integer getRelatedConcernId() {

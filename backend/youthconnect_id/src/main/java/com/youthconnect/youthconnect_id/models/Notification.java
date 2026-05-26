@@ -15,6 +15,8 @@ public class Notification {
     public static final String TYPE_NEW_EVENT = "NEW_EVENT";
     public static final String TYPE_EVENT_STATUS = "EVENT_STATUS";
     public static final String TYPE_CONCERN_UPDATE = "CONCERN_UPDATE";
+    public static final String TYPE_EVENT_JOIN_APPROVED = "EVENT_JOIN_REQUEST_APPROVED";
+    public static final String TYPE_EVENT_JOIN_REJECTED = "EVENT_JOIN_REQUEST_REJECTED";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,6 +40,9 @@ public class Notification {
 
     @Column(name = "related_event_id")
     private Integer relatedEventId;
+
+    @Column(name = "related_attendance_id")
+    private Integer relatedAttendanceId;
 
     @Column(name = "related_concern_id")
     private Integer relatedConcernId;
@@ -126,6 +131,14 @@ public class Notification {
 
     public void setRelatedConcernId(Integer relatedConcernId) {
         this.relatedConcernId = relatedConcernId;
+    }
+
+    public Integer getRelatedAttendanceId() {
+        return relatedAttendanceId;
+    }
+
+    public void setRelatedAttendanceId(Integer relatedAttendanceId) {
+        this.relatedAttendanceId = relatedAttendanceId;
     }
 
     public boolean isRead() {

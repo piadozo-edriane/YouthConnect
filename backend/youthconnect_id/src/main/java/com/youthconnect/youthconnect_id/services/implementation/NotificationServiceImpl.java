@@ -229,6 +229,52 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     /**
+     * Create a notification for a single attendee when their event join request is approved or rejected.
+     */
+    @Override
+    @Transactional
+    public void createAttendeeDecisionNotification(int eventId, int attendanceId, int userId, int youthId,
+                                                   String eventTitle, boolean approved, String rejectionReason) {
+        try {
+            String type = approved ? Notification.TYPE_EVENT_JOIN_APPROVED : Notification.TYPE_EVENT_JOIN_REJECTED;
+            String title = approved ? "EVENT JOIN REQUEST APPROVED" : "EVENT JOIN REQUEST REJECTED";
+            String message = approved
+                    ? "Your request to join the event \"" + eventTitle + "\" has been approved."
+                    : "Your request to join the event \"" + eventTitle + "\" has been rejected.";
+
+            boolean exists = notificationRepo.existsByUserIdAndRelatedEventIdAndRelatedAttendanceIdAndTypeAndTitle(
+                    userId,
+                    eventId,
+                    attendanceId,
+                    type,
+                    title
+            );
+
+            if (exists) {
+                System.out.println("⚠️ Duplicate attendee decision notification detected for userId=" + userId + ", skipping creation");
+                return;
+            }
+
+            Notification notification = new Notification();
+            notification.setUserId(userId);
+            notification.setYouthId(youthId);
+            notification.setTitle(title);
+            notification.setMessage(message);
+            notification.setType(type);
+            notification.setRelatedEventId(eventId);
+            notification.setRelatedAttendanceId(attendanceId);
+            notification.setRead(false);
+            notification.setCreatedAt(LocalDateTime.now());
+
+            notificationRepo.save(notification);
+            System.out.println("✅ Created attendee decision notification for userId=" + userId + ", attendanceId=" + attendanceId);
+        } catch (Exception e) {
+            System.err.println("❌ Error creating attendee decision notification: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Mark a notification as read
      */
     @Override
@@ -270,6 +316,7 @@ public class NotificationServiceImpl implements NotificationService {
         response.setMessage(notification.getMessage());
         response.setType(notification.getType());
         response.setRelatedEventId(notification.getRelatedEventId());
+        response.setRelatedAttendanceId(notification.getRelatedAttendanceId());
         response.setRelatedConcernId(notification.getRelatedConcernId());
         response.setRead(notification.isRead());
         response.setCreatedAt(notification.getCreatedAt());
