@@ -1,4 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+:host {
+  font-family: 'Poppins', Arial, Helvetica, sans-serif;
+  display: block;
+  background-color: #f2f2f2;
+  min-height: 100vh;
+}
 
 * {
   margin: 0;
@@ -10,7 +17,7 @@
 .update-concern-root {
   min-height: 100vh;
   background-color: #f2f2f2;
-  padding: 14px 24px 24px;
+  padding: 16px 24px 24px;
   overflow-x: hidden;
 }
 
@@ -29,8 +36,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-top: 5px;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   transition: opacity 0.2s ease;
 
   svg {
@@ -45,9 +51,13 @@
 // Loading and Alerts
 .loading-indicator {
   text-align: center;
-  padding: 60px 20px;
+  padding: 14px 16px;
   color: #666;
   font-size: 14px;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  margin-bottom: 18px;
 }
 
 // Toast Container
@@ -189,24 +199,29 @@
   min-height: 690px;
 
   .concern-title {
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 24px;
+    font-weight: 700;
     color: #1a1a1a;
-    margin-bottom: 12px;
+    line-height: 1.2;
+    margin-bottom: 18px;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   .concern-badges {
     display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
+    gap: 10px;
+    margin-bottom: 30px;
 
     .badge {
       display: inline-block;
-      padding: 4px 12px;
-      border-radius: 4px;
-      font-size: 11px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 12px;
       font-weight: 600;
       text-transform: uppercase;
+      line-height: 1;
     }
 
     .badge-type {
@@ -216,18 +231,18 @@
 
     .badge-status {
       &.status-open {
-        background: #fff3cd;
-        color: #856404;
+        background: #f4be67;
+        color: #1f1f1f;
       }
 
       &.status-in-progress {
-        background: #cfe2ff;
-        color: #084298;
+        background: #9bc6ff;
+        color: #0f2f67;
       }
 
       &.status-resolved {
-        background: #d1e7dd;
-        color: #0a5a2e;
+        background: #bfe4c4;
+        color: #1b4f26;
       }
 
       &.status-closed {
@@ -245,15 +260,16 @@
 
     .info-item {
       .info-label {
-        font-size: 13px;
-        font-weight: 400;
+        font-size: 14px;
+        font-weight: 600;
         color: #666;
       }
 
       .info-value {
-        font-size: 13px;
-        font-weight: 400;
+        font-size: 14px;
+        font-weight: 500;
         color: #1a1a1a;
+        word-break: break-word;
       }
     }
   }
@@ -261,22 +277,22 @@
   .divider {
     height: 1px;
     background: #e8e8e8;
-    margin: 16px 0;
+    margin: 30px 0;
   }
 
   .concern-description {
     flex: 1;
     
     .description-label {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 600;
-      color: #666;
-      margin-bottom: 8px;
+      color: #1a1a1a;
+      margin-bottom: 10px;
     }
 
     .description-text {
-      font-size: 13px;
-      color: #333;
+      font-size: 14px;
+      color: #666;
       line-height: 1.6;
     }
   }
@@ -310,9 +326,10 @@
   flex: 1;
 
   .section-title {
-    font-size: 24px;
-    font-weight: 700;
+    font-size: 20px;
+    font-weight: 600;
     color: #1a1a1a;
+    line-height: 1.2;
     margin-bottom: 16px;
   }
 
@@ -390,7 +407,7 @@
         }
 
         .sender-label {
-          font-size: 11px;
+          font-size: 12px;
           font-weight: 700;
           text-transform: uppercase;
           letter-spacing: 0.5px;
@@ -406,25 +423,26 @@
 
         .update-status-badge {
           display: inline-block;
-          padding: 4px 10px;
-          border-radius: 4px;
-          font-size: 10px;
+          padding: 8px 16px;
+          border-radius: 999px;
+          font-size: 12px;
           font-weight: 600;
-          letter-spacing: 0.5px;
+          letter-spacing: 0;
+          line-height: 1;
 
           &.status-open {
-            background: #fff3cd;
-            color: #856404;
+            background: #f4be67;
+            color: #1f1f1f;
           }
 
           &.status-in-progress {
-            background: #cfe2ff;
-            color: #084298;
+            background: #9bc6ff;
+            color: #0f2f67;
           }
 
           &.status-resolved {
-            background: #d1e7dd;
-            color: #0f5132;
+            background: #bfe4c4;
+            color: #1b4f26;
           }
 
           &.status-closed {
@@ -435,14 +453,14 @@
 
         .update-date {
           font-size: 12px;
-          color: #999;
-          font-weight: 400;
+          color: #666;
+          font-weight: 500;
         }
       }
 
       .update-message {
-        font-size: 13px;
-        color: #333;
+        font-size: 14px;
+        color: #666;
         line-height: 1.5;
         font-weight: 400;
       }
@@ -483,7 +501,7 @@
       border: 1px solid #d0d0d0;
       border-radius: 6px;
       font-size: 14px;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Poppins', sans-serif;
       background: white;
       transition: border-color 0.2s ease;
       cursor: pointer;
@@ -517,7 +535,7 @@
         border-radius: 6px 0 0 6px;
         border-right: none;
         font-size: 14px;
-        font-family: 'Inter', sans-serif;
+        font-family: 'Poppins', sans-serif;
         background: white;
         transition: border-color 0.2s ease;
 
@@ -547,7 +565,7 @@
         background: #4caf50;
         color: white;
         transition: all 0.2s ease;
-        font-family: 'Inter', sans-serif;
+        font-family: 'Poppins', sans-serif;
         white-space: nowrap;
         min-width: 90px;
 
@@ -573,7 +591,7 @@
 // Responsive
 @media (max-width: 768px) {
   .update-concern-root {
-    padding: 16px 14px;
+    padding: 18px 14px;
   }
 
   .concern-card,
