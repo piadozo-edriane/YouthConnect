@@ -46,7 +46,7 @@
         <div class="content-card">
             <div class="card-header" (click)="navigateToEvents()" style="cursor: pointer;">
                 <h2>Upcoming Events</h2>
-                <span class="view-all">{{ eventsCount }} ➜</span>
+                <span class="view-all">View All</span>
             </div>
             <div class="card-content">
                 <div class="item-card" 
@@ -56,7 +56,6 @@
                     <div class="item-header">
                         <h3>{{ event.title }}</h3>
                     </div>
-                    <p class="item-description">{{ event.description }}</p>
                     <div class="item-meta">
                         <p class="item-location">{{ event.location }}</p>
                         <span class="item-date">{{ getEventDate(event.eventDate) }}</span>
@@ -73,7 +72,7 @@
         <div class="content-card">
             <div class="card-header" (click)="navigateToTasks()" style="cursor: pointer;">
                 <h2>Pending Tasks</h2>
-                <span class="view-all">{{ tasksCount }} ➜</span>
+                <span class="view-all">View All</span>
             </div>
             <div class="card-content">
                 <div class="item-card" 
@@ -84,7 +83,6 @@
                         <h3>{{ task.tasking }}</h3>
                         <span class="item-date">Due: {{ getTaskDueDate(task.dueDate) }}</span>
                     </div>
-                    <p class="item-description">{{ task.taskDescription }}</p>
                     <div class="item-footer">
                         <span class="item-status" [ngClass]="'status-' + task.status.toLowerCase()">{{ task.status }}</span>
                     </div>

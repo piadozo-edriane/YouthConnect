@@ -91,8 +91,8 @@ html, body, :host, .dashboard-container {
 
 .profile-info .position {
   color: #999;
-  font-size: 11px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 /* Stats Section */
@@ -114,7 +114,7 @@ html, body, :host, .dashboard-container {
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 6px 16px rgba(0, 56, 167, 0.35);
+    box-shadow: 0 6px 16px rgba(148, 148, 148, 0.35);
   }
 }
 
@@ -185,7 +185,7 @@ html, body, :host, .dashboard-container {
 }
 
 .view-all:hover {
-  color: #0052cc;
+  color: #dddddd;
 }
 
 .card-content {
@@ -243,14 +243,17 @@ html, body, :host, .dashboard-container {
   padding: 16px 20px;
   border-left: 5px solid;
   background: white;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #d2d2d2;
   transition: all 0.3s ease;
   cursor: pointer;
+  height: 85px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.item-card:last-child {
-  border-bottom: none;
-}
+
 
 .item-card:hover {
   background: #f9f9f9;
@@ -283,13 +286,12 @@ html, body, :host, .dashboard-container {
   justify-content: space-between;
   align-items: flex-start;
   gap: 10px;
-  margin-bottom: 8px;
 }
 
 .item-header h3 {
   margin: 0;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   color: #333;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -302,16 +304,6 @@ html, body, :host, .dashboard-container {
   color: #999;
   white-space: nowrap;
   flex-shrink: 0;
-}
-
-.item-description {
-  margin: 5px 0;
-  font-size: 13px;
-  color: #666;
-  line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .item-meta {
