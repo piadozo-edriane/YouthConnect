@@ -44,7 +44,7 @@
                 <p>Loading notifications...</p>
             </div>
 
-            <div *ngIf="!isLoading && paginatedNotifications.length === 0" class="empty-state">
+            <div *ngIf="!isLoading && filteredNotifications.length === 0" class="empty-state">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="1.5">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -53,7 +53,7 @@
                 <p>{{ notifications.length === 0 ? 'No notifications yet.' : activeFilter === 'unread' ? 'No unread notifications.' : 'No notifications match your search.' }}</p>
             </div>
 
-            <div *ngFor="let notification of paginatedNotifications"
+            <div *ngFor="let notification of visibleNotifications"
                 class="notification-row"
                 [class.unread]="!notification.isRead"
                 (click)="markAsRead(notification)">
@@ -84,26 +84,8 @@
             </div>
         </div>
 
-        <!-- Pagination -->
-        <div class="pagination" *ngIf="filteredNotifications.length > itemsPerPage && !isLoading">
-            <button class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2">
-                    <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-            </button>
-            <button *ngFor="let page of getPageNumbers()" class="pagination-number"
-                [class.active]="page === currentPage"
-                [disabled]="page === -1"
-                (click)="page !== -1 && goToPage(page)">
-                {{ page === -1 ? '...' : page }}
-            </button>
-            <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-            </button>
-        </div>
+            <div class="see-more-wrapper" *ngIf="visibleNotificationsCount < filteredNotifications.length && !isLoading">
+                <button class="see-more-btn" type="button" (click)="showMoreNotifications()">See More</button>
+            </div>
     </div>
 </div>
