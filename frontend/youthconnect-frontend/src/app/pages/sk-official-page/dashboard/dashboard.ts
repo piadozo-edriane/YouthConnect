@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { EventService, EventResponse } from '../../../services/event.service';
@@ -14,7 +14,7 @@ import { TaskResponse } from '../../../models/task.model';
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class Dashboard implements OnInit {
+export class Dashboard implements OnInit, OnDestroy {
   private eventService = inject(EventService);
   private taskService = inject(TaskTrackerService);
   private concernService = inject(ConcernService);
@@ -27,6 +27,9 @@ export class Dashboard implements OnInit {
   skOfficialEmail = '';
   skOfficialPosition = '';
   skOfficialInitials = 'SK';
+  todayLabel = '';
+  currentTime = '';
+  private clockInterval: any;
 
   // Counts
   youthMembersCount = 0;
@@ -52,7 +55,21 @@ export class Dashboard implements OnInit {
   selectedTask: TaskResponse | null = null;
 
   ngOnInit(): void {
+    this.updateClock();
+    this.clockInterval = setInterval(() => this.updateClock(), 1000);
     this.loadDashboardData();
+  }
+
+  ngOnDestroy(): void {
+    if (this.clockInterval) {
+      clearInterval(this.clockInterval);
+    }
+  }
+
+  updateClock(): void {
+    const now = new Date();
+    this.todayLabel = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    this.currentTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   }
 
   loadDashboardData(): void {
