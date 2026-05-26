@@ -219,7 +219,7 @@
 
         <!-- Attendee Cards -->
         <div class="approval-list" *ngIf="paginatedApprovalAttendees.length > 0; else noApprovalRows">
-            <article class="approval-card" *ngFor="let attendee of paginatedApprovalAttendees">
+            <article class="approval-card" *ngFor="let attendee of paginatedApprovalAttendees; trackBy: trackByAttendanceId">
                 <div class="approval-card-head">
                     <h3>{{ attendee.name }}</h3>
                     <span class="approval-status" [class.pending]="attendee.approvalStatus === 'pending'"
@@ -270,25 +270,50 @@
             </article>
         </div>
 
-        <!-- Pagination -->
-        <div class="approval-pagination" *ngIf="filteredApprovalAttendees.length > approvalItemsPerPage">
-            <button class="pagination-btn" (click)="previousApprovalPage()" [disabled]="approvalCurrentPage === 1">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-                </svg>
-            </button>
-            <div class="pagination-numbers">
-                <button *ngFor="let page of approvalPageNumbers" class="pagination-number"
-                    [class.active]="page === approvalCurrentPage" (click)="goToApprovalPage(page)">
-                    {{ page }}
+        <!-- Sticky Pagination Footer -->
+        <div class="approval-pagination-footer" *ngIf="showApprovalPagination">
+            <div class="approval-data-count">
+                <p>Showing {{ paginatedApprovalAttendees.length }} of {{ filteredApprovalAttendees.length }}
+                    {{ filteredApprovalAttendees.length === 1 ? 'attendee request' : 'attendee requests' }}</p>
+            </div>
+
+            <div class="approval-pagination">
+                <button class="pagination-btn" (click)="goToApprovalPage(1)" [disabled]="approvalCurrentPage === 1" title="First Page">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                        <path d="M18.41 16.59L13.82 12l4.59-4.59L17 6l-6 6 6 6 1.41-1.41zM6 6h2v12H6V6z" />
+                    </svg>
+                </button>
+
+                <button class="pagination-btn" (click)="previousApprovalPage()" [disabled]="approvalCurrentPage === 1" title="Previous Page">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+                    </svg>
+                </button>
+
+                <span *ngIf="showApprovalLeftEllipsis" class="pagination-ellipsis">...</span>
+
+                <div class="pagination-numbers">
+                    <button *ngFor="let page of approvalVisiblePages" class="pagination-number"
+                        [class.active]="page === approvalCurrentPage" (click)="goToApprovalPage(page)">
+                        {{ page }}
+                    </button>
+                </div>
+
+                <span *ngIf="showApprovalRightEllipsis" class="pagination-ellipsis">...</span>
+
+                <button class="pagination-btn" (click)="nextApprovalPage()"
+                    [disabled]="approvalCurrentPage === approvalTotalPages" title="Next Page">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                    </svg>
+                </button>
+
+                <button class="pagination-btn" (click)="goToApprovalPage(approvalTotalPages)" [disabled]="approvalCurrentPage === approvalTotalPages" title="Last Page">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                        <path d="M5.59 7.41L10.18 12l-4.59 4.59L7 18l6-6-6-6-1.41 1.41zM18 6h-2v12h2V6z" />
+                    </svg>
                 </button>
             </div>
-            <button class="pagination-btn" (click)="nextApprovalPage()"
-                [disabled]="approvalCurrentPage === approvalTotalPages">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
-                </svg>
-            </button>
         </div>
 
         <ng-template #noApprovalRows>
