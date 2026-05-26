@@ -131,6 +131,12 @@ export class TaskTracker implements OnInit {
     this.loadSkOfficialProfile();
     this.loadSkOfficials();
     this.loadTasks();
+
+    // Apply pre-selected tab from dashboard navigation state
+    const navState = history.state;
+    if (navState?.activeTab) {
+      this.activeTab = navState.activeTab;
+    }
   }
 
   ngAfterViewInit() {

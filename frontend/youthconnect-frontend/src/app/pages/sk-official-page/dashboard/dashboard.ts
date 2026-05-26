@@ -244,11 +244,11 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   navigateToEvents(): void {
-    this.router.navigate(['/sk-official/events']);
+    this.router.navigate(['/sk-official/events'], { state: { statusFilter: 'Upcoming' } });
   }
 
   navigateToTasks(): void {
-    this.router.navigate(['/sk-official/task-tracker']);
+    this.router.navigate(['/sk-official/task-tracker'], { state: { activeTab: 'assigned' } });
   }
 
   openEventDetailsModal(event: EventResponse): void {
