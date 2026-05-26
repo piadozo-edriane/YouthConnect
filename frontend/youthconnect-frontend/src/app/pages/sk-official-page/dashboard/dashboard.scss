@@ -177,6 +177,27 @@ html, body, :host, .dashboard-container {
   color: #ffffff;
 }
 
+.card-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #0038A7;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
 .view-all {
   font-size: 14px;
   color: #ffffff;
