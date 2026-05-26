@@ -54,11 +54,11 @@
                      [ngClass]="'item-border-' + getNotificationColor(i)"
                      (click)="openEventDetailsModal(event)">
                     <div class="item-header">
-                        <h3>{{ event.title }}</h3>
+                        <h3 class="item-title-fade">{{ event.title }}</h3>
+                        <span class="item-date">{{ getEventDate(event.eventDate) }}</span>
                     </div>
                     <div class="item-meta">
                         <p class="item-location">{{ event.location }}</p>
-                        <span class="item-date">{{ getEventDate(event.eventDate) }}</span>
                     </div>
                 </div>
                 <div *ngIf="events.length === 0" class="no-data-message">No events available</div>
@@ -80,7 +80,7 @@
                      [ngClass]="'item-border-' + getNotificationColor(i)"
                      (click)="openTaskDetailsModal(task)">
                     <div class="item-header">
-                        <h3>{{ task.tasking }}</h3>
+                        <h3 class="item-title-fade">{{ task.tasking }}</h3>
                         <span class="item-date">Due: {{ getTaskDueDate(task.dueDate) }}</span>
                     </div>
                     <div class="item-footer">

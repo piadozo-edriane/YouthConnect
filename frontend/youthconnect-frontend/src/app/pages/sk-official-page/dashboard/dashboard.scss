@@ -299,6 +299,21 @@ html, body, :host, .dashboard-container {
   word-break: break-word;
 }
 
+/* Fade truncation variant used on event titles next to a date */
+.item-title-fade {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+  /* Fade out the right edge instead of hard ellipsis */
+  -webkit-mask-image: linear-gradient(to right, black 70%, transparent 100%);
+  mask-image: linear-gradient(to right, black 70%, transparent 100%);
+}
+
 .item-date {
   font-size: 12px;
   color: #999;
