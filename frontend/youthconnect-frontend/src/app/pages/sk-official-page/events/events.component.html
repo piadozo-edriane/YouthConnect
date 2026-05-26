@@ -36,8 +36,8 @@
                     (input)="onSearchChange(searchTerm)">
             </div>
             <div class="filter-group">
-                <select class="filter-select" [value]="selectedStatusFilter"
-                    (change)="onStatusFilterChange($any($event.target).value)">
+                <select class="filter-select" [(ngModel)]="selectedStatusFilter"
+                    (ngModelChange)="onStatusFilterChange($event)">
                     <option *ngFor="let filter of statusFilters" [value]="filter.value">{{ filter.label }}</option>
                 </select>
             </div>
