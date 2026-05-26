@@ -48,7 +48,7 @@ export class EventDetailsPage implements OnInit, OnDestroy {
   approvalFilter: 'pending' | 'approved' | 'rejected' = 'pending';
   approvalSearchQuery = '';
   approvalCurrentPage = 1;
-  approvalItemsPerPage = 10;
+  approvalItemsPerPage = 15;
   updatingAttendanceId: number | null = null;
   updatingAction: 'approve' | 'reject' | null = null;
   approvalMessage = '';
@@ -605,16 +605,52 @@ export class EventDetailsPage implements OnInit, OnDestroy {
   }
 
   get paginatedApprovalAttendees(): AttendeeRecord[] {
+    const totalPages = this.approvalTotalPages;
+    if (totalPages === 0) {
+      return [];
+    }
+
+    if (this.approvalCurrentPage > totalPages) {
+      this.approvalCurrentPage = totalPages;
+    }
+
     const start = (this.approvalCurrentPage - 1) * this.approvalItemsPerPage;
     return this.filteredApprovalAttendees.slice(start, start + this.approvalItemsPerPage);
   }
 
   get approvalTotalPages(): number {
-    return Math.max(1, Math.ceil(this.filteredApprovalAttendees.length / this.approvalItemsPerPage));
+    return Math.ceil(this.filteredApprovalAttendees.length / this.approvalItemsPerPage);
   }
 
-  get approvalPageNumbers(): number[] {
-    return Array.from({ length: this.approvalTotalPages }, (_, i) => i + 1);
+  get approvalVisiblePages(): number[] {
+    const totalPages = this.approvalTotalPages;
+    const currentPage = this.approvalCurrentPage;
+
+    if (totalPages <= 3) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    if (currentPage <= 2) {
+      return [1, 2, 3];
+    }
+
+    if (currentPage >= totalPages - 1) {
+      return [totalPages - 2, totalPages - 1, totalPages];
+    }
+
+    return [currentPage - 1, currentPage, currentPage + 1];
+  }
+
+  get showApprovalLeftEllipsis(): boolean {
+    return this.approvalTotalPages > 3 && this.approvalCurrentPage > 2;
+  }
+
+  get showApprovalRightEllipsis(): boolean {
+    return this.approvalTotalPages > 3 && this.approvalCurrentPage < this.approvalTotalPages - 1;
+  }
+
+  get showApprovalPagination(): boolean {
+    return this.filteredApprovalAttendees.length > this.approvalItemsPerPage;
   }
 
   goToApprovalPage(page: number): void {
@@ -629,6 +665,10 @@ export class EventDetailsPage implements OnInit, OnDestroy {
 
   previousApprovalPage(): void {
     if (this.approvalCurrentPage > 1) this.approvalCurrentPage--;
+  }
+
+  trackByAttendanceId(index: number, attendee: AttendeeRecord): number {
+    return attendee.attendanceId;
   }
 
   approveAttendee(attendee: AttendeeRecord): void {
