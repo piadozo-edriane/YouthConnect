@@ -50,9 +50,7 @@ export class Dashboard implements OnInit, OnDestroy {
   displayedTasks: TaskResponse[] = [];
 
   // Modal state
-  isEventModalOpen = false;
   isTaskModalOpen = false;
-  selectedEvent: EventResponse | null = null;
   selectedTask: TaskResponse | null = null;
 
   ngOnInit(): void {
@@ -252,13 +250,7 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   openEventDetailsModal(event: EventResponse): void {
-    this.selectedEvent = event;
-    this.isEventModalOpen = true;
-  }
-
-  closeEventModal(): void {
-    this.isEventModalOpen = false;
-    this.selectedEvent = null;
+    this.router.navigate(['/sk-official/events', event.eventId]);
   }
 
   openTaskDetailsModal(task: TaskResponse): void {
@@ -269,18 +261,6 @@ export class Dashboard implements OnInit, OnDestroy {
   closeTaskModal(): void {
     this.isTaskModalOpen = false;
     this.selectedTask = null;
-  }
-
-  formatEventDateTime(dateString: string): string {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
   }
 
   formatTaskDateTime(dateString: string): string {
