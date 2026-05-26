@@ -67,7 +67,7 @@ export class UpdateConcern implements OnInit {
   initForm() {
     this.responseForm = this.fb.group({
       response: ['', [Validators.required, Validators.minLength(10)]],
-      status: ['IN_PROGRESS', Validators.required]
+      status: ['OPEN', Validators.required]
     });
   }
 
@@ -136,10 +136,16 @@ export class UpdateConcern implements OnInit {
           this.showToast('Concern not found', 'error');
           setTimeout(() => this.goBack(), 2000);
         } else {
-          this.statusOptions = this.buildStatusOptions(this.concern.status);
+          this.statusOptions = this.buildStatusOptions();
           this.responseForm.patchValue({
-            status: this.getDefaultStatus(this.concern.status)
+            status: this.concern.status || 'OPEN'
           });
+
+          if (this.concern.status === 'CLOSED') {
+            this.responseForm.disable({ emitEvent: false });
+          } else {
+            this.responseForm.enable({ emitEvent: false });
+          }
         }
         
         this.isLoading = false;
@@ -167,39 +173,45 @@ export class UpdateConcern implements OnInit {
     }
 
     const formValue = this.responseForm.value;
+    const selectedStatus = formValue.status as Concern['status'];
+    const isInitialOpenEcho = this.concern.status === 'OPEN' && selectedStatus === 'OPEN';
     const request: AdminConcernUpdateRequest = {
       adminId: this.currentAdminId,
       updateText: formValue.response,
-      status: formValue.status
+      status: isInitialOpenEcho ? undefined : selectedStatus
     };
 
-    this.isLoading = true;
-    
-    this.adminConcernService.addConcernUpdate(this.concern.concernId, request).subscribe({
-      next: () => {
-        this.showToast('Response sent and status updated successfully!', 'success');
-        this.responseForm.reset();
-        
-        // Update the concern status locally
-        if (this.concern) {
-          this.concern.status = formValue.status;
-          this.statusOptions = this.buildStatusOptions(this.concern.status);
-          this.responseForm.patchValue({
-            status: this.getDefaultStatus(this.concern.status)
-          });
+    const sendUpdate = (statusToSend?: Concern['status']) => {
+      this.isLoading = true;
+
+      this.adminConcernService.addConcernUpdate(this.concern!.concernId, {
+        ...request,
+        status: statusToSend
+      }).subscribe({
+        next: () => {
+          this.showToast('Response sent and status updated successfully!', 'success');
+
+          if (this.concern) {
+            this.concern.status = statusToSend || this.concern.status;
+            this.statusOptions = this.buildStatusOptions();
+            this.responseForm.patchValue({
+              status: this.getDefaultStatus(this.concern.status),
+              response: ''
+            });
+          }
+
+          this.loadConcernUpdates(this.concern!.concernId);
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error sending response:', error);
+          this.showToast(error.error || 'Failed to send response. Please try again.', 'error');
+          this.isLoading = false;
         }
-        
-        // Only refresh update history
-        this.loadConcernUpdates(this.concern!.concernId);
-        
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error sending response:', error);
-        this.showToast(error.error || 'Failed to send response. Please try again.', 'error');
-        this.isLoading = false;
-      }
-    });
+      });
+    };
+
+    sendUpdate(request.status);
   }
 
   getConcernTypeDisplay(type: string): string {
@@ -240,32 +252,16 @@ export class UpdateConcern implements OnInit {
   }
 
   private getDefaultStatus(status?: Concern['status']): Concern['status'] {
-    if (status === 'OPEN') {
-      return 'IN_PROGRESS';
-    }
     return status || 'IN_PROGRESS';
   }
 
-  private buildStatusOptions(status?: Concern['status']): { value: Concern['status']; label: string }[] {
-    switch (status) {
-      case 'OPEN':
-        return [{ value: 'IN_PROGRESS', label: 'In Progress' }];
-      case 'IN_PROGRESS':
-        return [
-          { value: 'IN_PROGRESS', label: 'In Progress' },
-          { value: 'RESOLVED', label: 'Resolved' },
-          { value: 'CLOSED', label: 'Closed' }
-        ];
-      case 'RESOLVED':
-        return [
-          { value: 'RESOLVED', label: 'Resolved' },
-          { value: 'CLOSED', label: 'Closed' }
-        ];
-      case 'CLOSED':
-        return [{ value: 'CLOSED', label: 'Closed' }];
-      default:
-        return [{ value: 'IN_PROGRESS', label: 'In Progress' }];
-    }
+  private buildStatusOptions(): { value: Concern['status']; label: string }[] {
+    return [
+      { value: 'OPEN', label: 'Open' },
+      { value: 'IN_PROGRESS', label: 'In Progress' },
+      { value: 'RESOLVED', label: 'Resolved' },
+      { value: 'CLOSED', label: 'Closed' }
+    ];
   }
 
   loadConcernUpdates(concernId: number) {

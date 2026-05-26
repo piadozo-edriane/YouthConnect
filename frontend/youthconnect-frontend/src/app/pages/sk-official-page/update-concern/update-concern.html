@@ -117,8 +117,7 @@
                                 <label class="form-label">Update Status <span class="required">*</span></label>
                                 <select 
                                     class="form-select" 
-                                    formControlName="status"
-                                    [disabled]="concern.status === 'CLOSED'">
+                                    formControlName="status">
                                     <option *ngFor="let option of statusOptions" [value]="option.value">
                                         {{ option.label }}
                                     </option>
@@ -131,8 +130,7 @@
                                         type="text"
                                         class="form-input" 
                                         placeholder="Enter your response message to the youth member..." 
-                                        formControlName="response"
-                                        [disabled]="concern.status === 'CLOSED'" />
+                                        formControlName="response" />
                                     <button 
                                         type="button" 
                                         class="btn-update" 

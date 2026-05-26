@@ -87,10 +87,6 @@ public class ConcernServiceImpl implements ConcernService {
         if (currentStatus == ConcernStatus.CLOSED) {
             throw new RuntimeException("Closed concerns cannot be updated");
         }
-
-        if (currentStatus == ConcernStatus.OPEN && nextStatus != ConcernStatus.IN_PROGRESS) {
-            throw new RuntimeException("OPEN concerns can only move to IN_PROGRESS");
-        }
     }
 
     private ConcernUpdateResponse toUpdateResponse(ConcernUpdate update) {
@@ -257,7 +253,7 @@ public class ConcernServiceImpl implements ConcernService {
             request.getUpdateText().trim()
         );
 
-        // Optionally update status at the same time
+        // Update the concern status at the same time when provided
         if (request.getStatus() != null) {
             concern.setStatus(request.getStatus());
             concern.setUpdatedAt(LocalDateTime.now());
