@@ -21,22 +21,22 @@
 
     <!-- Stats Cards Section -->
     <div class="stats-section">
-        <div class="stat-card blue-border">
+        <button type="button" class="stat-card blue-border" (click)="navigateToEvents()" aria-label="Open upcoming events">
             <p class="stat-label">UPCOMING EVENTS</p>
             <p class="stat-number">{{ eventsCount }}</p>
-        </div>
-        <div class="stat-card blue-border">
-            <p class="stat-label">PENDING TASKS</p>
-            <p class="stat-number">{{ tasksCount }}</p>
-        </div>
-        <div class="stat-card blue-border">
+        </button>
+        <button type="button" class="stat-card blue-border" (click)="navigateToConcerns()" aria-label="Open concerns">
             <p class="stat-label">OPEN CONCERNS</p>
             <p class="stat-number">{{ concernsCount }}</p>
-        </div>
-        <div class="stat-card blue-border">
+        </button>
+        <button type="button" class="stat-card blue-border" (click)="navigateToTasks()" aria-label="Open task tracker">
+            <p class="stat-label">ALL TASKS</p>
+            <p class="stat-number">{{ tasksCount }}</p>
+        </button>
+        <button type="button" class="stat-card blue-border" (click)="navigateToYouthMembers()" aria-label="Open youth profiling">
             <p class="stat-label">YOUTH MEMBERS</p>
             <p class="stat-number">{{ youthMembersCount }}</p>
-        </div>
+        </button>
     </div>
 
     <!-- Events and Tasks Section -->

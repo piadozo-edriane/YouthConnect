@@ -44,6 +44,7 @@ export class Concerns implements OnInit {
   skOfficialInitials = 'SK';
   concernsCurrentPage = 1;
   concernsItemsPerPage = 9;
+  private pendingStatusFilter: string | null = null;
 
   constructor(
     private adminConcernService: AdminConcernService,
@@ -55,6 +56,7 @@ export class Concerns implements OnInit {
   ngOnInit() {
     this.getCurrentUser();
     this.loadSkOfficialProfile();
+    this.pendingStatusFilter = history.state?.statusFilter || null;
     this.loadConcerns();
   }
 
@@ -121,7 +123,8 @@ export class Concerns implements OnInit {
         this.concerns = data;
         this.searchTerm = '';
         this.selectedTypeFilter = 'ALL';
-        this.selectedStatusFilter = 'ALL';
+        this.selectedStatusFilter = this.pendingStatusFilter || 'ALL';
+        this.pendingStatusFilter = null;
         this.applyFilters();
         this.isLoading = false;
       },
