@@ -37,15 +37,13 @@ export class CreateConcern implements OnInit, AfterViewInit {
 
   concerns: ConcernResponse[] = [];
   filteredConcerns: ConcernResponse[] = [];
-  paginatedConcerns: ConcernResponse[] = [];
   searchQuery = '';
   selectedStatusFilter: string = 'ALL';
   selectedTypeFilter: string = 'ALL';
 
   // Pagination
-  currentPage = 1;
-  itemsPerPage = 5;
-  totalPages = 1;
+  eventsCurrentPage = 1;
+  eventsItemsPerPage = 9;
 
   statusFilters = [
     { value: 'ALL', label: 'All Status' },
@@ -194,67 +192,72 @@ export class CreateConcern implements OnInit, AfterViewInit {
     }
 
     this.filteredConcerns = filtered;
-    this.currentPage = 1;
-    this.updatePagination();
+    this.eventsCurrentPage = 1;
   }
 
-  updatePagination(): void {
-    this.totalPages = Math.ceil(this.filteredConcerns.length / this.itemsPerPage);
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedConcerns = this.filteredConcerns.slice(startIndex, endIndex);
+  get paginatedConcerns(): ConcernResponse[] {
+    const startIndex = (this.eventsCurrentPage - 1) * this.eventsItemsPerPage;
+    const endIndex = startIndex + this.eventsItemsPerPage;
+    return this.filteredConcerns.slice(startIndex, endIndex);
   }
 
-  goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.updatePagination();
+  get eventsTotalPages(): number {
+    return Math.ceil(this.filteredConcerns.length / this.eventsItemsPerPage);
+  }
+
+  get eventsVisiblePages(): number[] {
+    const totalPages = this.eventsTotalPages;
+    const currentPage = this.eventsCurrentPage;
+
+    if (totalPages <= 0) {
+      return [];
+    }
+
+    if (totalPages <= 3) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    if (currentPage <= 2) {
+      return [1, 2, 3];
+    }
+
+    if (currentPage >= totalPages - 1) {
+      return [totalPages - 2, totalPages - 1, totalPages];
+    }
+
+    return [currentPage - 1, currentPage, currentPage + 1];
+  }
+
+  get showEventsLeftEllipsis(): boolean {
+    const pages = this.eventsVisiblePages;
+    return this.eventsTotalPages > 3 && pages.length > 0 && pages[0] > 1;
+  }
+
+  get showEventsRightEllipsis(): boolean {
+    const pages = this.eventsVisiblePages;
+    return this.eventsTotalPages > 3 && pages.length > 0 && pages[pages.length - 1] < this.eventsTotalPages;
+  }
+
+  get showEventsPagination(): boolean {
+    return this.filteredConcerns.length > this.eventsItemsPerPage;
+  }
+
+  goToEventsPage(page: number): void {
+    if (page >= 1 && page <= this.eventsTotalPages) {
+      this.eventsCurrentPage = page;
     }
   }
 
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.updatePagination();
+  nextEventsPage(): void {
+    if (this.eventsCurrentPage < this.eventsTotalPages) {
+      this.eventsCurrentPage++;
     }
   }
 
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.updatePagination();
+  previousEventsPage(): void {
+    if (this.eventsCurrentPage > 1) {
+      this.eventsCurrentPage--;
     }
-  }
-
-  getPageNumbers(): number[] {
-    const pages: number[] = [];
-    const maxVisible = 5;
-
-    if (this.totalPages <= maxVisible) {
-      for (let i = 1; i <= this.totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (this.currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) pages.push(i);
-        pages.push(-1); // ellipsis
-        pages.push(this.totalPages);
-      } else if (this.currentPage >= this.totalPages - 2) {
-        pages.push(1);
-        pages.push(-1);
-        for (let i = this.totalPages - 3; i <= this.totalPages; i++) pages.push(i);
-      } else {
-        pages.push(1);
-        pages.push(-1);
-        pages.push(this.currentPage - 1);
-        pages.push(this.currentPage);
-        pages.push(this.currentPage + 1);
-        pages.push(-1);
-        pages.push(this.totalPages);
-      }
-    }
-
-    return pages;
   }
 
   onSearchChange(event: Event): void {
@@ -483,6 +486,10 @@ export class CreateConcern implements OnInit, AfterViewInit {
   cancelDelete() {
     this.showDeleteModal = false;
     this.concernToDelete = null;
+  }
+
+  trackByConcernId(index: number, concern: ConcernResponse): number {
+    return concern.concernId;
   }
 
   getStatusBadgeClass(status: string): string {
