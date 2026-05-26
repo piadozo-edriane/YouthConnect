@@ -71,6 +71,9 @@ body,
     overflow-y: auto;
     box-sizing: border-box;
     font-family: 'Poppins', Arial, Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
   }
 }
 
@@ -193,6 +196,9 @@ body,
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
+  align-content: start;
+  align-items: start;
+  grid-auto-rows: max-content;
 }
 
 // ─── Event Card ───────────────────────────────────────────────────────────────
@@ -563,52 +569,114 @@ body,
   font-weight: 600;
 }
 
-// ─── Pagination ───────────────────────────────────────────────────────────────
+// ─── Events Pagination Footer ───────────────────────────────────────────────
 
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  padding: 32px 0 8px 0;
+.events-pagination-footer {
+  background: transparent;
+  border-top: none;
+  padding: 18px 0 20px;
+  box-sizing: border-box;
   width: 100%;
+  margin-top: auto;
 }
 
-.pagination-btn,
-.pagination-number {
-  min-width: 40px;
-  height: 40px;
+.events-data-count {
+  text-align: center;
+  margin-bottom: 12px;
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: #667085;
+    font-weight: 500;
+  }
+}
+
+.events-pagination {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #ddd;
-  background: white;
-  color: #333;
-  border-radius: 4px;
+  gap: 8px;
+}
+
+.pagination-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #d0d7e3;
+  background: #ffffff;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-weight: 600;
-  font-size: 14px;
-  font-family: 'Poppins', Arial, Helvetica, sans-serif;
+  color: #385079;
 
-  &:hover:not(:disabled):not(.active) {
+  &:hover:not(:disabled) {
+    background: #f7f9fc;
     border-color: #0052cc;
-    background: #f0f5ff;
-    transform: translateY(-2px);
+    color: #0052cc;
   }
 
   &:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    transform: none;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.pagination-numbers {
+  display: flex;
+  gap: 4px;
+}
+
+.pagination-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid #d0d7e3;
+  background: #ffffff;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.22s ease, color 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+  font-size: 13px;
+  font-weight: 500;
+  color: #385079;
+  will-change: transform, box-shadow;
+
+  &:hover:not(.active):not(.ellipsis):not(:disabled) {
+    background: #f7f9fc;
+    border-color: #0052cc;
+    color: #0052cc;
   }
 
   &.active {
-    background-color: #0052cc;
-    color: #fff;
+    background: #0052cc;
     border-color: #0052cc;
-    box-shadow: 0 4px 12px rgba(0, 82, 204, 0.3);
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 6px 12px rgba(0, 82, 204, 0.2);
+    transform: translateY(-1px) scale(1.02);
   }
+}
+
+.pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 6px;
+  color: #667085;
+  font-weight: 600;
+  letter-spacing: 2px;
+  user-select: none;
 }
 
 // ─── Modal Overlay ────────────────────────────────────────────────────────────
@@ -1015,16 +1083,23 @@ body,
     }
   }
 
-  .pagination {
-    gap: 4px;
-    padding: 20px 0 4px 0;
+  .events-pagination-footer {
+    padding: 12px 0 16px;
   }
 
-  .pagination-btn,
+  .events-data-count p {
+    font-size: 12px;
+  }
+
+  .pagination-btn {
+    width: 30px;
+    height: 30px;
+  }
+
   .pagination-number {
-    min-width: 36px;
-    height: 36px;
-    font-size: 13px;
+    min-width: 30px;
+    height: 30px;
+    font-size: 12px;
   }
 }
 
