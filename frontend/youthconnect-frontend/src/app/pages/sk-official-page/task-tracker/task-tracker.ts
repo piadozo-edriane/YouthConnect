@@ -53,6 +53,8 @@ export class TaskTracker implements OnInit {
 
   // Cache flag to prevent reloading
   private tasksLoaded = false;
+  // Task to auto-open from dashboard navigation
+  private pendingOpenTaskId: number | null = null;
 
   // Tasks data
   tasks: TaskResponse[] = [];
@@ -128,15 +130,16 @@ export class TaskTracker implements OnInit {
   }
 
   ngOnInit() {
-    this.loadSkOfficialProfile();
-    this.loadSkOfficials();
-    this.loadTasks();
-
-    // Apply pre-selected tab from dashboard navigation state
+    // Capture nav state immediately before anything clears it
     const navState = history.state;
     if (navState?.activeTab) {
       this.activeTab = navState.activeTab;
     }
+    this.pendingOpenTaskId = navState?.openTaskId ?? null;
+
+    this.loadSkOfficialProfile();
+    this.loadSkOfficials();
+    this.loadTasks();
   }
 
   ngAfterViewInit() {
@@ -238,8 +241,17 @@ export class TaskTracker implements OnInit {
       next: (tasks) => {
         this.tasks = tasks;
         this.applyFilters();
-        this.tasksLoaded = true; // Mark as loaded
+        this.tasksLoaded = true;
         this.isLoading = false;
+
+        // Auto-open details modal if navigated from dashboard
+        if (this.pendingOpenTaskId !== null) {
+          const task = this.tasks.find(t => t.taskId === this.pendingOpenTaskId);
+          if (task) {
+            this.openDetailsModal(task);
+          }
+          this.pendingOpenTaskId = null;
+        }
       },
       error: (error) => {
         console.error('Error loading tasks:', error);

@@ -49,7 +49,7 @@ export class Dashboard implements OnInit, OnDestroy {
   displayedEvents: EventResponse[] = [];
   displayedTasks: TaskResponse[] = [];
 
-  // Modal state
+  // Modal state - tasks now open in task tracker directly
   isTaskModalOpen = false;
   selectedTask: TaskResponse | null = null;
 
@@ -254,24 +254,8 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   openTaskDetailsModal(task: TaskResponse): void {
-    this.selectedTask = task;
-    this.isTaskModalOpen = true;
-  }
-
-  closeTaskModal(): void {
-    this.isTaskModalOpen = false;
-    this.selectedTask = null;
-  }
-
-  formatTaskDateTime(dateString: string): string {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    this.router.navigate(['/sk-official/task-tracker'], {
+      state: { activeTab: 'assigned', openTaskId: task.taskId }
     });
   }
 
