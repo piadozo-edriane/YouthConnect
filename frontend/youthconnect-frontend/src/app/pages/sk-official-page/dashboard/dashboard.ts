@@ -40,6 +40,7 @@ export class Dashboard implements OnInit, OnDestroy {
   // Data lists
   events: EventResponse[] = [];
   tasks: TaskResponse[] = [];
+  allTasks: TaskResponse[] = [];
   concerns: ConcernResponse[] = [];
 
   // Incremental loading state
@@ -106,6 +107,9 @@ export class Dashboard implements OnInit, OnDestroy {
         localStorage.setItem('sk_official_id', matched.adminId.toString());
         localStorage.setItem('sk_official_name', this.skOfficialName);
         localStorage.setItem('sk_official_email', matched.email);
+
+        // Re-filter tasks now that we have the resolved name (catches skIncharge matches)
+        this.applyTaskFilter();
       },
       error: (err) => {
         console.error('Error loading SK Official profile:', err);
@@ -175,19 +179,29 @@ export class Dashboard implements OnInit, OnDestroy {
   loadTasks(): void {
     this.taskService.getAllTasks().subscribe({
       next: (tasksList) => {
-        this.tasks = tasksList;
-        this.tasksCount = tasksList.length;
-        this.visibleTasksCount = 10;
-        this.updateDisplayedTasks();
+        this.allTasks = tasksList;
+        this.applyTaskFilter();
       },
       error: (err) => {
         console.error('Error loading tasks:', err);
+        this.allTasks = [];
         this.tasks = [];
         this.tasksCount = 0;
         this.visibleTasksCount = 10;
         this.updateDisplayedTasks();
       }
     });
+  }
+
+  applyTaskFilter(): void {
+    const currentAdminId = Number(localStorage.getItem('sk_official_id') || localStorage.getItem('adminId'));
+    this.tasks = this.allTasks.filter(task =>
+      task.adminId === currentAdminId ||
+      task.skIncharge === this.skOfficialName
+    );
+    this.tasksCount = this.tasks.length;
+    this.visibleTasksCount = 10;
+    this.updateDisplayedTasks();
   }
 
   updateDisplayedEvents(): void {
