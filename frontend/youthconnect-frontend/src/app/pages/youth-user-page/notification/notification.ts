@@ -127,6 +127,18 @@ export class NotificationPage implements OnInit, OnDestroy {
     this.notificationService.refreshUnreadCount();
   }
 
+  private navigateForNotification(notification: NotificationResponse): void {
+    if (notification.type === 'CONCERN_UPDATE' && notification.relatedConcernId) {
+      this.router.navigate(['/youth/concern', notification.relatedConcernId]);
+      return;
+    }
+
+    if (notification.relatedEventId) {
+      sessionStorage.setItem('highlightEventId', notification.relatedEventId.toString());
+      this.router.navigate(['/youth/events']);
+    }
+  }
+
   get filteredNotifications(): NotificationResponse[] {
     let list = this.notifications;
 
@@ -192,33 +204,23 @@ export class NotificationPage implements OnInit, OnDestroy {
    * Mark a single notification as read
    */
   markAsRead(notification: NotificationResponse): void {
-    // Always navigate for concern or event notifications. If unread, mark as read first.
-    const navigateForNotification = () => {
-      if (notification.type === 'NEW_EVENT' && notification.relatedEventId) {
-        sessionStorage.setItem('highlightEventId', notification.relatedEventId.toString());
-        this.router.navigate(['/youth/events']);
-      } else if (notification.type === 'CONCERN_UPDATE' && notification.relatedConcernId) {
-        this.router.navigate(['/youth/concern', notification.relatedConcernId]);
-      }
-    };
-
     if (!notification.isRead && notification.notificationId) {
       this.notificationService.markNotificationAsRead(notification.notificationId).subscribe({
         next: () => {
           notification.isRead = true;
           notification.readAt = new Date().toISOString();
-            this.updateDisplayedNotifications();
+          this.updateDisplayedNotifications();
           this.updateUnreadCount();
-          navigateForNotification();
+          this.navigateForNotification(notification);
         },
         error: (error) => {
           console.error('Error marking notification as read:', error);
           // Still navigate even if marking failed
-          navigateForNotification();
+          this.navigateForNotification(notification);
         }
       });
     } else {
-      navigateForNotification();
+      this.navigateForNotification(notification);
     }
   }
 
@@ -247,6 +249,8 @@ export class NotificationPage implements OnInit, OnDestroy {
   getNotificationIcon(notification: NotificationResponse): string {
     switch (notification.type) {
       case 'NEW_EVENT':
+      case 'EVENT_JOIN_REQUEST_APPROVED':
+      case 'EVENT_JOIN_REQUEST_REJECTED':
         return 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z';
       case 'EVENT_STATUS':
         return 'M13 10V3L4 14h7v7l9-11h-7z';
@@ -277,6 +281,8 @@ export class NotificationPage implements OnInit, OnDestroy {
   getNotificationColor(notification: NotificationResponse): 'red' | 'blue' | 'yellow' {
     switch (notification.type) {
       case 'NEW_EVENT':
+      case 'EVENT_JOIN_REQUEST_APPROVED':
+      case 'EVENT_JOIN_REQUEST_REJECTED':
         return 'yellow';
       case 'EVENT_STATUS':
         return 'blue';
