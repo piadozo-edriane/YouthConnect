@@ -92,7 +92,9 @@
                     </tr>
                     <tr *ngFor="let task of paginatedTasks; trackBy: trackByTaskId" class="task-row clickable-row"
                         (click)="openDetailsModal(task)">
-                        <td class="tasking-cell">{{ getTaskingDisplayName(task.tasking) }}</td>
+                        <td class="tasking-cell">
+                            <span class="tasking-cell-fade">{{ getTaskingDisplayName(task.tasking) }}</span>
+                        </td>
                         <td class="sk-incharge-col">{{ task.skIncharge || getSkOfficialName(task.adminId) }}</td>
                         <td>
                             <span class="status-badge" [ngClass]="'status-' + task.status.toLowerCase()">
