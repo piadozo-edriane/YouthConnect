@@ -26,10 +26,10 @@ export class NotificationPage implements OnInit, OnDestroy {
   youthId: number = 0;
   userId: number = 0;
 
-  // Search & pagination
+  // Search & incremental loading
   searchQuery = '';
-  currentPage = 1;
-  itemsPerPage = 10;
+  visibleNotificationsCount = 15;
+  displayedNotifications: NotificationResponse[] = [];
 
   // Auto-refresh
   private destroy$ = new Subject<void>();
@@ -87,6 +87,7 @@ export class NotificationPage implements OnInit, OnDestroy {
           this.notifications = notifications.sort((a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
+          this.syncVisibleNotifications();
           this.updateUnreadCount();
         },
         error: (error) => {
@@ -107,6 +108,7 @@ export class NotificationPage implements OnInit, OnDestroy {
         this.notifications = notifications.sort((a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
+        this.resetVisibleNotifications();
         this.isLoading = false;
         this.updateUnreadCount();
       },
@@ -146,13 +148,8 @@ export class NotificationPage implements OnInit, OnDestroy {
     return list;
   }
 
-  get paginatedNotifications(): NotificationResponse[] {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    return this.filteredNotifications.slice(start, start + this.itemsPerPage);
-  }
-
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.filteredNotifications.length / this.itemsPerPage));
+  get visibleNotifications(): NotificationResponse[] {
+    return this.displayedNotifications;
   }
 
   get unreadCount(): number {
@@ -161,36 +158,34 @@ export class NotificationPage implements OnInit, OnDestroy {
 
   onSearchChange(event: Event): void {
     this.searchQuery = (event.target as HTMLInputElement).value;
-    this.currentPage = 1;
+    this.resetVisibleNotifications();
   }
 
   setFilter(filter: 'all' | 'unread'): void {
     this.activeFilter = filter;
-    this.currentPage = 1;
+    this.resetVisibleNotifications();
   }
 
-  previousPage(): void {
-    if (this.currentPage > 1) this.currentPage--;
+  private resetVisibleNotifications(): void {
+    this.visibleNotificationsCount = 15;
+    this.updateDisplayedNotifications();
   }
 
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) this.currentPage++;
+  private syncVisibleNotifications(): void {
+    const source = this.filteredNotifications;
+    this.visibleNotificationsCount = Math.min(this.visibleNotificationsCount, source.length);
+    this.displayedNotifications = source.slice(0, this.visibleNotificationsCount);
   }
 
-  goToPage(page: number): void {
-    this.currentPage = page;
+  private updateDisplayedNotifications(): void {
+    const source = this.filteredNotifications;
+    this.displayedNotifications = source.slice(0, this.visibleNotificationsCount);
   }
 
-  getPageNumbers(): number[] {
-    const total = this.totalPages;
-    const current = this.currentPage;
-    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-    const pages: number[] = [1];
-    if (current > 3) pages.push(-1);
-    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
-    if (current < total - 2) pages.push(-1);
-    pages.push(total);
-    return pages;
+  showMoreNotifications(): void {
+    const source = this.filteredNotifications;
+    this.visibleNotificationsCount = Math.min(this.visibleNotificationsCount + 15, source.length);
+    this.updateDisplayedNotifications();
   }
 
   /**
@@ -212,6 +207,7 @@ export class NotificationPage implements OnInit, OnDestroy {
         next: () => {
           notification.isRead = true;
           notification.readAt = new Date().toISOString();
+            this.updateDisplayedNotifications();
           this.updateUnreadCount();
           navigateForNotification();
         },
@@ -236,6 +232,7 @@ export class NotificationPage implements OnInit, OnDestroy {
           n.isRead = true;
           n.readAt = new Date().toISOString();
         });
+        this.updateDisplayedNotifications();
         this.updateUnreadCount();
       },
       error: (error) => {
