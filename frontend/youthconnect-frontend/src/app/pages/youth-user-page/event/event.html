@@ -199,7 +199,7 @@
 </div>
 
 <!-- Join Confirmation Modal -->
-<div class="modal-overlay" *ngIf="showJoinConfirmModal" (click)="closeJoinConfirmModal()">
+<div class="modal-overlay modal-overlay--top" *ngIf="showJoinConfirmModal" (click)="closeJoinConfirmModal()">
     <div class="modal-content modal-small" (click)="$event.stopPropagation()">
         <div class="modal-header">
             <div>
@@ -225,7 +225,7 @@
 </div>
 
 <!-- Cancel Join Confirmation Modal -->
-<div class="modal-overlay" *ngIf="showCancelConfirmModal" (click)="closeCancelConfirmModal()">
+<div class="modal-overlay modal-overlay--top" *ngIf="showCancelConfirmModal" (click)="closeCancelConfirmModal()">
     <div class="modal-content modal-small" (click)="$event.stopPropagation()">
         <div class="modal-header">
             <div>
@@ -369,6 +369,44 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+
+        <div class="modal-footer" (click)="$event.stopPropagation()">
+            <span class="approval-pill approval-pill--pending"
+                [class.approval-pill--full]="isEventOngoing(infoEvent) || isEventCompleted(infoEvent)"
+                *ngIf="isJoined(infoEvent.eventId) && getJoinApprovalStatus(infoEvent.eventId) === 'pending'">
+                Join Pending
+            </span>
+            <span class="approval-pill approval-pill--approved"
+                [class.approval-pill--full]="isEventOngoing(infoEvent) || isEventCompleted(infoEvent)"
+                *ngIf="isJoined(infoEvent.eventId) && getJoinApprovalStatus(infoEvent.eventId) === 'approved'">
+                Join Approved
+            </span>
+            <span class="approval-pill approval-pill--rejected"
+                [class.approval-pill--full]="isEventOngoing(infoEvent) || isEventCompleted(infoEvent)"
+                *ngIf="isJoined(infoEvent.eventId) && getJoinApprovalStatus(infoEvent.eventId) === 'rejected'">
+                Join Rejected
+            </span>
+
+            <button class="btn-rsvp"
+                [class.btn-rsvp-disabled]="isEventOngoing(infoEvent) || isEventCompleted(infoEvent)"
+                (click)="joinEvent(infoEvent)"
+                [disabled]="isLoading || !canJoin(infoEvent)"
+                *ngIf="!isJoined(infoEvent.eventId)">
+                {{ isEventCompleted(infoEvent) ? 'Completed' : (isEventOngoing(infoEvent) ? 'Ongoing' : 'Join Now') }}
+            </button>
+
+            <div class="cancel-join-tooltip-wrap"
+                *ngIf="canShowCancelJoinButton(infoEvent)"
+                [class.has-tooltip]="isWithin24Hours(infoEvent)"
+                [attr.data-tooltip]="getCancelJoinTooltip(infoEvent)">
+                <button class="btn-cancel-rsvp"
+                    [class.btn-cancel-rsvp--disabled]="isWithin24Hours(infoEvent)"
+                    (click)="cancelJoin(infoEvent)"
+                    [disabled]="isLoading || !canCancelJoin(infoEvent)">
+                    Cancel Join
+                </button>
             </div>
         </div>
 

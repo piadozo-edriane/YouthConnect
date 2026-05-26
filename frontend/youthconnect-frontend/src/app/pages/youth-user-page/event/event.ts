@@ -31,6 +31,8 @@ export class EventPage implements OnInit, OnDestroy {
     // Event info modal
     showEventInfoModal = false;
     infoEvent: EventResponse | null = null;
+    private reopenEventInfoModalAfterJoinConfirm = false;
+    private reopenEventInfoModalAfterJoinSuccess = false;
 
     events: EventResponse[] = [];
     filteredEvents: EventResponse[] = [];
@@ -303,13 +305,28 @@ export class EventPage implements OnInit, OnDestroy {
         if (this.isJoined(event.eventId) || this.isEventOngoing(event) || this.isEventCompleted(event)) {
             return;
         }
+
+        if (this.showEventInfoModal && this.infoEvent?.eventId === event.eventId) {
+            this.reopenEventInfoModalAfterJoinConfirm = true;
+            this.showEventInfoModal = false;
+        } else {
+            this.reopenEventInfoModalAfterJoinConfirm = false;
+        }
+
         this.pendingJoinEvent = event;
         this.showJoinConfirmModal = true;
     }
 
     closeJoinConfirmModal(): void {
         this.showJoinConfirmModal = false;
+
+        if (this.reopenEventInfoModalAfterJoinConfirm && this.pendingJoinEvent) {
+            this.infoEvent = this.pendingJoinEvent;
+            this.showEventInfoModal = true;
+        }
+
         this.pendingJoinEvent = null;
+        this.reopenEventInfoModalAfterJoinConfirm = false;
     }
 
     confirmJoinEvent(): void {
@@ -317,6 +334,8 @@ export class EventPage implements OnInit, OnDestroy {
         const event = this.pendingJoinEvent;
         this.showJoinConfirmModal = false;
         this.pendingJoinEvent = null;
+        this.reopenEventInfoModalAfterJoinConfirm = false;
+        this.reopenEventInfoModalAfterJoinSuccess = this.showEventInfoModal ? false : !!this.infoEvent && this.infoEvent.eventId === event.eventId;
 
         this.isLoading = true;
         this.eventService.rsvpEvent({ eventId: event.eventId, userId: this.userId }).subscribe({
@@ -332,6 +351,7 @@ export class EventPage implements OnInit, OnDestroy {
                 console.error('Error joining event:', error);
                 this.errorMessage = 'Failed to join event';
                 this.isLoading = false;
+                this.reopenEventInfoModalAfterJoinSuccess = false;
             }
         });
     }
@@ -373,7 +393,14 @@ export class EventPage implements OnInit, OnDestroy {
 
     closeJoinModal(): void {
         this.showJoinModal = false;
+
+        if (this.reopenEventInfoModalAfterJoinSuccess && this.selectedEvent) {
+            this.infoEvent = this.selectedEvent;
+            this.showEventInfoModal = true;
+        }
+
         this.selectedEvent = null;
+        this.reopenEventInfoModalAfterJoinSuccess = false;
     }
 
     getEventColor(index: number): 'red' | 'blue' | 'yellow' {

@@ -203,7 +203,7 @@ body,
   background-position: right 14px center;
   transition: border-color 0.2s, box-shadow 0.2s;
   white-space: nowrap;
-  width: 200px;
+  width: 150px;
   overflow: hidden;
   text-overflow: ellipsis;
 
@@ -246,8 +246,8 @@ body,
   position: relative;
 
   &:hover {
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
-    transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.13);
+      transform: translateY(-3px);
   }
 
   &:active {

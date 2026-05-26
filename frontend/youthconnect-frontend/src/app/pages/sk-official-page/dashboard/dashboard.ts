@@ -245,8 +245,16 @@ export class Dashboard implements OnInit, OnDestroy {
     this.router.navigate(['/sk-official/events'], { state: { statusFilter: 'Upcoming' } });
   }
 
+  navigateToConcerns(): void {
+    this.router.navigate(['/sk-official/concerns'], { state: { statusFilter: 'OPEN' } });
+  }
+
   navigateToTasks(): void {
-    this.router.navigate(['/sk-official/task-tracker'], { state: { activeTab: 'assigned' } });
+    this.router.navigate(['/sk-official/task-tracker']);
+  }
+
+  navigateToYouthMembers(): void {
+    this.router.navigate(['/sk-official/youth-profiling']);
   }
 
   openEventDetailsModal(event: EventResponse): void {
