@@ -250,7 +250,7 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   openEventDetailsModal(event: EventResponse): void {
-    this.router.navigate(['/sk-official/events', event.eventId]);
+    this.router.navigate(['/sk-official/events', event.eventId], { state: { returnTo: 'dashboard' } });
   }
 
   openTaskDetailsModal(task: TaskResponse): void {

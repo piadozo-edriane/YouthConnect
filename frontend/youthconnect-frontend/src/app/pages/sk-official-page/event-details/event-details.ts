@@ -101,9 +101,13 @@ export class EventDetailsPage implements OnInit, OnDestroy {
   private readonly POLL_INTERVAL_MS = 10000; // poll every 10 seconds
   private currentEventId: number = 0;
 
+  private returnTo: string = 'events'; // default fallback
+
   ngOnInit(): void {
     this.initEditForm();
     this.loadCurrentAdmin();
+    // Capture returnTo before history.state is cleared by subsequent navigations
+    this.returnTo = history.state?.returnTo || 'events';
     this.route.paramMap.subscribe(() => {
       this.loadEventDetails();
       this.startPolling();
@@ -211,7 +215,11 @@ export class EventDetailsPage implements OnInit, OnDestroy {
   }
 
   goBack(): void {
-    this.router.navigate(['/sk-official/events']);
+    if (this.returnTo === 'dashboard') {
+      this.router.navigate(['/sk-official/dashboard']);
+    } else {
+      this.router.navigate(['/sk-official/events']);
+    }
   }
 
   editEvent(event: EventResponse): void {

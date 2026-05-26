@@ -303,7 +303,7 @@ export class EventsComponent implements OnInit, OnDestroy {
   }
 
   viewEvent(event: EventResponse): void {
-    this.router.navigate(['/sk-official/events', event.eventId]);
+    this.router.navigate(['/sk-official/events', event.eventId], { state: { returnTo: 'events' } });
   }
 
   searchEvents(term: string) {
