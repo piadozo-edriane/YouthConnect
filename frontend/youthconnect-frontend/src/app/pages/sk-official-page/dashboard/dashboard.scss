@@ -33,10 +33,7 @@ html, body, :host, .dashboard-container {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 40px;
-  // background: white;
-  padding: 20px 30px;
-  // border-radius: 8px;
-  // box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 0px 20px;
 }
 
 .greeting-area h1 {
@@ -48,7 +45,7 @@ html, body, :host, .dashboard-container {
 }
 
 .greeting-area p {
-  font-size: 13px;
+  font-size: 16px;
   color: #777;
   margin: 5px 0 0 0;
   font-weight: 500;
@@ -103,21 +100,12 @@ html, body, :host, .dashboard-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 
-// .stat-card {
-//   background: white;
-//   padding: 25px;
-//   border-radius: 8px;
-//   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-//   border-left: 5px solid;
-//   transition: all 0.3s ease;
-//   cursor: default;
-
 .stat-card {
-  background: white;
-  padding: 25px;
+  background: #ffffff;
+  padding: 30px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   border-left: 5px solid;
@@ -126,29 +114,17 @@ html, body, :host, .dashboard-container {
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 6px 16px rgba(0, 56, 167, 0.35);
   }
 }
 
 .stat-card.blue-border {
-  border-left-color: #0038A7;
-}
-
-.stat-card.red-border {
-  border-left-color: #CE1127;
-}
-
-.stat-card.yellow-border {
-  border-left-color: #FAD218;
-}
-
-.stat-card.gray-border {
-  border-left-color: #333333;
+  border-left-color: #0052cc;
 }
 
 .stat-label {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 800;
   color: #666;
   margin: 0 0 10px 0;
   letter-spacing: 0.5px;
@@ -158,7 +134,7 @@ html, body, :host, .dashboard-container {
 .stat-number {
   font-size: 36px;
   font-weight: 700;
-  color: #333;
+  color: #111;
   margin: 0;
   line-height: 1;
 }
@@ -191,18 +167,19 @@ html, body, :host, .dashboard-container {
   padding: 20px 30px;
   border-bottom: 1px solid #eee;
   flex-shrink: 0;
+  background-color: #0052cc;
 }
 
 .card-header h2 {
   font-size: 18px;
   font-weight: 600;
   margin: 0;
-  color: #333;
+  color: #ffffff;
 }
 
 .view-all {
   font-size: 14px;
-  color: #666;
+  color: #ffffff;
   cursor: pointer;
   transition: color 0.3s;
 }
