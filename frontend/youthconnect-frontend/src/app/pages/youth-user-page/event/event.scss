@@ -730,6 +730,10 @@ body,
   box-sizing: border-box;
 }
 
+.modal-overlay--top {
+  z-index: 1100;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -884,6 +888,22 @@ body,
   flex-shrink: 0;
   background: #fafafa;
   border-radius: 0 0 12px 12px;
+}
+
+.modal-event-info .modal-footer {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-items: center;
+  justify-content: initial;
+
+  > :only-child {
+    grid-column: 1 / -1;
+  }
+
+  > * {
+    min-width: 0;
+  }
 }
 
 // ─── Modal Buttons ────────────────────────────────────────────────────────────
@@ -1109,6 +1129,14 @@ body,
     .btn-delete {
       width: 100%;
       text-align: center;
+    }
+  }
+
+  .modal-event-info .modal-footer {
+    grid-template-columns: 1fr;
+
+    > * {
+      width: 100%;
     }
   }
 
