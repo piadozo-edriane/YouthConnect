@@ -57,4 +57,8 @@ export class AdminConcernService {
   getConcernUpdates(concernId: number): Observable<ConcernUpdate[]> {
     return this.http.get<ConcernUpdate[]>(`${this.apiUrl}/${concernId}/updates`);
   }
+
+  deleteConcern(concernId: number): Observable<string> {
+    return this.http.delete(`${this.apiUrl}/${concernId}`, { responseType: 'text' });
+  }
 }

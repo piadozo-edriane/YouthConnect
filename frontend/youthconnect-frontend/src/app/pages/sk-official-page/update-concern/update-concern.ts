@@ -34,7 +34,11 @@ export class UpdateConcern implements OnInit, AfterViewChecked, OnDestroy {
   private pendingScrollToBottom = false;
   private pendingScrollSmooth = false;
   private pollingIntervalId: any = null;
-  private readonly POLL_INTERVAL_MS = 2000; // poll every 2 seconds
+  private readonly POLL_INTERVAL_MS = 2000;
+
+  // Delete modal state
+  isDeleteModalOpen = false;
+  isDeleting = false;
 
   constructor(
     private adminConcernService: AdminConcernService,
@@ -433,6 +437,35 @@ export class UpdateConcern implements OnInit, AfterViewChecked, OnDestroy {
       },
       error: () => {
         // silent fail for polling
+      }
+    });
+  }
+
+  openDeleteModal(): void {
+    this.isDeleteModalOpen = true;
+  }
+
+  closeDeleteModal(): void {
+    this.isDeleteModalOpen = false;
+  }
+
+  confirmDeleteConcern(): void {
+    if (!this.concern || this.isDeleting) return;
+    this.isDeleting = true;
+    this.stopPollingUpdates();
+
+    this.adminConcernService.deleteConcern(this.concern.concernId).subscribe({
+      next: () => {
+        this.isDeleting = false;
+        this.isDeleteModalOpen = false;
+        this.showToast('Concern deleted successfully.', 'success');
+        setTimeout(() => this.goBack(), 1200);
+      },
+      error: (error) => {
+        console.error('Error deleting concern:', error);
+        this.isDeleting = false;
+        this.isDeleteModalOpen = false;
+        this.showToast('Failed to delete concern. Please try again.', 'error');
       }
     });
   }
