@@ -91,7 +91,6 @@
     font-weight: 400;
     gap: 20px;
     position: relative;
-    box-sizing: border-box;
 }
 
 .side-nav-bar a::before {
@@ -128,7 +127,7 @@
     width: 5px;
 }
 
-// Active state: re-color the icon to match the red brand color
+/* Active state: re-color the icon to match the red brand color (match SK filter behavior but tuned for red) */
 .side-nav-bar a.active .sidebar-icon {
     filter: brightness(0) saturate(100%) invert(14%) sepia(85%) saturate(2500%) hue-rotate(345deg) brightness(80%) contrast(110%);
 }
