@@ -410,4 +410,11 @@ export class Dashboard implements OnInit, OnDestroy {
     }
     return this.userName.substring(0, 2).toUpperCase();
   }
+
+  toTitleCase(text: string): string {
+    if (!text) return '';
+    return text
+      .toLowerCase()
+      .replace(/(?:^|\s|:)\S/g, (char) => char.toUpperCase());
+  }
 }

@@ -274,10 +274,13 @@ export class NotificationPage implements OnInit, OnDestroy {
   }
 
   /**
-   * Get notification title
+   * Get notification title — converted to title case so backend uppercase strings display properly
    */
   getNotificationTitle(notification: NotificationResponse): string {
-    return notification.title || 'Notification';
+    const raw = notification.title || 'Notification';
+    return raw
+      .toLowerCase()
+      .replace(/(?:^|\s|:)\S/g, (char) => char.toUpperCase());
   }
 
   /**

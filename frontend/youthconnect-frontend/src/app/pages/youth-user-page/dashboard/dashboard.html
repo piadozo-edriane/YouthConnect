@@ -83,7 +83,7 @@
                          [ngClass]="'item-border-' + getItemColor(i)"
                          (click)="onNotificationClick(notification)">
                         <div class="item-header">
-                            <h3 class="item-title-fade">{{ notification.title || notification.updatedByAdminName || 'Notification' }}</h3>
+                            <h3 class="item-title-fade">{{ toTitleCase(notification.title || notification.updatedByAdminName || 'Notification') }}</h3>
                             <span class="item-date">{{ getTimeAgo(notification.createdAt) }}</span>
                         </div>
                         <div class="item-meta">
