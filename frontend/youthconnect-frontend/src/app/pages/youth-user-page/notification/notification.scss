@@ -252,28 +252,6 @@ body,
   }
 }
 
-// ─── Type Bar ─────────────────────────────────────────────────────────────────
-
-.type-bar {
-  flex-shrink: 0;
-  width: 4px;
-  align-self: stretch;
-  border-radius: 2px;
-  min-height: 40px;
-
-  &.type-bar-red {
-    background-color: #a4151a;
-  }
-
-  &.type-bar-blue {
-    background-color: #0052cc;
-  }
-
-  &.type-bar-yellow {
-    background-color: #d4a000;
-  }
-}
-
 // ─── Notification Icon ────────────────────────────────────────────────────────
 
 .notif-icon {
