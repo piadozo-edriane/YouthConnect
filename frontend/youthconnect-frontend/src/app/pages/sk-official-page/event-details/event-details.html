@@ -455,7 +455,7 @@
         <!-- Search (hidden when a stat filter is active) -->
         <div class="approval-search-section" *ngIf="attendanceStatFilter === null">
             <input type="text" class="approval-search-input" placeholder="Search by name, email, or contact"
-                [(ngModel)]="attendanceSearchQuery" (input)="attendanceCurrentPage = 1" />
+                [(ngModel)]="attendanceSearchQuery" (input)="resetAttendanceVisibleCount()" />
         </div>
 
         <!-- Messages -->
@@ -465,9 +465,9 @@
 
         <!-- Attendee Cards (hidden when a stat filter is active) -->
         <ng-container *ngIf="attendanceStatFilter === null">
-            <div class="approval-list" *ngIf="paginatedAttendancePanelAttendees.length > 0; else noAttendanceRows">
+            <div class="approval-list" *ngIf="displayedAttendancePanelAttendees.length > 0; else noAttendanceRows">
                 <article class="approval-card attendance-card" [class.is-present]="attendee.isAttended"
-                    [class.is-absent]="!attendee.isAttended" *ngFor="let attendee of paginatedAttendancePanelAttendees">
+                    [class.is-absent]="!attendee.isAttended" *ngFor="let attendee of displayedAttendancePanelAttendees">
                     <div class="approval-card-head">
                         <h3>{{ attendee.name }}</h3>
                         <span class="attendance-status-badge" [class.present]="attendee.isAttended"
@@ -493,28 +493,9 @@
                 </article>
             </div>
 
-            <!-- Pagination -->
-            <div class="approval-pagination" *ngIf="filteredAttendancePanelAttendees.length > attendanceItemsPerPage">
-                <button class="pagination-btn" (click)="previousAttendancePage()"
-                    [disabled]="attendanceCurrentPage === 1">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16"
-                        height="16">
-                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-                    </svg>
-                </button>
-                <div class="pagination-numbers">
-                    <button *ngFor="let page of attendancePageNumbers" class="pagination-number"
-                        [class.active]="page === attendanceCurrentPage" (click)="goToAttendancePage(page)">
-                        {{ page }}
-                    </button>
-                </div>
-                <button class="pagination-btn" (click)="nextAttendancePage()"
-                    [disabled]="attendanceCurrentPage === attendanceTotalPages">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16"
-                        height="16">
-                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
-                    </svg>
-                </button>
+            <!-- See More Button -->
+            <div class="see-more-wrapper" *ngIf="visibleAttendanceCount < filteredAttendancePanelAttendees.length">
+                <button class="see-more-btn" type="button" (click)="showMoreAttendance()">See More</button>
             </div>
 
             <ng-template #noAttendanceRows>
