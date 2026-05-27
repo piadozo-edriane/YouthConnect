@@ -82,6 +82,18 @@ body,
   display: flex;
   align-items: center;
   gap: 15px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 10px;
+  transition: background 0.2s ease, transform 0.15s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+
+    .profile-badge {
+      box-shadow: 0 4px 12px rgba(164, 21, 26, 0.35);
+    }
+  }
 }
 
 .profile-badge {
