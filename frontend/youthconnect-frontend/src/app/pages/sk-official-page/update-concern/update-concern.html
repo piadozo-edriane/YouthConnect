@@ -46,9 +46,6 @@
                 
                 <div class="concern-badges">
                     <span class="badge badge-type">{{ getConcernTypeDisplay(concern.typeOfConcern) }}</span>
-                    <span class="badge badge-status" [ngClass]="'status-' + getStatusClass(concern.status)">
-                        {{ getStatusLabel(concern.status) }}
-                    </span>
                 </div>
 
                 <div class="concern-info-grid">
@@ -80,9 +77,14 @@
                     
                     <!-- Update History Section -->
                     <div class="history-section">
-                        <h3 class="section-title">Update History</h3>
-                        <div class="history-divider"></div>
-                        <div class="history-container">
+                        <div class="section-header">
+                            <h3 class="section-title">Update History</h3>
+                            <span class="update-status-badge" [ngClass]="'status-' + getStatusClass(concern.status)">
+                                {{ getStatusLabel(concern.status).toUpperCase() }}
+                            </span>
+                        </div>
+                            <div class="history-divider"></div>
+                        <div class="history-container" #historyContainer>
                             <div *ngIf="isLoadingUpdates" class="history-loading">
                                 Loading updates...
                             </div>
@@ -96,11 +98,12 @@
                                 <div class="update-header">
                                     <div class="update-sender">
                                         <span class="sender-label" [ngClass]="{ 'sender-youth': isYouthMessage(update), 'sender-admin': !isYouthMessage(update) }">
-                                            {{ getSenderLabel(update) }}
+                                            <ng-container *ngIf="isYouthMessage(update); else adminOnly">
+                                                YOUTH
+                                            </ng-container>
+                                            <ng-template #adminOnly>SK OFFICIAL</ng-template>
                                         </span>
-                                        <span class="update-status-badge" [ngClass]="'status-' + getStatusClass(update.status)">
-                                            {{ getStatusLabel(update.status).toUpperCase() }}
-                                        </span>
+                                        <!-- status badge intentionally omitted per design; header shows concern status -->
                                     </div>
                                     <span class="update-date">{{ formatDateShort(update.createdAt) }}</span>
                                 </div>
@@ -117,8 +120,7 @@
                                 <label class="form-label">Update Status <span class="required">*</span></label>
                                 <select 
                                     class="form-select" 
-                                    formControlName="status"
-                                    [disabled]="concern.status === 'CLOSED'">
+                                    formControlName="status">
                                     <option *ngFor="let option of statusOptions" [value]="option.value">
                                         {{ option.label }}
                                     </option>
@@ -130,20 +132,15 @@
                                     <input 
                                         type="text"
                                         class="form-input" 
-                                        placeholder="Enter your response message to the youth member..." 
-                                        formControlName="response"
-                                        [disabled]="concern.status === 'CLOSED'" />
+                                        placeholder="Enter your response message" 
+                                        formControlName="response" />
                                     <button 
                                         type="button" 
                                         class="btn-update" 
                                         (click)="sendResponse()" 
-                                        [disabled]="responseForm.invalid || isLoading || concern.status === 'CLOSED'">
-                                        {{ isLoading ? 'Updating...' : 'Update' }}
+                                        [disabled]="responseForm.invalid || isLoading || isSendingUpdate || concern.status === 'CLOSED'">
+                                        Send
                                     </button>
-                                </div>
-                                <div *ngIf="responseForm.get('response')?.invalid && responseForm.get('response')?.touched" class="error-message">
-                                    <span *ngIf="responseForm.get('response')?.hasError('required')">Response is required</span>
-                                    <span *ngIf="responseForm.get('response')?.hasError('minlength')">Response must be at least 10 characters</span>
                                 </div>
                             </div>
                         </form>
