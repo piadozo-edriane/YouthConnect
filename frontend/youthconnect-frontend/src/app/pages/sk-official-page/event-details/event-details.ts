@@ -200,11 +200,11 @@ export class EventDetailsPage implements OnInit, OnDestroy {
 
   private initEditForm(): void {
     this.editForm = this.fb.group({
-      eventTitle: ['', [Validators.required, Validators.maxLength(200)]],
-      description: ['', [Validators.required, Validators.maxLength(5000)]],
+      eventTitle: ['', [Validators.required, Validators.maxLength(50)]],
+      description: ['', [Validators.required, Validators.maxLength(750)]],
       dateTime: ['', Validators.required],
-      location: ['', [Validators.required, Validators.maxLength(255)]],
-      attendeeLimit: [null, [Validators.required, Validators.min(1), Validators.max(99999)]]
+      location: ['', [Validators.required, Validators.maxLength(50)]],
+      attendeeLimit: [null, [Validators.required, Validators.min(1), Validators.max(1000)]]
     });
   }
 

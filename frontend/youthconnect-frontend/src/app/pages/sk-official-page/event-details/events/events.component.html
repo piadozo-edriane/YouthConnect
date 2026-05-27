@@ -172,10 +172,13 @@
                                 class="form-input" 
                                 placeholder="Enter event title"
                                 formControlName="eventTitle"
-                                maxlength="200">
-                            <div *ngIf="eventForm.get('eventTitle')?.invalid && eventForm.get('eventTitle')?.touched" class="form-error">
-                                <span *ngIf="eventForm.get('eventTitle')?.hasError('required')">Event title is required</span>
-                                <span *ngIf="eventForm.get('eventTitle')?.hasError('maxlength')">Title cannot exceed 200 characters</span>
+                                maxlength="50">
+                            <div class="field-meta">
+                                <div class="form-error" *ngIf="eventForm.get('eventTitle')?.invalid && eventForm.get('eventTitle')?.touched">
+                                    <span *ngIf="eventForm.get('eventTitle')?.hasError('required')">Event title is required</span>
+                                    <span *ngIf="eventForm.get('eventTitle')?.hasError('maxlength')">Title cannot exceed 50 characters</span>
+                                </div>
+                                <span class="char-counter" [class.char-limit]="(eventForm.get('eventTitle')?.value?.length || 0) >= 50">{{ eventForm.get('eventTitle')?.value?.length || 0 }}/50</span>
                             </div>
                         </div>
 
@@ -187,10 +190,13 @@
                                 placeholder="Enter event description" 
                                 rows="4"
                                 formControlName="description"
-                                maxlength="5000"></textarea>
-                            <div *ngIf="eventForm.get('description')?.invalid && eventForm.get('description')?.touched" class="form-error">
-                                <span *ngIf="eventForm.get('description')?.hasError('required')">Description is required</span>
-                                <span *ngIf="eventForm.get('description')?.hasError('maxlength')">Description cannot exceed 5000 characters</span>
+                                maxlength="750"></textarea>
+                            <div class="field-meta">
+                                <div class="form-error" *ngIf="eventForm.get('description')?.invalid && eventForm.get('description')?.touched">
+                                    <span *ngIf="eventForm.get('description')?.hasError('required')">Description is required</span>
+                                    <span *ngIf="eventForm.get('description')?.hasError('maxlength')">Description cannot exceed 750 characters</span>
+                                </div>
+                                <span class="char-counter" [class.char-limit]="(eventForm.get('description')?.value?.length || 0) >= 750">{{ eventForm.get('description')?.value?.length || 0 }}/750</span>
                             </div>
                         </div>
 
@@ -201,8 +207,10 @@
                                 id="dateTime" 
                                 class="form-input"
                                 formControlName="dateTime">
-                            <div *ngIf="eventForm.get('dateTime')?.invalid && eventForm.get('dateTime')?.touched" class="form-error">
-                                <span>Date and time are required</span>
+                            <div class="field-meta">
+                                <div class="form-error" *ngIf="eventForm.get('dateTime')?.invalid && eventForm.get('dateTime')?.touched">
+                                    <span>Date and time are required</span>
+                                </div>
                             </div>
                         </div>
 
@@ -214,10 +222,13 @@
                                 class="form-input" 
                                 placeholder="Enter event location"
                                 formControlName="location"
-                                maxlength="255">
-                            <div *ngIf="eventForm.get('location')?.invalid && eventForm.get('location')?.touched" class="form-error">
-                                <span *ngIf="eventForm.get('location')?.hasError('required')">Location is required</span>
-                                <span *ngIf="eventForm.get('location')?.hasError('maxlength')">Location cannot exceed 255 characters</span>
+                                maxlength="50">
+                            <div class="field-meta">
+                                <div class="form-error" *ngIf="eventForm.get('location')?.invalid && eventForm.get('location')?.touched">
+                                    <span *ngIf="eventForm.get('location')?.hasError('required')">Location is required</span>
+                                    <span *ngIf="eventForm.get('location')?.hasError('maxlength')">Location cannot exceed 50 characters</span>
+                                </div>
+                                <span class="char-counter" [class.char-limit]="(eventForm.get('location')?.value?.length || 0) >= 50">{{ eventForm.get('location')?.value?.length || 0 }}/50</span>
                             </div>
                         </div>
 
@@ -230,11 +241,14 @@
                                 placeholder="e.g. 50"
                                 formControlName="attendeeLimit"
                                 min="1"
-                                max="99999">
-                            <div *ngIf="eventForm.get('attendeeLimit')?.invalid && eventForm.get('attendeeLimit')?.touched" class="form-error">
-                                <span *ngIf="eventForm.get('attendeeLimit')?.hasError('required')">Number of Attendees is required</span>
-                                <span *ngIf="eventForm.get('attendeeLimit')?.hasError('min')">Number of Attendees must be at least 1</span>
-                                <span *ngIf="eventForm.get('attendeeLimit')?.hasError('max')">Number of Attendees cannot exceed 99,999</span>
+                                max="1000">
+                            <div class="field-meta">
+                                <div class="form-error" *ngIf="eventForm.get('attendeeLimit')?.invalid && eventForm.get('attendeeLimit')?.touched">
+                                    <span *ngIf="eventForm.get('attendeeLimit')?.hasError('required')">Number of Attendees is required</span>
+                                    <span *ngIf="eventForm.get('attendeeLimit')?.hasError('min')">Must be at least 1 (cannot be zero)</span>
+                                    <span *ngIf="eventForm.get('attendeeLimit')?.hasError('max')">Cannot exceed 1,000 attendees</span>
+                                </div>
+                                <span class="char-counter">max 1,000</span>
                             </div>
                         </div>
                     </div>
