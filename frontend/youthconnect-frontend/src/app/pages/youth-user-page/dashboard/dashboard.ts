@@ -231,6 +231,11 @@ export class Dashboard implements OnInit, OnDestroy {
     this.router.navigate(['/youth/events']);
   }
 
+  navigateToEventsWithFilter(filter: string): void {
+    sessionStorage.setItem('eventStatusFilter', filter);
+    this.router.navigate(['/youth/events']);
+  }
+
   navigateToNotifications(): void {
     this.router.navigate(['/youth/notifications']);
   }

@@ -53,13 +53,21 @@ export class EventPage implements OnInit, OnDestroy {
         { value: 'ALL', label: 'All Events' },
         { value: 'Upcoming', label: 'Upcoming' },
         { value: 'Ongoing', label: 'Ongoing' },
-        { value: 'Completed', label: 'Completed' }
+        { value: 'Completed', label: 'Completed' },
+        { value: 'Joined', label: 'Joined' }
     ];
 
     ngOnInit(): void {
         const user = this.authService.getCurrentUser();
         if (user && user.userId) {
             this.userId = user.userId;
+
+            // Check if there's a pre-set status filter (e.g. from dashboard stat card)
+            const statusFilter = sessionStorage.getItem('eventStatusFilter');
+            if (statusFilter) {
+                this.selectedStatusFilter = statusFilter;
+                sessionStorage.removeItem('eventStatusFilter');
+            }
             
             // Check if there's a highlighted event from notification
             const highlightedId = sessionStorage.getItem('highlightEventId');
@@ -141,7 +149,9 @@ export class EventPage implements OnInit, OnDestroy {
         let filtered = [...this.events];
 
         // Apply status filter
-        if (this.selectedStatusFilter !== 'ALL') {
+        if (this.selectedStatusFilter === 'Joined') {
+            filtered = filtered.filter(e => this.joinedEventIds.has(e.eventId));
+        } else if (this.selectedStatusFilter !== 'ALL') {
             filtered = filtered.filter(e => e.status === this.selectedStatusFilter);
         }
 

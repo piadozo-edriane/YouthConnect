@@ -28,7 +28,13 @@
 
         <div *ngIf="!isLoading && !errorMessage" class="stats-section">
             <div class="stat-card blue-border" *ngFor="let stat of stats; let i = index"
-                 [ngClass]="getStatClass(i)">
+                 [ngClass]="getStatClass(i)"
+                 [class.clickable]="i === 0 || i === 1"
+                 [attr.role]="i === 0 || i === 1 ? 'button' : null"
+                 [attr.tabindex]="i === 0 || i === 1 ? 0 : null"
+                 (click)="i === 0 ? navigateToEventsWithFilter('Upcoming') : i === 1 ? navigateToEventsWithFilter('Joined') : null"
+                 (keydown.enter)="i === 0 ? navigateToEventsWithFilter('Upcoming') : i === 1 ? navigateToEventsWithFilter('Joined') : null"
+                 (keydown.space)="i === 0 ? navigateToEventsWithFilter('Upcoming') : i === 1 ? navigateToEventsWithFilter('Joined') : null">
                 <p class="stat-label">{{ stat.label }}</p>
                 <p class="stat-number">{{ stat.value }}</p>
             </div>
@@ -36,7 +42,7 @@
 
         <div *ngIf="!isLoading && !errorMessage" class="content-section">
             <div class="content-card">
-                <div class="card-header" (click)="browseEvents()" style="cursor: pointer;">
+                <div class="card-header" (click)="navigateToEventsWithFilter('Upcoming')" style="cursor: pointer;">
                     <div class="card-header-title">
                         <h2>Upcoming Events</h2>
                         <span class="count-badge">{{ upcomingEvents.length }}</span>
