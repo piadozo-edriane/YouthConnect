@@ -297,6 +297,24 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     /**
+     * Delete all notifications linked to a specific event.
+     */
+    @Override
+    @Transactional
+    public void deleteNotificationsByEventId(int eventId) {
+        notificationRepo.deleteByRelatedEventId(eventId);
+    }
+
+    /**
+     * Delete all notifications linked to a specific concern.
+     */
+    @Override
+    @Transactional
+    public void deleteNotificationsByConcernId(int concernId) {
+        notificationRepo.deleteByRelatedConcernId(concernId);
+    }
+
+    /**
      * Mark a notification as read
      */
     @Override

@@ -51,4 +51,14 @@ public interface NotificationRepo extends JpaRepository<Notification, Integer> {
      * Check if an attendee decision notification already exists for the same user, event, attendance record, and title.
      */
     boolean existsByUserIdAndRelatedEventIdAndRelatedAttendanceIdAndTypeAndTitle(int userId, int relatedEventId, int relatedAttendanceId, String type, String title);
+
+    /**
+     * Delete all notifications linked to a specific event.
+     */
+    long deleteByRelatedEventId(int eventId);
+
+    /**
+     * Delete all notifications linked to a specific concern.
+     */
+    long deleteByRelatedConcernId(int concernId);
 }

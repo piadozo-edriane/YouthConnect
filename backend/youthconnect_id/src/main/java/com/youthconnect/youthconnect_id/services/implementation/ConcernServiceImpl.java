@@ -192,9 +192,11 @@ public class ConcernServiceImpl implements ConcernService {
     }
 
     @Override
+    @Transactional
     public void deleteConcern(int concernId) {
         Concern concern = concernRepo.findById(concernId)
                 .orElseThrow(() -> new RuntimeException("Concern not found"));
+        notificationService.deleteNotificationsByConcernId(concernId);
         concernRepo.delete(concern);
     }
 

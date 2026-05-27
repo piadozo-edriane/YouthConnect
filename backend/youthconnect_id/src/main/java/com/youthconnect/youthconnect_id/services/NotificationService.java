@@ -16,6 +16,10 @@ public interface NotificationService {
     void createEventStatusNotification(int eventId, String eventTitle, String newStatus, List<Integer> userIds);
     void createConcernUpdateNotification(int concernId, int youthId, String status, String updateText);
     void createAttendeeDecisionNotification(int eventId, int attendanceId, int userId, int youthId, String eventTitle, boolean approved, String rejectionReason);
+
+    // Cleanup notifications
+    void deleteNotificationsByEventId(int eventId);
+    void deleteNotificationsByConcernId(int concernId);
     
     // Mark as read
     void markNotificationAsRead(int notificationId);

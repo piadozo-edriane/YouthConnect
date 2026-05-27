@@ -34,7 +34,7 @@
             </button>
             <div class="details-actions" *ngIf="concern">
                 <button class="details-delete-btn" (click)="openDeleteModal()" title="Delete concern"
-                    [disabled]="concern?.status !== 'CLOSED'">
+                    [disabled]="concern.status !== 'CLOSED'">
                     <img src="../../assets/sk-official-events-icons/delete.svg" alt="Delete" width="22" height="22">
                 </button>
             </div>
