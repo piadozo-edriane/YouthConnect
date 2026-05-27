@@ -134,8 +134,9 @@ export class NotificationPage implements OnInit, OnDestroy {
     }
 
     if (notification.relatedEventId) {
-      sessionStorage.setItem('highlightEventId', notification.relatedEventId.toString());
-      this.router.navigate(['/youth/events']);
+      this.router.navigate(['/youth/events'], {
+        queryParams: { eventId: notification.relatedEventId }
+      });
     }
   }
 

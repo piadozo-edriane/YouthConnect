@@ -2,6 +2,7 @@ import { Component, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angula
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { EventService, EventResponse } from '../../../services/event.service';
 import { AuthService } from '../../../services/auth.service';
+import { ActivatedRoute } from '@angular/router';
 import { forkJoin, interval, Subscription, switchMap } from 'rxjs';
 
 @Component({
@@ -14,6 +15,7 @@ import { forkJoin, interval, Subscription, switchMap } from 'rxjs';
 export class EventPage implements OnInit, OnDestroy {
     private eventService = inject(EventService);
     private authService = inject(AuthService);
+    private route = inject(ActivatedRoute, { optional: true });
 
     showJoinModal = false;
     selectedEvent: EventResponse | null = null;
@@ -41,6 +43,7 @@ export class EventPage implements OnInit, OnDestroy {
     searchQuery = '';
     selectedStatusFilter: string = 'ALL';
     highlightedEventId: number | null = null;
+    private pendingOpenEventId: number | null = null;
 
     // Pagination
     eventsCurrentPage = 1;
@@ -68,12 +71,10 @@ export class EventPage implements OnInit, OnDestroy {
                 this.selectedStatusFilter = statusFilter;
                 sessionStorage.removeItem('eventStatusFilter');
             }
-            
-            // Check if there's a highlighted event from notification
-            const highlightedId = sessionStorage.getItem('highlightEventId');
-            if (highlightedId) {
-                this.highlightedEventId = parseInt(highlightedId);
-                sessionStorage.removeItem('highlightEventId');
+
+            const queryEventId = this.route?.snapshot.queryParamMap.get('eventId');
+            if (queryEventId) {
+                this.pendingOpenEventId = parseInt(queryEventId, 10);
             }
             
             this.loadEvents();
@@ -131,11 +132,8 @@ export class EventPage implements OnInit, OnDestroy {
                 );
                 this.applyFilters();
                 this.isLoading = false;
-                
-                // Scroll to highlighted event if exists
-                if (this.highlightedEventId) {
-                    setTimeout(() => this.scrollToEvent(this.highlightedEventId!), 500);
-                }
+
+                this.tryOpenEventFromNotification();
             },
             error: (error) => {
                 console.error('Error loading events:', error);
@@ -470,5 +468,39 @@ export class EventPage implements OnInit, OnDestroy {
     closeEventInfoModal(): void {
         this.showEventInfoModal = false;
         this.infoEvent = null;
+    }
+
+    private tryOpenEventFromNotification(): void {
+        if (!this.pendingOpenEventId) {
+            return;
+        }
+
+        const eventId = this.pendingOpenEventId;
+        const event = this.events.find(item => item.eventId === eventId) || null;
+
+        if (!event) {
+            this.pendingOpenEventId = null;
+            return;
+        }
+
+        this.ensureEventVisible(eventId);
+        this.openEventInfoModal(event);
+        this.highlightedEventId = eventId;
+        setTimeout(() => this.scrollToEvent(eventId), 300);
+        this.pendingOpenEventId = null;
+    }
+
+    private ensureEventVisible(eventId: number): void {
+        const visible = this.filteredEvents.some(item => item.eventId === eventId);
+        if (!visible) {
+            this.searchQuery = '';
+            this.selectedStatusFilter = 'ALL';
+            this.applyFilters();
+        }
+
+        const index = this.filteredEvents.findIndex(item => item.eventId === eventId);
+        if (index >= 0) {
+            this.eventsCurrentPage = Math.floor(index / this.eventsItemsPerPage) + 1;
+        }
     }
 }
