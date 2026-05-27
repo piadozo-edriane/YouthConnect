@@ -145,42 +145,84 @@
                         </div>
                     </div>
 
-                    <!-- Approved Attendees List -->
+                    <!-- Attendees / Attended Section -->
                     <div class="attendees-section">
-                        <div class="attendees-title-row">
-                            <h4 class="attendees-title">
-                                {{ approvedCount }} / {{ selectedEvent.attendeeLimit ?? '—' }} Approved
-                            </h4>
-                            <div class="attendees-title-actions">
-                                <!-- Upcoming: show Attendee Approval only -->
-                                <button class="btn-approval-panel" (click)="openApprovalPanel()"
-                                    *ngIf="!isAttendancePanelAvailable">
-                                    Attendee Approval
-                                    <span class="notification-badge" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
-                                </button>
-                                <!-- Ongoing / Completed: show Post-Event Attendance only -->
-                                <button class="btn-attendance-panel" (click)="openAttendancePanel()"
-                                    *ngIf="isAttendancePanelAvailable" title="Mark post-event attendance">
-                                    Post-Event Attendance
-                                </button>
+
+                        <!-- COMPLETED: show Attended list -->
+                        <ng-container *ngIf="selectedEvent.status?.toLowerCase() === 'completed'; else approvedSection">
+                            <div class="attendees-title-row">
+                                <h4 class="attendees-title">
+                                    {{ attendedCount }} / {{ approvedCount }} Attended
+                                </h4>
+                                <div class="attendees-title-actions">
+                                    <button class="btn-attendance-panel" (click)="openAttendancePanel()"
+                                        title="Mark post-event attendance">
+                                        Post-Event Attendance
+                                    </button>
+                                </div>
                             </div>
-                        </div>
 
-                        <div *ngIf="isLoadingAttendees" class="attendees-loading">
-                            <p>Loading attendees...</p>
-                        </div>
-
-                        <div *ngIf="!isLoadingAttendees && approvedCount > 0" class="attendees-list">
-                            <div *ngFor="let attendee of approvedAttendees; let i = index"
-                                class="attendee-item clickable" (click)="openAttendeeDetailsModal(attendee)">
-                                <span class="attendee-index">{{ i + 1 }}.</span>
-                                <span class="attendee-name">{{ attendee.name }}</span>
+                            <div *ngIf="isLoadingAttendees" class="attendees-loading">
+                                <p>Loading attendees...</p>
                             </div>
-                        </div>
 
-                        <div *ngIf="!isLoadingAttendees && approvedCount === 0" class="attendees-empty">
-                            <p>No approved attendees yet.</p>
-                        </div>
+                            <ng-container *ngIf="!isLoadingAttendees">
+                                <div *ngIf="attendedCount > 0" class="attendees-list">
+                                    <div *ngFor="let attendee of approvedAttendees; let i = index"
+                                        class="attendee-item"
+                                        [class.clickable]="attendee.isAttended"
+                                        (click)="attendee.isAttended && openAttendeeDetailsModal(attendee)">
+                                        <span class="attendee-index">{{ i + 1 }}.</span>
+                                        <span class="attendee-name">{{ attendee.name }}</span>
+                                        <span class="att-inline-badge"
+                                            [class.present]="attendee.isAttended"
+                                            [class.absent]="!attendee.isAttended">
+                                            {{ attendee.isAttended ? '✓ Present' : '— Absent' }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div *ngIf="attendedCount === 0" class="attendees-empty">
+                                    <p>No attendees marked as present yet.</p>
+                                </div>
+                            </ng-container>
+                        </ng-container>
+
+                        <!-- NOT COMPLETED: show Approved list (original) -->
+                        <ng-template #approvedSection>
+                            <div class="attendees-title-row">
+                                <h4 class="attendees-title">
+                                    {{ approvedCount }} / {{ selectedEvent.attendeeLimit ?? '—' }} Approved
+                                </h4>
+                                <div class="attendees-title-actions">
+                                    <button class="btn-approval-panel" (click)="openApprovalPanel()"
+                                        *ngIf="!isAttendancePanelAvailable">
+                                        Attendee Approval
+                                        <span class="notification-badge" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
+                                    </button>
+                                    <button class="btn-attendance-panel" (click)="openAttendancePanel()"
+                                        *ngIf="isAttendancePanelAvailable" title="Mark post-event attendance">
+                                        Post-Event Attendance
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div *ngIf="isLoadingAttendees" class="attendees-loading">
+                                <p>Loading attendees...</p>
+                            </div>
+
+                            <div *ngIf="!isLoadingAttendees && approvedCount > 0" class="attendees-list">
+                                <div *ngFor="let attendee of approvedAttendees; let i = index"
+                                    class="attendee-item clickable" (click)="openAttendeeDetailsModal(attendee)">
+                                    <span class="attendee-index">{{ i + 1 }}.</span>
+                                    <span class="attendee-name">{{ attendee.name }}</span>
+                                </div>
+                            </div>
+
+                            <div *ngIf="!isLoadingAttendees && approvedCount === 0" class="attendees-empty">
+                                <p>No approved attendees yet.</p>
+                            </div>
+                        </ng-template>
+
                     </div>
                 </div>
             </div>
@@ -352,13 +394,13 @@
             <div class="att-stat att-stat--clickable" [class.att-stat--active]="attendanceStatFilter === 'present'"
                 (click)="setAttendanceStatFilter('present')">
                 <span class="att-stat-count attended-color">{{ attendedCount }}</span>
-                <span class="att-stat-label">Present</span>
+                <span class="att-stat-label">Attended</span>
             </div>
             <div class="att-stat-divider"></div>
             <div class="att-stat att-stat--clickable" [class.att-stat--active]="attendanceStatFilter === 'absent'"
                 (click)="setAttendanceStatFilter('absent')">
                 <span class="att-stat-count absent-color">{{ absentCount }}</span>
-                <span class="att-stat-label">Absent</span>
+                <span class="att-stat-label">Not Attended</span>
             </div>
             <div class="att-stat-divider"></div>
             <div class="att-stat att-stat--clickable" [class.att-stat--active]="attendanceStatFilter === 'approved'"
