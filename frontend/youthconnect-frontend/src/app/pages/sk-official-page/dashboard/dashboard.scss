@@ -433,9 +433,9 @@ html, body, :host, .dashboard-container {
 }
 
 .see-more-btn {
-  border: 1px solid #c6d6ff;
-  background: #f1f5ff;
-  color: #0038a7;
+  border: 1px solid #4a90e2;
+  background: #e8f4fd;
+  color: #2c5aa0;
   font-size: 13px;
   font-weight: 600;
   padding: 8px 20px;
@@ -443,18 +443,18 @@ html, body, :host, .dashboard-container {
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: 'Poppins', Arial, Helvetica, sans-serif;
-  box-shadow: 0 2px 6px rgba(0, 56, 167, 0.12);
+  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.12);
 
   &:hover {
-    background: #e6eeff;
-    border-color: #9fb7ff;
+    background: #d0e9fc;
+    border-color: #357abd;
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(0, 56, 167, 0.18);
+    box-shadow: 0 4px 10px rgba(74, 144, 226, 0.18);
   }
 
   &:active {
     transform: translateY(0);
-    box-shadow: 0 2px 6px rgba(0, 56, 167, 0.12);
+    box-shadow: 0 2px 6px rgba(74, 144, 226, 0.12);
   }
 }
 
@@ -1069,6 +1069,15 @@ html, body, :host, .dashboard-container {
   .modal-body {
     padding: 16px 20px;
   }
+
+  .see-more-wrapper {
+    padding: 14px 16px 18px;
+  }
+
+  .see-more-btn {
+    font-size: 12px;
+    padding: 7px 18px;
+  }
 }
 
 @media (max-width: 320px) {
@@ -1214,5 +1223,14 @@ html, body, :host, .dashboard-container {
     padding: 9px 24px;
     font-size: 13px;
     border-radius: 6px;
+  }
+
+  .see-more-wrapper {
+    padding: 12px 14px 16px;
+  }
+
+  .see-more-btn {
+    font-size: 11px;
+    padding: 6px 16px;
   }
 }
