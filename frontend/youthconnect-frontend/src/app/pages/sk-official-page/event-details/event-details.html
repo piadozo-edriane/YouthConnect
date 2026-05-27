@@ -283,6 +283,9 @@
                     </span>
                 </div>
 
+                <p class="approval-meta">Email: {{ attendee.email }}</p>
+                <p class="approval-meta">Contact: {{ attendee.contactNumber }}</p>
+
                 <div class="approval-actions">
                     <button type="button" class="btn-see-details" (click)="openAttendeeDetailsModal(attendee)">
                         See Details
