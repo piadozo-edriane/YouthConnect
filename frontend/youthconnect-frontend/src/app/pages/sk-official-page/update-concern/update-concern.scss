@@ -340,10 +340,11 @@
   }
 
   .history-container {
-    flex: 1;
-    overflow-y: auto;
-    padding-right: 8px;
-    min-height: 100px;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden; /* prevent horizontal scrolling */
+  padding-right: 8px;
+  min-height: 100px;
 
     &::-webkit-scrollbar {
       width: 6px;
@@ -380,6 +381,8 @@
       border-radius: 8px;
       padding: 12px 14px;
       margin-bottom: 12px;
+      max-width: 100%;
+      overflow: hidden; /* ensure long content doesn't create scroll */
 
       &.youth-message {
         background: #e8f4ff;
@@ -463,6 +466,12 @@
         color: #666;
         line-height: 1.5;
         font-weight: 400;
+        display: block;
+        white-space: pre-wrap; /* respect newlines and wrap long text */
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word; /* break long unbroken strings */
+        hyphens: auto;
       }
     }
   }
