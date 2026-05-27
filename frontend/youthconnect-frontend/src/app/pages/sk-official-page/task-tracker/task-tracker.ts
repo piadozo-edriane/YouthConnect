@@ -97,8 +97,8 @@ export class TaskTracker implements OnInit {
   initForm() {
     this.taskForm = this.fb.group({
       taskingType: ['', Validators.required],
-      customTasking: [''],
-      taskDescription: ['', [Validators.required]],
+      customTasking: ['', [Validators.maxLength(50)]],
+      taskDescription: ['', [Validators.required, Validators.maxLength(500)]],
       skIncharge: ['', [Validators.required]],
       hyperlink: [''],
       status: ['', Validators.required],
@@ -110,7 +110,7 @@ export class TaskTracker implements OnInit {
     this.taskForm.get('taskingType')?.valueChanges.subscribe(value => {
       const customTaskingControl = this.taskForm.get('customTasking');
       if (value === 'CUSTOM') {
-        customTaskingControl?.setValidators([Validators.required]);
+        customTaskingControl?.setValidators([Validators.required, Validators.maxLength(50)]);
       } else {
         customTaskingControl?.clearValidators();
       }

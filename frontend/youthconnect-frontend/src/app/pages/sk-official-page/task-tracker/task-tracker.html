@@ -220,11 +220,14 @@
                                     class="required">*</span></label>
                             <input type="text" id="customTasking" class="form-input"
                                 placeholder="Enter custom tasking/committee"
-                                formControlName="customTasking">
-                            <div *ngIf="taskForm.get('customTasking')?.invalid && taskForm.get('customTasking')?.touched"
-                                class="form-error">
-                                <span *ngIf="taskForm.get('customTasking')?.hasError('required')">Custom tasking is
-                                    required</span>
+                                formControlName="customTasking"
+                                maxlength="50">
+                            <div class="field-meta">
+                                <div class="form-error" *ngIf="taskForm.get('customTasking')?.invalid && taskForm.get('customTasking')?.touched">
+                                    <span *ngIf="taskForm.get('customTasking')?.hasError('required')">Custom tasking is required</span>
+                                    <span *ngIf="taskForm.get('customTasking')?.hasError('maxlength')">Cannot exceed 50 characters</span>
+                                </div>
+                                <span class="char-counter" [class.char-limit]="(taskForm.get('customTasking')?.value?.length || 0) >= 50">{{ taskForm.get('customTasking')?.value?.length || 0 }}/50</span>
                             </div>
                         </div>
 
@@ -232,11 +235,13 @@
                             <label for="description" class="form-label">Description of Tasks<span
                                     class="required">*</span></label>
                             <textarea id="description" class="form-textarea" placeholder="Enter task description"
-                                rows="5" formControlName="taskDescription"></textarea>
-                            <div *ngIf="taskForm.get('taskDescription')?.invalid && taskForm.get('taskDescription')?.touched"
-                                class="form-error">
-                                <span *ngIf="taskForm.get('taskDescription')?.hasError('required')">Description is
-                                    required</span>
+                                rows="5" formControlName="taskDescription" maxlength="500"></textarea>
+                            <div class="field-meta">
+                                <div class="form-error" *ngIf="taskForm.get('taskDescription')?.invalid && taskForm.get('taskDescription')?.touched">
+                                    <span *ngIf="taskForm.get('taskDescription')?.hasError('required')">Description is required</span>
+                                    <span *ngIf="taskForm.get('taskDescription')?.hasError('maxlength')">Cannot exceed 500 characters</span>
+                                </div>
+                                <span class="char-counter" [class.char-limit]="(taskForm.get('taskDescription')?.value?.length || 0) >= 500">{{ taskForm.get('taskDescription')?.value?.length || 0 }}/500</span>
                             </div>
                         </div>
 
