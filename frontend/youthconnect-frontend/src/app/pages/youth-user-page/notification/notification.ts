@@ -253,11 +253,23 @@ export class NotificationPage implements OnInit, OnDestroy {
       case 'EVENT_JOIN_REQUEST_REJECTED':
         return 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z';
       case 'EVENT_STATUS':
-        return 'M13 10V3L4 14h7v7l9-11h-7z';
+        return 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z';
       case 'CONCERN_UPDATE':
         return 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z';
       default:
         return 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9';
+    }
+  }
+
+  /**
+   * Get optional second SVG path for notification icon (e.g. calendar minus line)
+   */
+  getNotificationIconSecondPath(notification: NotificationResponse): string | null {
+    switch (notification.type) {
+      case 'EVENT_STATUS':
+        return 'M9 14h6';
+      default:
+        return null;
     }
   }
 
