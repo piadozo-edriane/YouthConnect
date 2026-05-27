@@ -1,18 +1,16 @@
 <div class="registration-container">
   <div class="registration-modal">
-    <div class="registration-header">
-      <img src="assets/login page/sk-logo.svg" alt="SK Logo" class="logo sk-logo">
-      <img src="assets/login page/youthconnect-logo.svg" alt="YouthConnect Logo" class="logo youthconnect-logo">
-    </div>
 
-    <h2 class="registration-title">Create Your Account</h2>
+    <div class="registration-sticky-header">
+      <h2 class="registration-title">Create Your Account</h2>
 
-    <div class="step-indicator">
-      <div class="step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">1</div>
-      <div class="step-line" [class.completed]="currentStep > 1"></div>
-      <div class="step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">2</div>
-      <div class="step-line" [class.completed]="currentStep > 2"></div>
-      <div class="step" [class.active]="currentStep === 3">3</div>
+      <div class="step-indicator">
+        <div class="step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">1</div>
+        <div class="step-line" [class.completed]="currentStep > 1"></div>
+        <div class="step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">2</div>
+        <div class="step-line" [class.completed]="currentStep > 2"></div>
+        <div class="step" [class.active]="currentStep === 3">3</div>
+      </div>
     </div>
 
     <form [formGroup]="registrationForm" (ngSubmit)="register()" class="registration-form">

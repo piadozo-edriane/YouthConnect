@@ -83,7 +83,7 @@ body {
     border-radius: 20px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     width: 600px;
-    padding: 40px 30px;
+    padding: 0 0 20px 0;   // top padding removed — sticky header owns the top space
     position: relative;
     height: auto;
     max-height: 90vh;
@@ -93,11 +93,28 @@ body {
     @media (max-width: 600px) {
       width: 90vw;
       max-width: 500px;
-      padding: 30px 20px;
+      padding: 0 0 20px 0;
       border-radius: 15px;
       height: auto;
       max-height: 90vh;
     }
+  }
+}
+
+// Sticky header — pinned to the very top of the scrollable modal
+.registration-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
+  padding: 20px 30px 16px;
+  border-bottom: 1px solid $border-gray;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-radius: 20px 20px 0 0;   // match modal top corners
+
+  @media (max-width: 600px) {
+    padding: 20px 20px 16px;
+    border-radius: 15px 15px 0 0;
   }
 }
 
@@ -133,7 +150,7 @@ body {
   font-size: 24px;
   font-weight: 600;
   color: $primary-blue;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   letter-spacing: 0.5px;
   font-family: 'Poppins', sans-serif;
 }
@@ -143,7 +160,7 @@ body {
   justify-content: center;
   align-items: center;
   gap: 8px;
-  margin-bottom: 30px;
+  margin-bottom: 0;
 
   .step {
     width: 36px;
@@ -196,6 +213,14 @@ body {
 
 .registration-form {
   animation: fadeIn 0.3s ease-in;
+  padding-top: 24px;
+  padding-left: 30px;
+  padding-right: 30px;
+
+  @media (max-width: 600px) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 
   .error-message {
     background-color: #ffebee;
@@ -601,6 +626,11 @@ body {
   color: $text-light;
   font-family: 'Poppins', sans-serif;
   margin-top: 20px;
+  padding: 0 30px;
+
+  @media (max-width: 600px) {
+    padding: 0 20px;
+  }
 
   a {
     color: $primary-blue;

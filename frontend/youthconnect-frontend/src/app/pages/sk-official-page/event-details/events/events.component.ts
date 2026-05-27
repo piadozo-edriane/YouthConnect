@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EventService, EventResponse } from '../../../services/event.service';
-import { AuthService } from '../../../services/auth.service';
-import { SkOfficialManagementService } from '../../../services/sk-official-management.service';
+import { EventService, EventResponse } from '../../../../services/event.service';
+import { AuthService } from '../../../../services/auth.service';
+import { SkOfficialManagementService } from '../../../../services/sk-official-management.service';
 import { interval, Subscription, switchMap } from 'rxjs';
 
 @Component({
