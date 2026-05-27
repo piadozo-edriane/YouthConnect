@@ -165,14 +165,17 @@
       <button type="button" class="filter-chip" [class.active]="approvalFilter === 'pending'"
         (click)="setApprovalFilter('pending')">
         Pending
+        <span class="filter-count">{{ pendingCount }}</span>
       </button>
       <button type="button" class="filter-chip" [class.active]="approvalFilter === 'rejected'"
         (click)="setApprovalFilter('rejected')">
         Rejected
+        <span class="filter-count">{{ rejectedCount }}</span>
       </button>
       <button type="button" class="filter-chip" [class.active]="approvalFilter === 'deactivated'"
         (click)="setApprovalFilter('deactivated')">
         Deactivated
+        <span class="filter-count">{{ deactivatedCount }}</span>
       </button>
     </div>
 

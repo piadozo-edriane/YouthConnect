@@ -297,12 +297,35 @@ body,
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 
   &.active {
     background: #0052cc;
     border-color: #0052cc;
     color: #ffffff;
+
+    .filter-count {
+      background: #ffffff;
+      color: #0052cc;
+    }
   }
+}
+
+.filter-count {
+  background: #dc2626;
+  color: #fff;
+  border-radius: 999px;
+  min-width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 0 4px;
+  transition: background 0.2s, color 0.2s;
 }
 
 .approval-search-section {
