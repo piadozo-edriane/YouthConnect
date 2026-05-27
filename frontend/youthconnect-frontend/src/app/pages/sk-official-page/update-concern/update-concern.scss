@@ -378,11 +378,22 @@
 
     .update-item {
       background: #f5f5f5;
-      border-radius: 8px;
-      padding: 12px 14px;
+      border-radius: 14px;
+      padding: 14px 18px;
       margin-bottom: 12px;
-      max-width: 100%;
+      max-width: 86%;
+      width: auto;
       overflow: hidden; /* ensure long content doesn't create scroll */
+      box-shadow: 0 1px 0 rgba(0,0,0,0.02);
+
+      /* Positioning for conversation-style layout */
+      &.admin-message {
+        margin-left: auto; /* push admin messages to the right */
+      }
+
+      &.youth-message {
+        margin-right: auto; /* keep youth messages to the left */
+      }
 
       &.youth-message {
         background: #e8f4ff;
@@ -402,6 +413,7 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 8px;
+        gap: 12px;
 
         .update-sender {
           display: flex;
@@ -411,7 +423,7 @@
 
         .sender-label {
           font-size: 12px;
-          font-weight: 700;
+          font-weight: 800;
           text-transform: uppercase;
           letter-spacing: 0.5px;
 
@@ -455,17 +467,19 @@
         }
 
         .update-date {
-          font-size: 12px;
+          font-size: 10px;
           color: #666;
           font-weight: 500;
+          white-space: nowrap;
+          margin-left: 8px;
         }
       }
 
       .update-message {
         font-size: 14px;
-        color: #666;
-        line-height: 1.5;
-        font-weight: 400;
+        color: #4b5563;
+        line-height: 1.4;
+        font-weight: 500;
         display: block;
         white-space: pre-wrap; /* respect newlines and wrap long text */
         word-wrap: break-word;
