@@ -16,7 +16,11 @@ public interface EventAttendanceRepo extends JpaRepository<EventAttendance, Inte
     Optional<EventAttendance> findByEventIdAndUserId(int eventId, int userId);
     List<EventAttendance> findByUserId(int userId);
     List<EventAttendance> findByEventId(int eventId);
+    List<EventAttendance> findByEventIdAndApprovalStatusIgnoreCase(int eventId, String approvalStatus);
     long countByEventId(int eventId);
+
+    @Query("SELECT ea.userId FROM EventAttendance ea WHERE ea.eventId = :eventId AND LOWER(ea.approvalStatus) = LOWER(:approvalStatus)")
+    List<Integer> findUserIdsByEventIdAndApprovalStatus(@Param("eventId") int eventId, @Param("approvalStatus") String approvalStatus);
 
     @Query("SELECT ea.eventId AS eventId, COUNT(ea) AS rsvpCount FROM EventAttendance ea WHERE ea.eventId IN :eventIds GROUP BY ea.eventId")
     List<EventRsvpCountProjection> countRsvpsByEventIds(@Param("eventIds") List<Integer> eventIds);
