@@ -225,8 +225,9 @@
     }
 
     .badge-type {
-      background: #d4e9f7;
-      color: #1565c0;
+      /* Use neutral gray for all concern types */
+      background: #eef0f2;
+      color: #495057;
     }
 
     .badge-status {
@@ -395,13 +396,18 @@
         margin-right: auto; /* keep youth messages to the left */
       }
 
+      /* Youth messages: neutral gray */
       &.youth-message {
-        background: #e8f4ff;
-        border: 1px solid #cfe5ff;
+        background: #f5f5f5;
+        border: 1px solid #e8e8e8;
+        color: #1a1a1a;
       }
 
+      /* SK Official / admin messages: blue */
       &.admin-message {
-        background: #f5f5f5;
+        background: #e8f4ff;
+        border: 1px solid #cfe5ff;
+        color: #0f2f67;
       }
 
       &:last-child {
