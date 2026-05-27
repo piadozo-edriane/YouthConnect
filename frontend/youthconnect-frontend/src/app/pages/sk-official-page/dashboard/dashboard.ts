@@ -253,6 +253,10 @@ export class Dashboard implements OnInit, OnDestroy {
     this.router.navigate(['/sk-official/task-tracker']);
   }
 
+  navigateToAssignedTasks(): void {
+    this.router.navigate(['/sk-official/task-tracker'], { state: { activeTab: 'assigned' } });
+  }
+
   navigateToYouthMembers(): void {
     this.router.navigate(['/sk-official/youth-profiling']);
   }
