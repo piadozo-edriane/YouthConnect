@@ -54,7 +54,7 @@
             <div *ngFor="let concern of paginatedConcerns" class="concern-card" (click)="updateConcern(concern)">
                 <div class="card-header">
                     <div class="card-title-group">
-                        <h3>{{ concern.title }}</h3>
+                        <h3 class="concern-title-fade">{{ concern.title }}</h3>
                     </div>
                 </div>
                 <div class="card-body">
@@ -70,7 +70,7 @@
                         </div>
                         <div class="meta-item">
                             <span class="meta-label">SUBMITTED BY:</span>
-                            <span>{{ concern.youthFirstName }} {{ concern.youthLastName }}</span>
+                            <span class="meta-fade">{{ concern.youthFirstName }} {{ concern.youthLastName }}</span>
                         </div>
                         <div class="meta-item status-meta">
                             <span class="meta-label">STATUS:</span>
