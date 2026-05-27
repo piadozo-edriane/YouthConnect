@@ -75,7 +75,7 @@
                         <h3>{{ getNotificationTitle(notification) }}</h3>
                         <span class="notif-time">{{ getTimeAgo(notification.createdAt) }}</span>
                     </div>
-                    <p class="notif-subtitle">{{ getNotificationSubtitle(notification) }}</p>
+                    <p class="notif-subtitle" *ngIf="(notification.updateText && notification.updateText !== notification.message) || (!notification.updateText && getNotificationSubtitle(notification) && getNotificationSubtitle(notification) !== notification.message)">{{ getNotificationSubtitle(notification) }}</p>
                     <p class="notif-message">{{ notification.message || notification.updateText }}</p>
                 </div>
 
