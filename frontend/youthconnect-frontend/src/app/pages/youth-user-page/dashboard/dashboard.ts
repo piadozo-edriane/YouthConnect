@@ -42,8 +42,8 @@ export class Dashboard implements OnInit, OnDestroy {
   stats = [
     { label: 'Upcoming events', value: 0, color: 'blue' },
     { label: 'Events Joined', value: 0, color: 'red' },
-    { label: 'My Concern', value: 0, color: 'yellow' },
-    { label: 'Resolved Concern', value: 0, color: 'gray' }
+    { label: 'My Concerns', value: 0, color: 'yellow' },
+    { label: 'Open Concerns', value: 0, color: 'gray' }
   ];
 
   upcomingEvents: EventResponse[] = [];
@@ -114,7 +114,7 @@ export class Dashboard implements OnInit, OnDestroy {
         this.stats[0].value = data.stats.myConcerns;
         this.stats[1].value = data.stats.upcomingEvents;
         this.stats[2].value = data.stats.eventsJoined;
-        this.stats[3].value = data.stats.resolvedConcerns;
+        this.stats[3].value = data.stats.openConcerns;
 
         // Update events and notifications
         this.upcomingEvents = data.upcomingEvents;
@@ -145,7 +145,7 @@ export class Dashboard implements OnInit, OnDestroy {
           this.stats[0].value = data.stats.myConcerns;
           this.stats[1].value = data.stats.upcomingEvents;
           this.stats[2].value = data.stats.eventsJoined;
-          this.stats[3].value = data.stats.resolvedConcerns;
+          this.stats[3].value = data.stats.openConcerns;
 
           this.upcomingEvents = data.upcomingEvents;
           this.notifications = data.notifications;
@@ -244,7 +244,11 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   navigateToResolvedConcerns(): void {
-    sessionStorage.setItem('concernStatusFilter', 'RESOLVED');
+    sessionStorage.setItem('concernStatusFilter', 'OPEN');
+    this.router.navigate(['/youth/create-concern']);
+  }
+
+  navigateToConcerns(): void {
     this.router.navigate(['/youth/create-concern']);
   }
 

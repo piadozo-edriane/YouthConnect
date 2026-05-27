@@ -9,7 +9,7 @@ export interface DashboardStats {
     myConcerns: number;
     upcomingEvents: number;
     eventsJoined: number;
-    resolvedConcerns: number;
+    openConcerns: number;
 }
 
 @Injectable({
@@ -45,7 +45,7 @@ export class YouthDashboardService {
                         e.status === 'Upcoming' || e.status === 'Open for Registration'
                     ).length,
                     eventsJoined: result.rsvps.length,
-                    resolvedConcerns: result.concerns.filter(c => c.status === 'RESOLVED').length
+                    openConcerns: result.concerns.filter(c => c.status === 'OPEN').length
                 };
 
                     // Get upcoming events (no hard limit; UI handles incremental display)

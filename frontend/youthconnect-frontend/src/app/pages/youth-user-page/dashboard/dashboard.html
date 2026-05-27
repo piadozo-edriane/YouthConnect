@@ -29,12 +29,12 @@
         <div *ngIf="!isLoading && !errorMessage" class="stats-section">
             <div class="stat-card blue-border" *ngFor="let stat of stats; let i = index"
                  [ngClass]="getStatClass(i)"
-                 [class.clickable]="i === 0 || i === 1 || i === 3"
-                 [attr.role]="i === 0 || i === 1 || i === 3 ? 'button' : null"
-                 [attr.tabindex]="i === 0 || i === 1 || i === 3 ? 0 : null"
-                 (click)="i === 0 ? navigateToEventsWithFilter('Upcoming') : i === 1 ? navigateToEventsWithFilter('Joined') : i === 3 ? navigateToResolvedConcerns() : null"
-                 (keydown.enter)="i === 0 ? navigateToEventsWithFilter('Upcoming') : i === 1 ? navigateToEventsWithFilter('Joined') : i === 3 ? navigateToResolvedConcerns() : null"
-                 (keydown.space)="i === 0 ? navigateToEventsWithFilter('Upcoming') : i === 1 ? navigateToEventsWithFilter('Joined') : i === 3 ? navigateToResolvedConcerns() : null">
+                 [class.clickable]="i === 0 || i === 1 || i === 2 || i === 3"
+                 [attr.role]="i === 0 || i === 1 || i === 2 || i === 3 ? 'button' : null"
+                 [attr.tabindex]="i === 0 || i === 1 || i === 2 || i === 3 ? 0 : null"
+                 (click)="i === 0 ? navigateToEventsWithFilter('Upcoming') : i === 1 ? navigateToEventsWithFilter('Joined') : i === 2 ? navigateToConcerns() : i === 3 ? navigateToResolvedConcerns() : null"
+                 (keydown.enter)="i === 0 ? navigateToEventsWithFilter('Upcoming') : i === 1 ? navigateToEventsWithFilter('Joined') : i === 2 ? navigateToConcerns() : i === 3 ? navigateToResolvedConcerns() : null"
+                 (keydown.space)="i === 0 ? navigateToEventsWithFilter('Upcoming') : i === 1 ? navigateToEventsWithFilter('Joined') : i === 2 ? navigateToConcerns() : i === 3 ? navigateToResolvedConcerns() : null">
                 <p class="stat-label">{{ stat.label }}</p>
                 <p class="stat-number">{{ stat.value }}</p>
             </div>
