@@ -81,7 +81,7 @@
 
                 <button 
                     type="submit" 
-                    [disabled]="isLoading()"
+                    [disabled]="isLoading() || loginForm.invalid"
                     class="btn-login">
                     {{ isLoading() ? 'Logging in...' : 'Login' }}
                 </button>
