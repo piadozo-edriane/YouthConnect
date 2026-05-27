@@ -50,7 +50,38 @@
 .details-actions {
   display: flex;
   gap: 20px;
+  align-items: center;
   margin-right: 20px;
+}
+
+.details-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #0052cc;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+  margin-bottom: -6px;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: #003fa0;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
 }
 
 .details-edit-btn,
