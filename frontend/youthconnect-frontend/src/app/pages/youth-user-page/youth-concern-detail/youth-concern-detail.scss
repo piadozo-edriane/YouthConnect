@@ -186,6 +186,37 @@
   }
 }
 
+@media (min-width: 901px) {
+  .content-layout {
+    height: auto;
+    min-height: 0;
+  }
+
+  .concern-card,
+  .right-card {
+    height: auto;
+    min-height: 0;
+  }
+
+  .concern-card {
+    overflow: visible;
+  }
+
+  .concern-card .concern-description {
+    overflow: visible;
+  }
+
+  .history-section {
+    overflow: visible;
+  }
+
+  .history-container {
+    overflow: visible;
+    max-height: none;
+    padding-right: 0;
+  }
+}
+
 // LEFT SIDE: Concern Card
 .concern-card {
   background: #fff;
@@ -197,6 +228,9 @@
   flex-direction: column;
   height: min(750px, calc(100vh - 150px));
   min-height: 690px;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 
   .concern-title {
     font-size: 24px;
@@ -204,9 +238,9 @@
     color: #1a1a1a;
     line-height: 1.2;
     margin-bottom: 18px;
-    word-wrap: break-word;
+    max-width: 100%;
+    overflow-wrap: anywhere;
     word-break: break-word;
-    overflow-wrap: break-word;
   }
 
   .concern-badges {
@@ -247,6 +281,8 @@
         font-size: 14px;
         font-weight: 500;
         color: #1a1a1a;
+        max-width: 100%;
+        overflow-wrap: anywhere;
         word-break: break-word;
       }
     }
@@ -260,6 +296,8 @@
 
   .concern-description {
     flex: 1;
+    overflow: auto;
+    min-height: 0;
 
     .description-label {
       font-size: 14px;
@@ -272,6 +310,9 @@
       font-size: 14px;
       color: #666;
       line-height: 1.6;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
   }
 }
@@ -562,6 +603,8 @@
   .concern-card,
   .right-card {
     padding: 20px;
+    height: auto;
+    min-height: 0;
   }
 }
 
