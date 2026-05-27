@@ -5,6 +5,7 @@ import { AuthService } from '../../../services/auth.service';
 import { YouthDashboardService, DashboardStats } from '../../../services/youth-dashboard.service';
 import { EventResponse } from '../../../services/event.service';
 import { NotificationResponse, NotificationService } from '../../../services/notification.service';
+import { YouthMemberManagementService, YouthProfileAccount } from '../../../services/youth-member-management.service';
 import { Subject, interval, takeUntil, switchMap } from 'rxjs';
 
 @Component({
@@ -18,6 +19,7 @@ export class Dashboard implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private dashboardService = inject(YouthDashboardService);
   private notificationService = inject(NotificationService);
+  private youthMemberService = inject(YouthMemberManagementService);
 
   private destroy$ = new Subject<void>();
   private readonly refreshIntervalMs = 30000;
@@ -31,6 +33,11 @@ export class Dashboard implements OnInit, OnDestroy {
   userId: number = 0;
   isLoading = false;
   errorMessage = '';
+
+  // Profile modal
+  showProfileModal = false;
+  userProfile: YouthProfileAccount | null = null;
+  isLoadingProfile = false;
 
   stats = [
     { label: 'Upcoming events', value: 0, color: 'blue' },
@@ -285,6 +292,110 @@ export class Dashboard implements OnInit, OnDestroy {
   getItemColor(index: number): string {
     const colors = ['red', 'blue', 'yellow', 'gray', 'green'];
     return colors[index % colors.length];
+  }
+
+  openProfileModal(): void {
+    this.showProfileModal = true;
+    if (!this.userProfile) {
+      this.loadUserProfile();
+    }
+  }
+
+  closeProfileModal(): void {
+    this.showProfileModal = false;
+  }
+
+  loadUserProfile(): void {
+    if (!this.youthId) return;
+    this.isLoadingProfile = true;
+    this.youthMemberService.getYouthProfileById(this.youthId).subscribe({
+      next: (profile) => {
+        this.userProfile = profile;
+        this.isLoadingProfile = false;
+      },
+      error: () => {
+        this.isLoadingProfile = false;
+      }
+    });
+  }
+
+  getAge(birthday: string): number {
+    if (!birthday) return 0;
+    const today = new Date();
+    const birth = new Date(birthday);
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    return age;
+  }
+
+  formatBirthday(dateString: string): string {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  formatProfileDate(dateString: string): string {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  getGenderLabel(gender: string): string {
+    const map: { [k: string]: string } = { 'MALE': 'Male', 'FEMALE': 'Female' };
+    return map[gender] || gender || 'N/A';
+  }
+
+  getCivilStatusLabel(status: string): string {
+    const map: { [k: string]: string } = {
+      'SINGLE': 'Single', 'MARRIED': 'Married', 'WIDOWED': 'Widowed',
+      'DIVORCED': 'Divorced', 'ANNULLED': 'Annulled', 'LIVE_IN': 'Live In', 'UNKNOWN': 'Unknown'
+    };
+    return map[status] || status || 'N/A';
+  }
+
+  getYouthClassificationLabel(val?: string): string {
+    if (!val) return 'N/A';
+    const map: { [k: string]: string } = {
+      'IN_SCHOOL_YOUTH': 'In School Youth',
+      'OUT_OF_SCHOOL_YOUTH': 'Out of School Youth',
+      'WORKING_YOUTH': 'Working Youth',
+      'PERSON_WITH_DISABILITY': 'Person with Disability',
+      'CHILDREN_IN_CONFLICT': 'Children in Conflict',
+      'CHILDREN_IN_CONFLICT_LAW': 'Children in Conflict with Law',
+      'INDIGENOUS_PEOPLE': 'Indigenous People'
+    };
+    return map[val] || val;
+  }
+
+  getEducationLabel(val?: string): string {
+    if (!val) return 'N/A';
+    const map: { [k: string]: string } = {
+      'ELEMENTARY_LEVEL': 'Elementary Level',
+      'ELEMENTARY_GRADUATE': 'Elementary Graduate',
+      'HIGH_SCHOOL_LEVEL': 'High School Level',
+      'HIGH_SCHOOL_GRADUATE': 'High School Graduate',
+      'VOCATIONAL_GRAD': 'Vocational Graduate',
+      'COLLEGE_LEVEL': 'College Level',
+      'COLLEGE_GRADUATE': 'College Graduate',
+      'MASTERS_LEVEL': "Master's Level",
+      'MASTERS_GRADUATE': "Master's Graduate",
+      'DOCTOR_LEVEL': 'Doctoral Level',
+      'DOCTOR_GRADUATE': 'Doctoral Graduate'
+    };
+    return map[val] || val;
+  }
+
+  getWorkStatusLabel(val?: string): string {
+    if (!val) return 'N/A';
+    const map: { [k: string]: string } = {
+      'EMPLOYED': 'Employed',
+      'UNEMPLOYED': 'Unemployed',
+      'SELF_EMPLOYED': 'Self Employed',
+      'CURRENTLY_LOOKING': 'Currently Looking',
+      'NOT_INTERESTED': 'Not Interested'
+    };
+    return map[val] || val;
   }
 
   getInitials(): string {
