@@ -13,6 +13,7 @@ export interface NotificationResponse {
     message?: string;
     type?: string; // NEW_EVENT, EVENT_STATUS, CONCERN_UPDATE
     relatedEventId?: number;
+    relatedAttendanceId?: number;
     relatedConcernId?: number;
     isRead?: boolean;
     createdAt: string;

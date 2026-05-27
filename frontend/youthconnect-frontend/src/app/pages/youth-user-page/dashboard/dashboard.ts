@@ -1,10 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { YouthDashboardService, DashboardStats } from '../../../services/youth-dashboard.service';
 import { EventResponse } from '../../../services/event.service';
-import { NotificationResponse } from '../../../services/notification.service';
+import { NotificationResponse, NotificationService } from '../../../services/notification.service';
+import { Subject, interval, takeUntil, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,10 +13,14 @@ import { NotificationResponse } from '../../../services/notification.service';
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class Dashboard implements OnInit {
+export class Dashboard implements OnInit, OnDestroy {
   private router = inject(Router);
   private authService = inject(AuthService);
   private dashboardService = inject(YouthDashboardService);
+  private notificationService = inject(NotificationService);
+
+  private destroy$ = new Subject<void>();
+  private readonly refreshIntervalMs = 30000;
 
   userName = 'John Doe';
   userEmail = 'johndoe@gmail.com';
@@ -57,7 +62,13 @@ export class Dashboard implements OnInit {
         .join(' ');
 
       this.loadDashboardData();
+      this.setupAutoRefresh();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadDashboardData(): void {
@@ -93,6 +104,31 @@ export class Dashboard implements OnInit {
     });
   }
 
+  private setupAutoRefresh(): void {
+    interval(this.refreshIntervalMs)
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap(() => this.dashboardService.getDashboardData(this.youthId, this.userId))
+      )
+      .subscribe({
+        next: (data) => {
+          this.stats[0].value = data.stats.myConcerns;
+          this.stats[1].value = data.stats.upcomingEvents;
+          this.stats[2].value = data.stats.eventsJoined;
+          this.stats[3].value = data.stats.resolvedConcerns;
+
+          this.upcomingEvents = data.upcomingEvents;
+          this.notifications = data.notifications;
+          this.updateDisplayedEvents();
+          this.updateDisplayedNotifications();
+          this.notificationService.refreshUnreadCount();
+        },
+        error: (error) => {
+          console.error('Error refreshing dashboard data:', error);
+        }
+      });
+  }
+
   get filteredNotifications(): NotificationResponse[] {
     if (this.notificationFilter === 'unread') {
       return this.notifications.filter(n => !n.isRead);
@@ -109,6 +145,18 @@ export class Dashboard implements OnInit {
     this.displayedNotifications = source.slice(0, this.visibleNotificationsCount);
   }
 
+  private navigateForNotification(notification: NotificationResponse): void {
+    if (notification.type === 'CONCERN_UPDATE' && notification.relatedConcernId) {
+      this.router.navigate(['/youth/concern', notification.relatedConcernId]);
+      return;
+    }
+
+    if (notification.relatedEventId) {
+      sessionStorage.setItem('highlightEventId', notification.relatedEventId.toString());
+      this.router.navigate(['/youth/events']);
+    }
+  }
+
   showMoreEvents(): void {
     this.visibleEventsCount = Math.min(this.visibleEventsCount + 10, this.upcomingEvents.length);
     this.updateDisplayedEvents();
@@ -118,6 +166,26 @@ export class Dashboard implements OnInit {
     const source = this.filteredNotifications;
     this.visibleNotificationsCount = Math.min(this.visibleNotificationsCount + 10, source.length);
     this.updateDisplayedNotifications();
+  }
+
+  onNotificationClick(notification: NotificationResponse): void {
+    if (!notification.isRead && notification.notificationId) {
+      this.notificationService.markNotificationAsRead(notification.notificationId).subscribe({
+        next: () => {
+          notification.isRead = true;
+          notification.readAt = new Date().toISOString();
+          this.updateDisplayedNotifications();
+          this.notificationService.refreshUnreadCount();
+          this.navigateForNotification(notification);
+        },
+        error: () => {
+          this.navigateForNotification(notification);
+        }
+      });
+      return;
+    }
+
+    this.navigateForNotification(notification);
   }
 
   trackByEventId(index: number, event: EventResponse): any {

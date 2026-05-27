@@ -72,12 +72,13 @@
                     <span class="view-all">{{ filteredNotifications.length }} ➜</span>
                 </div>
                 <div class="card-content">
-                    <div class="notification-item" *ngFor="let notification of displayedNotifications; trackBy: trackByNotificationId">
+                    <div class="notification-item clickable-notification" *ngFor="let notification of displayedNotifications; trackBy: trackByNotificationId"
+                         (click)="onNotificationClick(notification)">
                         <div class="notification-header">
-                            <span class="notification-title">{{ notification.updatedByAdminName || 'SK Official' }}</span>
+                            <span class="notification-title">{{ notification.title || notification.updatedByAdminName || 'Notification' }}</span>
                             <span class="notification-time">Due: {{ getTimeAgo(notification.createdAt) }}</span>
                         </div>
-                        <div class="notification-message">{{ notification.updateText }}</div>
+                        <div class="notification-message">{{ notification.message || notification.updateText }}</div>
                         <span class="unread-badge" *ngIf="!isNotificationRead(notification)">UNREAD</span>
                     </div>
                     <div *ngIf="filteredNotifications.length === 0" class="no-data-message">

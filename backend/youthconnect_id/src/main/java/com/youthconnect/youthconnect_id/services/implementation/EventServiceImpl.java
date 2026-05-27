@@ -393,6 +393,23 @@ public class EventServiceImpl implements EventService {
             }
             
             System.out.println("✅ Event found: " + event.getTitle());
+
+            try {
+                boolean approved = "approved".equalsIgnoreCase(status);
+                notificationService.createAttendeeDecisionNotification(
+                        eventId,
+                        attendance.getAttendanceId(),
+                        user.getUserId(),
+                        user.getYouthId(),
+                        event.getTitle(),
+                        approved,
+                        request.getRejectionReason()
+                );
+                System.out.println("✅ Attendee notification saved successfully");
+            } catch (Exception notificationError) {
+                System.err.println("❌ Failed to create attendee notification: " + notificationError.getMessage());
+                notificationError.printStackTrace();
+            }
             
             // Get user's name from youth profile
             com.youthconnect.youthconnect_id.models.YouthProfile profile = 
