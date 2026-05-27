@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ConcernService, ConcernResponse, ConcernUpdate } from '../../../services/concern.service';
+import { NotificationService } from '../../../services/notification.service';
 import { AuthService } from '../../../services/auth.service';
 import { ActivatedRoute } from '@angular/router';
 
@@ -15,6 +16,7 @@ import { ActivatedRoute } from '@angular/router';
 export class CreateConcern implements OnInit, AfterViewInit {
   private fb = inject(FormBuilder);
   private concernService = inject(ConcernService);
+  private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -477,6 +479,7 @@ export class CreateConcern implements OnInit, AfterViewInit {
         next: () => {
           console.log('Concern deleted:', this.concernToDelete);
           this.loadConcerns();
+          this.notificationService.refreshUnreadCount();
           this.cancelDelete();
           this.showSuccessToast('Concern deleted successfully!');
           this.isLoading = false;

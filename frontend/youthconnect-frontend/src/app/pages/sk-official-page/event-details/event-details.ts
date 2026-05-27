@@ -6,7 +6,6 @@ import { forkJoin, interval, of, Subscription, switchMap } from 'rxjs';
 import { EventService, EventResponse, EventRequest, AttendanceResponse } from '../../../services/event.service';
 import { YouthMemberManagementService } from '../../../services/youth-member-management.service';
 import { AuthService } from '../../../services/auth.service';
-import jsPDF from 'jspdf';
 
 export interface AttendeeRecord {
   attendanceId: number;
@@ -15,7 +14,6 @@ export interface AttendeeRecord {
   name: string;
   email: string;
   contactNumber: string;
-  gender: string;
   approvalStatus: 'pending' | 'approved' | 'rejected';
   registeredAt: string;
   isAttended: boolean;
@@ -168,7 +166,6 @@ export class EventDetailsPage implements OnInit, OnDestroy {
               : 'Unknown User';
             const email = user?.email || 'No email';
             const contactNumber = profile?.contactNumber || 'N/A';
-            const gender = profile?.gender || 'N/A';
 
             return {
               attendanceId: rsvp.attendanceId,
@@ -177,7 +174,6 @@ export class EventDetailsPage implements OnInit, OnDestroy {
               name,
               email,
               contactNumber,
-              gender,
               approvalStatus: (rsvp.approvalStatus || 'pending') as 'pending' | 'approved' | 'rejected',
               registeredAt: rsvp.registeredAt,
               isAttended: rsvp.isAttended ?? false,
@@ -224,6 +220,15 @@ export class EventDetailsPage implements OnInit, OnDestroy {
     } else {
       this.router.navigate(['/sk-official/events']);
     }
+  }
+
+  exportEventReport(): void {
+    if (!this.selectedEvent) {
+      this.showNotification('Event details are not available yet.', 'error');
+      return;
+    }
+
+    this.showNotification('Export is not available yet. Please try again later.', 'error');
   }
 
   editEvent(event: EventResponse): void {
@@ -399,7 +404,6 @@ export class EventDetailsPage implements OnInit, OnDestroy {
             : 'Unknown User';
           const email = user?.email || 'No email';
           const contactNumber = profile?.contactNumber || 'N/A';
-          const gender = profile?.gender || 'N/A';
 
           return {
             attendanceId: rsvp.attendanceId,
@@ -408,7 +412,6 @@ export class EventDetailsPage implements OnInit, OnDestroy {
             name,
             email,
             contactNumber,
-            gender,
             approvalStatus: (rsvp.approvalStatus || 'pending') as 'pending' | 'approved' | 'rejected',
             registeredAt: rsvp.registeredAt,
             isAttended: rsvp.isAttended ?? false,
@@ -937,372 +940,5 @@ export class EventDetailsPage implements OnInit, OnDestroy {
     setTimeout(() => {
       this.notifications = this.notifications.filter(n => n.id !== id);
     }, 3000);
-  }
-
-  // ─── PDF Export ───────────────────────────────────────────────────────────
-
-  exportEventReport(): void {
-    if (!this.selectedEvent) return;
-
-    const event = this.selectedEvent;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const pageW = doc.internal.pageSize.getWidth();
-    const pageH = doc.internal.pageSize.getHeight();
-    const margin = 20;
-    const contentW = pageW - margin * 2;
-    let y = margin;
-
-    const primaryColor: [number, number, number] = [0, 82, 204];
-    const darkText: [number, number, number] = [26, 26, 26];
-    const mutedText: [number, number, number] = [102, 102, 102];
-    const lightBg: [number, number, number] = [245, 247, 250];
-    const borderColor: [number, number, number] = [220, 220, 220];
-
-    const checkPage = (needed: number) => {
-      if (y + needed > pageH - margin - 10) {
-        doc.addPage();
-        y = margin;
-      }
-    };
-
-    // ── Header bar ──────────────────────────────────────────────────────────
-    doc.setFillColor(...primaryColor);
-    doc.rect(0, 0, pageW, 25, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(14);
-    doc.setTextColor(255, 255, 255);
-    doc.text('YouthConnect — Event Completion Report', pageW / 2, 15, { align: 'center' });
-    y = 35;
-
-    // ── Event title ─────────────────────────────────────────────────────────
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(20);
-    doc.setTextColor(...darkText);
-    const titleLines = doc.splitTextToSize(event.title, contentW) as string[];
-    doc.text(titleLines, margin, y);
-    y += titleLines.length * 8 + 6;
-
-    // Status pill
-    doc.setFillColor(191, 228, 196);
-    doc.setDrawColor(191, 228, 196);
-    doc.roundedRect(margin, y, 32, 8, 2, 2, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.setTextColor(27, 79, 38);
-    doc.text('COMPLETED', margin + 16, y + 5.5, { align: 'center' });
-    y += 14;
-
-    // ── Section: Event Overview ──────────────────────────────────────────────
-    doc.setFillColor(...lightBg);
-    doc.rect(margin, y, contentW, 8, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.setTextColor(...primaryColor);
-    doc.text('EVENT OVERVIEW', margin + 4, y + 5.5);
-    y += 12;
-
-    const infoRows: [string, string][] = [
-      ['Date & Time', this.formatDate(event.eventDate)],
-      ['Location', event.location || 'N/A'],
-      ['Max Capacity', event.attendeeLimit != null ? String(event.attendeeLimit) : 'N/A'],
-    ];
-
-    doc.setFontSize(10);
-    for (const [label, value] of infoRows) {
-      checkPage(10);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...mutedText);
-      doc.text(label + ':', margin + 2, y);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(...darkText);
-      const valLines = doc.splitTextToSize(value, contentW - 50) as string[];
-      doc.text(valLines, margin + 48, y);
-      y += Math.max(6, valLines.length * 6);
-    }
-
-    // Description — same inline label+value layout as other rows
-    checkPage(10);
-    const descText = event.description || 'N/A';
-    const descLines = doc.splitTextToSize(descText, contentW - 50) as string[];
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.setTextColor(...mutedText);
-    doc.text('Description:', margin + 2, y);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...darkText);
-    doc.text(descLines[0], margin + 48, y);
-    y += 6;
-    for (let i = 1; i < descLines.length; i++) {
-      checkPage(7);
-      doc.text(descLines[i], margin + 48, y);
-      y += 6;
-    }
-    y += 8;
-
-    // ── Section: Attendance Summary ──────────────────────────────────────────
-    checkPage(80);
-    doc.setFillColor(...lightBg);
-    doc.rect(margin, y, contentW, 8, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.setTextColor(...primaryColor);
-    doc.text('ATTENDANCE SUMMARY', margin + 4, y + 5.5);
-    y += 12;
-
-    const approved  = this.approvedCount;
-    const capacity  = event.attendeeLimit || 0;
-    const attended  = this.attendedCount;
-    const rate      = capacity > 0 ? Math.round((attended / capacity) * 100) : 0;
-    const remaining = Math.max(0, capacity - attended);
-
-    // ── Stat boxes (3 columns: Approved Attendees | Participant Limit | Attendance Rate) ──
-    const summaryItems = [
-      { label: 'Approved Attendees', value: String(approved) },
-      { label: 'Participant Limit',  value: capacity > 0 ? String(capacity) : '—' },
-      { label: 'Attendance Rate',    value: `${rate}%` },
-    ];
-
-    const colW = contentW / 3;
-    doc.setFillColor(255, 255, 255);
-    doc.setDrawColor(...borderColor);
-    doc.rect(margin, y, contentW, 24, 'FD');
-
-    summaryItems.forEach((item, idx) => {
-      const x = margin + idx * colW;
-      if (idx > 0) {
-        doc.setDrawColor(...borderColor);
-        doc.line(x, y, x, y + 24);
-      }
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(16);
-      doc.setTextColor(...primaryColor);
-      doc.text(item.value, x + colW / 2, y + 12, { align: 'center' });
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(9);
-      doc.setTextColor(...mutedText);
-      const labelLines = doc.splitTextToSize(item.label, colW - 4) as string[];
-      let labelY = y + 18;
-      labelLines.forEach(line => {
-        doc.text(line, x + colW / 2, labelY, { align: 'center' });
-        labelY += 4;
-      });
-    });
-    y += 30;
-
-    // ── Donut chart: Attended vs Remaining capacity ───────────────────────────
-    // Two segments: attended (blue) + remaining (light grey)
-    const donutR = 22;
-    const holeR  = 12;
-    const cx     = margin + donutR + 6;
-    const cy     = y + donutR + 4;
-    const chartH = donutR * 2 + 10;
-
-    const drawPieSegment = (
-      centerX: number, centerY: number, r: number,
-      startAngle: number, endAngle: number,
-      color: [number, number, number]
-    ) => {
-      if (Math.abs(endAngle - startAngle) < 0.001) return;
-      const steps = Math.max(6, Math.ceil(Math.abs(endAngle - startAngle) / (Math.PI / 24)));
-      const step  = (endAngle - startAngle) / steps;
-      doc.setFillColor(...color);
-      doc.setDrawColor(...color);
-      for (let i = 0; i < steps; i++) {
-        const a1 = startAngle + i * step;
-        const a2 = a1 + step;
-        const x1 = centerX + r * Math.cos(a1);
-        const y1 = centerY + r * Math.sin(a1);
-        const x2 = centerX + r * Math.cos(a2);
-        const y2 = centerY + r * Math.sin(a2);
-        doc.triangle(centerX, centerY, x1, y1, x2, y2, 'F');
-      }
-    };
-
-    const attendedColor:  [number, number, number] = [0, 82, 204];   // blue
-    const remainingColor: [number, number, number] = [220, 230, 245]; // light blue-grey
-
-    if (capacity > 0) {
-      const attendedSweep  = (attended  / capacity) * 2 * Math.PI;
-      const remainingSweep = (remaining / capacity) * 2 * Math.PI;
-      const startAngle = -Math.PI / 2; // 12 o'clock
-
-      // Draw remaining first (background), then attended on top
-      if (remaining > 0) {
-        drawPieSegment(cx, cy, donutR, startAngle + attendedSweep, startAngle + attendedSweep + remainingSweep, remainingColor);
-      }
-      if (attended > 0) {
-        drawPieSegment(cx, cy, donutR, startAngle, startAngle + attendedSweep, attendedColor);
-      }
-      // If both zero, draw full grey
-      if (attended === 0 && remaining === 0) {
-        drawPieSegment(cx, cy, donutR, -Math.PI / 2, 3 * Math.PI / 2, [200, 200, 200]);
-      }
-    } else {
-      // No capacity set — full grey
-      drawPieSegment(cx, cy, donutR, -Math.PI / 2, 3 * Math.PI / 2, [200, 200, 200]);
-    }
-
-    // Punch hole
-    doc.setFillColor(255, 255, 255);
-    doc.setDrawColor(255, 255, 255);
-    doc.circle(cx, cy, holeR, 'F');
-
-    // Centre label
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.setTextColor(...primaryColor);
-    doc.text(`${rate}%`, cx, cy - 1, { align: 'center' });
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7);
-    doc.setTextColor(...mutedText);
-    doc.text('attended', cx, cy + 4.5, { align: 'center' });
-
-    // Legend (right of donut)
-    const legendX = cx + donutR + 10;
-    let legendY   = cy - 8;
-    const legendItems: { label: string; value: string; color: [number, number, number] }[] = [
-      { label: 'Attended',        value: String(attended),  color: attendedColor  },
-      { label: 'Remaining Slots', value: String(remaining), color: remainingColor },
-    ];
-
-    for (const item of legendItems) {
-      // Colour swatch
-      doc.setFillColor(...item.color);
-      doc.setDrawColor(...borderColor);
-      doc.rect(legendX, legendY - 3.2, 4, 4, 'FD');
-      // Label
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(9);
-      doc.setTextColor(...mutedText);
-      doc.text(item.label, legendX + 6, legendY);
-      // Value (bold, right-aligned within legend area)
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...darkText);
-      doc.text(item.value, legendX + 70, legendY, { align: 'right' });
-      legendY += 9;
-    }
-
-    y += chartH + 6;
-
-    // ── Section: Attendee List ───────────────────────────────────────────────
-    checkPage(25);
-    doc.setFillColor(...lightBg);
-    doc.rect(margin, y, contentW, 8, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.setTextColor(...primaryColor);
-    doc.text('ATTENDEE LIST (Approved Only)', margin + 4, y + 5.5);
-    y += 12;
-
-    // Table header
-    const cols = [
-      { label: '#', w: 12 },
-      { label: 'Full Name', w: 60 },
-      { label: 'Contact Number', w: 40 },
-      { label: 'Gender', w: 28 },
-      { label: 'Status', w: 34 },
-    ];
-    const rowH = 9;
-
-    const drawTableHeader = () => {
-      doc.setFillColor(...primaryColor);
-      doc.rect(margin, y, contentW, rowH, 'F');
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
-      doc.setTextColor(255, 255, 255);
-      let cx = margin + 3;
-      for (const col of cols) {
-        doc.text(col.label, cx, y + 6);
-        cx += col.w;
-      }
-      y += rowH;
-    };
-
-    drawTableHeader();
-
-    const approvedList = this.allAttendees.filter(a => a.approvalStatus === 'approved');
-
-    if (approvedList.length === 0) {
-      checkPage(12);
-      doc.setFont('helvetica', 'italic');
-      doc.setFontSize(10);
-      doc.setTextColor(...mutedText);
-      doc.text('No approved attendees.', margin + 4, y + 8);
-      y += 12;
-    } else {
-      approvedList.forEach((attendee, idx) => {
-        // Check if we need a new page and redraw header if needed
-        if (y + rowH > pageH - margin - 10) {
-          doc.addPage();
-          y = margin;
-          drawTableHeader();
-        }
-
-        // Zebra stripe
-        if (idx % 2 === 0) {
-          doc.setFillColor(248, 250, 252);
-          doc.rect(margin, y, contentW, rowH, 'F');
-        }
-
-        doc.setDrawColor(...borderColor);
-        doc.rect(margin, y, contentW, rowH, 'S');
-
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(9);
-        doc.setTextColor(...darkText);
-
-        const cells = [
-          String(idx + 1),
-          attendee.name,
-          attendee.contactNumber,
-          attendee.gender === 'MALE' ? 'Male' : attendee.gender === 'FEMALE' ? 'Female' : attendee.gender,
-          'Approved',
-        ];
-
-        let cx = margin + 3;
-        cells.forEach((cell, ci) => {
-          const maxW = cols[ci].w - 4;
-          const truncated = doc.splitTextToSize(cell, maxW)[0] as string;
-          doc.text(truncated, cx, y + 6);
-          cx += cols[ci].w;
-        });
-
-        y += rowH;
-      });
-    }
-
-    y += 10;
-
-    // ── Footer: Report Metadata ──────────────────────────────────────────────
-    checkPage(20);
-    doc.setDrawColor(...borderColor);
-    doc.line(margin, y, pageW - margin, y);
-    y += 6;
-
-    const skName = localStorage.getItem('sk_official_name') || 'SK Official';
-    const exportedAt = new Date().toLocaleDateString('en-US', {
-      year: 'numeric', month: 'long', day: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    });
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(...mutedText);
-    doc.text(`Generated by: ${skName}`, margin, y);
-    doc.text(`Exported on: ${exportedAt}`, margin, y + 6);
-
-    // Page numbers
-    const totalPages = (doc.internal as any).getNumberOfPages();
-    for (let i = 1; i <= totalPages; i++) {
-      doc.setPage(i);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(9);
-      doc.setTextColor(...mutedText);
-      doc.text(`Page ${i} of ${totalPages}`, pageW - margin, pageH - 10, { align: 'right' });
-    }
-
-    const safeName = event.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-    doc.save(`event-report-${safeName}.pdf`);
-    this.showNotification('Event report exported successfully!', 'success');
   }
 }
