@@ -173,7 +173,7 @@
 // Main Content Layout
 .content-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 24px;
   align-items: stretch;
   height: min(750px, calc(100vh - 150px));
@@ -413,11 +413,11 @@
           letter-spacing: 0.5px;
 
           &.sender-youth {
-            color: #0d47a1;
+            color: #666;
           }
 
           &.sender-admin {
-            color: #1b5e20;
+            color: #666;
           }
         }
 

@@ -96,11 +96,16 @@
                                 <div class="update-header">
                                     <div class="update-sender">
                                         <span class="sender-label" [ngClass]="{ 'sender-youth': isYouthMessage(update), 'sender-admin': !isYouthMessage(update) }">
-                                            {{ getSenderLabel(update) }}
+                                            <ng-container *ngIf="isYouthMessage(update); else adminOnly">
+                                                YOUTH
+                                            </ng-container>
+                                            <ng-template #adminOnly>SK OFFICIAL</ng-template>
                                         </span>
-                                        <span class="update-status-badge" [ngClass]="'status-' + getStatusClass(update.status)">
-                                            {{ getStatusLabel(update.status).toUpperCase() }}
-                                        </span>
+                                        <ng-container *ngIf="!isYouthMessage(update)">
+                                            <span class="update-status-badge" [ngClass]="'status-' + getStatusClass(update.status)">
+                                                {{ getStatusLabel(update.status).toUpperCase() }}
+                                            </span>
+                                        </ng-container>
                                     </div>
                                     <span class="update-date">{{ formatDateShort(update.createdAt) }}</span>
                                 </div>
