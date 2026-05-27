@@ -187,16 +187,17 @@ public class EventServiceImpl implements EventService {
     
     private void notifyRegisteredUsersAboutStatusChange(Event event, String newStatus) {
         try {
-            // Get all users who RSVP'd to this event
-            List<EventAttendance> attendances = eventAttendanceRepo.findByEventId(event.getEventId());
+            // Only approved attendees should receive event status notifications.
+            List<EventAttendance> attendances = eventAttendanceRepo
+                    .findByEventIdAndApprovalStatusIgnoreCase(event.getEventId(), "approved");
             
             if (attendances.isEmpty()) {
-                System.out.println("⚠️ No registered users to notify about status change for event: " + event.getTitle());
+                System.out.println("⚠️ No approved attendees to notify about status change for event: " + event.getTitle());
                 return;
             }
             
             System.out.println("📧 Queuing event status change notifications (" + newStatus + ") for " + 
-                             attendances.size() + " registered users (async)");
+                             attendances.size() + " approved attendees (async)");
             
             // Get user objects from attendances
             List<com.youthconnect.youthconnect_id.models.User> registeredUsers = new java.util.ArrayList<>();

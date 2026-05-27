@@ -1,7 +1,9 @@
 package com.youthconnect.youthconnect_id.services.implementation;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import com.youthconnect.youthconnect_id.models.ConcernUpdate;
 import com.youthconnect.youthconnect_id.models.Notification;
 import com.youthconnect.youthconnect_id.repositories.ConcernRepo;
 import com.youthconnect.youthconnect_id.repositories.ConcernUpdateRepo;
+import com.youthconnect.youthconnect_id.repositories.EventAttendanceRepo;
 import com.youthconnect.youthconnect_id.repositories.NotificationRepo;
 import com.youthconnect.youthconnect_id.repositories.SkOfficialRepo;
 import com.youthconnect.youthconnect_id.repositories.UserRepo;
@@ -35,6 +38,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Autowired
     private UserRepo userRepo;
+
+    @Autowired
+    private EventAttendanceRepo eventAttendanceRepo;
 
     /**
      * Get all notifications for a youth user (from concern updates - backward compatibility)
@@ -151,16 +157,31 @@ public class NotificationServiceImpl implements NotificationService {
     public void createEventStatusNotification(int eventId, String eventTitle, String newStatus, 
                                               List<Integer> userIds) {
         try {
-            if (userIds.isEmpty()) {
+            if (userIds == null || userIds.isEmpty()) {
                 System.out.println("⚠️ No users to create event status notifications");
+                return;
+            }
+
+            Set<Integer> approvedUserIds = new HashSet<>(
+                    eventAttendanceRepo.findUserIdsByEventIdAndApprovalStatus(eventId, "approved")
+            );
+
+            if (approvedUserIds.isEmpty()) {
+                System.out.println("⚠️ No approved attendees found for event status notifications");
                 return;
             }
             
             String notificationTitle = "Event Status Changed";
             String notificationMessage = "The event '" + eventTitle + "' is now " + newStatus;
             
+            int createdCount = 0;
+
             // Create notification for each user
             for (Integer userId : userIds) {
+                if (!approvedUserIds.contains(userId)) {
+                    continue;
+                }
+
                 com.youthconnect.youthconnect_id.models.User user = userRepo.findById(userId).orElse(null);
                 if (user != null) {
                     Notification notification = new Notification();
@@ -174,10 +195,11 @@ public class NotificationServiceImpl implements NotificationService {
                     notification.setCreatedAt(LocalDateTime.now());
                     
                     notificationRepo.save(notification);
+                    createdCount++;
                 }
             }
             
-            System.out.println("✅ Created event status notifications for " + userIds.size() + " users");
+            System.out.println("✅ Created event status notifications for " + createdCount + " approved attendees");
         } catch (Exception e) {
             System.err.println("❌ Error creating event status notifications: " + e.getMessage());
             e.printStackTrace();
