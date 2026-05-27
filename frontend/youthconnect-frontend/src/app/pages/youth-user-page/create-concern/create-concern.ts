@@ -82,6 +82,14 @@ export class CreateConcern implements OnInit, AfterViewInit {
       this.route.paramMap.subscribe(params => {
         const param = params.get('concernId');
         const cId = param ? Number(param) : null;
+
+        // Check if there's a pre-set status filter (e.g. from dashboard stat card)
+        const statusFilter = sessionStorage.getItem('concernStatusFilter');
+        if (statusFilter) {
+          this.selectedStatusFilter = statusFilter;
+          sessionStorage.removeItem('concernStatusFilter');
+        }
+
         // Load concerns first
         this.loadConcerns();
         // If route param specifies a concern, auto-open it after loading

@@ -236,6 +236,11 @@ export class Dashboard implements OnInit, OnDestroy {
     this.router.navigate(['/youth/events']);
   }
 
+  navigateToResolvedConcerns(): void {
+    sessionStorage.setItem('concernStatusFilter', 'RESOLVED');
+    this.router.navigate(['/youth/create-concern']);
+  }
+
   navigateToNotifications(): void {
     this.router.navigate(['/youth/notifications']);
   }
