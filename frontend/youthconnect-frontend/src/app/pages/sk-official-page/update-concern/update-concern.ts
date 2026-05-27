@@ -208,7 +208,6 @@ export class UpdateConcern implements OnInit, AfterViewChecked, OnDestroy {
         status: statusToSend
       }).subscribe({
         next: () => {
-          this.showToast('Response sent and status updated successfully!', 'success');
 
           if (this.concern) {
             this.concern.status = statusToSend || this.concern.status;
