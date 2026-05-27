@@ -3,6 +3,7 @@ package com.youthconnect.youthconnect_id.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -57,6 +58,16 @@ public class AdminConcernController {
     public ResponseEntity<?> getUpdates(@PathVariable int concernId) {
         try {
             return ResponseEntity.ok(concernService.getConcernUpdates(concernId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{concernId}")
+    public ResponseEntity<?> deleteConcern(@PathVariable int concernId) {
+        try {
+            concernService.deleteConcern(concernId);
+            return ResponseEntity.ok("Concern deleted successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed: " + e.getMessage());
         }

@@ -25,12 +25,20 @@
             </div>
         </div>
 
-        <!-- Back Button -->
-        <button class="back-button" (click)="goBack()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-        </button>
+        <!-- Top Bar: Back + Delete -->
+        <div class="details-top-bar">
+            <button class="back-button" (click)="goBack()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div class="details-actions" *ngIf="concern">
+                <button class="details-delete-btn" (click)="openDeleteModal()" title="Delete concern"
+                    [disabled]="concern?.status !== 'CLOSED'">
+                    <img src="../../assets/sk-official-events-icons/delete.svg" alt="Delete" width="22" height="22">
+                </button>
+            </div>
+        </div>
 
         <!-- Loading State -->
         <div *ngIf="isLoading && !concern" class="loading-indicator">
@@ -149,6 +157,31 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+</div>
+
+<!-- Delete Concern Modal -->
+<div class="modal-overlay" *ngIf="isDeleteModalOpen">
+    <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title">Confirm Delete</h2>
+            </div>
+            <button class="close-btn" (click)="closeDeleteModal()">✕</button>
+        </div>
+        <div class="modal-body-wrapper">
+            <div class="modal-body">
+                <p class="confirmation-text">
+                    Are you sure you want to permanently delete <strong>{{ concern?.title }}</strong>? This action cannot be undone.
+                </p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeDeleteModal()" [disabled]="isDeleting">Cancel</button>
+            <button type="button" class="btn-delete" (click)="confirmDeleteConcern()" [disabled]="isDeleting">
+                {{ isDeleting ? 'Deleting...' : 'Delete' }}
+            </button>
         </div>
     </div>
 </div>

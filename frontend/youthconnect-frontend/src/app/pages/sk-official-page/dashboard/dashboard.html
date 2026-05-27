@@ -78,7 +78,7 @@
                     <h2>My Pending Tasks</h2>
                     <span class="count-badge">{{ tasksCount }}</span>
                 </div>
-                <span class="view-all">View All</span>
+                <span class="view-all" (click)="$event.stopPropagation(); navigateToAssignedTasks()">View All</span>
             </div>
             <div class="card-content">
                 <div class="item-card" 
