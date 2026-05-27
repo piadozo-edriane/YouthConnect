@@ -82,7 +82,7 @@
                     <div class="history-section">
                         <h3 class="section-title">Update History</h3>
                         <div class="history-divider"></div>
-                        <div class="history-container">
+                        <div class="history-container" #historyContainer>
                             <div *ngIf="isLoadingUpdates" class="history-loading">
                                 Loading updates...
                             </div>
@@ -134,7 +134,7 @@
                                     <input 
                                         type="text"
                                         class="form-input" 
-                                        placeholder="Enter your response message to the youth member..." 
+                                        placeholder="Enter your response message" 
                                         formControlName="response" />
                                     <button 
                                         type="button" 
@@ -143,10 +143,6 @@
                                         [disabled]="responseForm.invalid || isLoading || isSendingUpdate || concern.status === 'CLOSED'">
                                         Update
                                     </button>
-                                </div>
-                                <div *ngIf="responseForm.get('response')?.invalid && responseForm.get('response')?.touched" class="error-message">
-                                    <span *ngIf="responseForm.get('response')?.hasError('required')">Response is required</span>
-                                    <span *ngIf="responseForm.get('response')?.hasError('minlength')">Response must be at least 10 characters</span>
                                 </div>
                             </div>
                         </form>

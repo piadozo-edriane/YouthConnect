@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -14,7 +14,8 @@ import { ToastService } from '../../../services/toast.service';
   templateUrl: './update-concern.html',
   styleUrls: ['./update-concern.scss']
 })
-export class UpdateConcern implements OnInit {
+export class UpdateConcern implements OnInit, AfterViewChecked {
+  @ViewChild('historyContainer') historyContainer?: ElementRef<HTMLDivElement>;
   responseForm!: FormGroup;
   concern: Concern | null = null;
   concernUpdates: ConcernUpdate[] = [];
@@ -30,6 +31,8 @@ export class UpdateConcern implements OnInit {
   skOfficialPosition = 'SK Official';
   skOfficialInitials = 'SK';
   toasts: Array<{ message: string; type: string; id: number }> = [];
+  private pendingScrollToBottom = false;
+  private pendingScrollSmooth = false;
 
   constructor(
     private adminConcernService: AdminConcernService,
@@ -63,6 +66,15 @@ export class UpdateConcern implements OnInit {
     this.toastService.toast$.subscribe(toast => {
       this.addToast(toast.message, toast.type, toast.duration || 3000);
     });
+  }
+
+  ngAfterViewChecked() {
+    if (!this.pendingScrollToBottom || !this.historyContainer) {
+      return;
+    }
+
+    this.scrollHistoryToBottomInternal(this.pendingScrollSmooth);
+    this.pendingScrollToBottom = false;
   }
 
   initForm() {
@@ -195,10 +207,16 @@ export class UpdateConcern implements OnInit {
           if (this.concern) {
             this.concern.status = statusToSend || this.concern.status;
             this.statusOptions = this.buildStatusOptions();
+            // Reset form values and clear touched/pristine state for the response
             this.responseForm.patchValue({
-              status: this.getDefaultStatus(this.concern.status),
-              response: ''
+              status: this.getDefaultStatus(this.concern.status)
             });
+            const responseControl = this.responseForm.get('response');
+            if (responseControl) {
+              responseControl.setValue('');
+              responseControl.markAsPristine();
+              responseControl.markAsUntouched();
+            }
 
             const optimisticUpdate: ConcernUpdate = {
               updateId: Date.now(),
@@ -214,6 +232,8 @@ export class UpdateConcern implements OnInit {
             this.concernUpdates = [...this.concernUpdates, optimisticUpdate].sort(
               (left, right) => new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
             );
+
+            this.scheduleScrollHistoryToBottom(true);
           }
 
           this.isSendingUpdate = false;
@@ -292,14 +312,8 @@ export class UpdateConcern implements OnInit {
           (left, right) => new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
         );
         this.isLoadingUpdates = false;
-        
-        // Scroll to bottom to show latest update
-        setTimeout(() => {
-          const container = document.querySelector('.history-container');
-          if (container) {
-            container.scrollTop = container.scrollHeight;
-          }
-        }, 100);
+
+        this.scheduleScrollHistoryToBottom(false);
       },
       error: (error) => {
         console.error('Error loading concern updates:', error);
@@ -336,6 +350,24 @@ export class UpdateConcern implements OnInit {
 
   canSendResponse(status: string): boolean {
     return status !== 'CLOSED';
+  }
+
+  private scheduleScrollHistoryToBottom(smooth: boolean): void {
+    this.pendingScrollToBottom = true;
+    this.pendingScrollSmooth = smooth;
+  }
+
+  private scrollHistoryToBottomInternal(smooth: boolean): void {
+    const container = this.historyContainer?.nativeElement;
+    if (!container) {
+      return;
+    }
+
+    const behavior = smooth && 'scrollBehavior' in document.documentElement.style ? 'smooth' : 'auto';
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior
+    });
   }
 
   goBack() {
