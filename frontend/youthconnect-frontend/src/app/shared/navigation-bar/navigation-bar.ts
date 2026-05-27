@@ -20,7 +20,7 @@ export class NavigationBar {
     this.isMenuOpen = false;
     
     if (route === 'home') {
-      this.scrollToTop();
+      this.scrollToSection('home');
     } else {
       this.navigateTo(route);
     }
