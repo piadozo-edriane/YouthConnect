@@ -15,7 +15,7 @@ import { forkJoin, interval, Subscription, switchMap } from 'rxjs';
 export class EventPage implements OnInit, OnDestroy {
     private eventService = inject(EventService);
     private authService = inject(AuthService);
-    private route = inject(ActivatedRoute);
+    private route = inject(ActivatedRoute, { optional: true });
 
     showJoinModal = false;
     selectedEvent: EventResponse | null = null;
@@ -72,7 +72,7 @@ export class EventPage implements OnInit, OnDestroy {
                 sessionStorage.removeItem('eventStatusFilter');
             }
 
-            const queryEventId = this.route.snapshot.queryParamMap.get('eventId');
+            const queryEventId = this.route?.snapshot.queryParamMap.get('eventId');
             if (queryEventId) {
                 this.pendingOpenEventId = parseInt(queryEventId, 10);
             }
