@@ -19,6 +19,7 @@ export class UpdateConcern implements OnInit {
   concern: Concern | null = null;
   concernUpdates: ConcernUpdate[] = [];
   isLoading = false;
+  isSendingUpdate = false;
   isLoadingUpdates = false;
   updateLoadError: string = '';
   currentAdminId: number = 0;
@@ -182,7 +183,7 @@ export class UpdateConcern implements OnInit {
     };
 
     const sendUpdate = (statusToSend?: Concern['status']) => {
-      this.isLoading = true;
+      this.isSendingUpdate = true;
 
       this.adminConcernService.addConcernUpdate(this.concern!.concernId, {
         ...request,
@@ -198,15 +199,29 @@ export class UpdateConcern implements OnInit {
               status: this.getDefaultStatus(this.concern.status),
               response: ''
             });
+
+            const optimisticUpdate: ConcernUpdate = {
+              updateId: Date.now(),
+              concernId: this.concern.concernId,
+              updatedByAdminId: this.currentAdminId,
+              updateText: formValue.response,
+              status: this.concern.status,
+              createdAt: new Date().toISOString(),
+              senderType: 'SK_OFFICIAL',
+              senderName: 'SK OFFICIAL'
+            };
+
+            this.concernUpdates = [...this.concernUpdates, optimisticUpdate].sort(
+              (left, right) => new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
+            );
           }
 
-          this.loadConcernUpdates(this.concern!.concernId);
-          this.isLoading = false;
+          this.isSendingUpdate = false;
         },
         error: (error) => {
           console.error('Error sending response:', error);
           this.showToast(error.error || 'Failed to send response. Please try again.', 'error');
-          this.isLoading = false;
+          this.isSendingUpdate = false;
         }
       });
     };
@@ -264,13 +279,18 @@ export class UpdateConcern implements OnInit {
     ];
   }
 
-  loadConcernUpdates(concernId: number) {
-    this.isLoadingUpdates = true;
-    this.updateLoadError = '';
+  loadConcernUpdates(concernId: number, forceLoading: boolean = false) {
+    const shouldShowLoading = forceLoading && this.concernUpdates.length === 0;
+    if (shouldShowLoading) {
+      this.isLoadingUpdates = true;
+      this.updateLoadError = '';
+    }
 
     this.adminConcernService.getConcernUpdates(concernId).subscribe({
       next: (updates) => {
-        this.concernUpdates = updates;
+        this.concernUpdates = [...updates].sort(
+          (left, right) => new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
+        );
         this.isLoadingUpdates = false;
         
         // Scroll to bottom to show latest update
@@ -283,8 +303,10 @@ export class UpdateConcern implements OnInit {
       },
       error: (error) => {
         console.error('Error loading concern updates:', error);
-        this.updateLoadError = 'Failed to load updates. Please try again.';
-        this.isLoadingUpdates = false;
+        if (forceLoading || this.concernUpdates.length === 0) {
+          this.updateLoadError = 'Failed to load updates. Please try again.';
+          this.isLoadingUpdates = false;
+        }
       }
     });
   }
