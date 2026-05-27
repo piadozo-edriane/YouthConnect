@@ -34,7 +34,7 @@
             <div class="filter-group">
                 <select class="filter-select" [value]="selectedStatusFilter"
                     (change)="onStatusFilterChange($any($event.target).value)">
-                    <option *ngFor="let filter of statusFilters" [value]="filter.value">{{ filter.label }}</option>
+                    <option *ngFor="let filter of statusFilters" [value]="filter.value" [selected]="filter.value === selectedStatusFilter">{{ filter.label }}</option>
                 </select>
             </div>
         </div>

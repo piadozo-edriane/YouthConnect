@@ -1,6 +1,30 @@
 <div class="update-concern-root">
     <div class="update-concern-container">
 
+        <!-- Toast Container -->
+        <div class="toast-container">
+            <div *ngFor="let toast of toasts"
+                 class="toast"
+                 [ngClass]="'toast-' + toast.type">
+                <div class="toast-content">
+                    <span class="toast-icon">
+                        <svg *ngIf="toast.type === 'success'" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <svg *ngIf="toast.type === 'error'" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                    </span>
+                    <span class="toast-message">{{ toast.message }}</span>
+                </div>
+                <button class="toast-close" (click)="removeToast(toast.id)">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
         <!-- Back Button -->
         <button class="back-button" (click)="goBack()">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -22,9 +46,6 @@
 
                 <div class="concern-badges">
                     <span class="badge badge-type">{{ getConcernTypeDisplay(concern.typeOfConcern) }}</span>
-                    <span class="badge badge-status" [ngClass]="'status-' + getStatusClass(concern.status)">
-                        {{ getStatusLabel(concern.status) }}
-                    </span>
                 </div>
 
                 <div class="concern-info-grid">
@@ -50,14 +71,20 @@
                 </div>
             </div>
 
-            <!-- RIGHT SIDE: Update History -->
+            <!-- RIGHT SIDE: Update History + Reply Form -->
             <div class="right-column">
                 <div class="right-card">
 
+                    <!-- Update History Section -->
                     <div class="history-section">
-                        <h3 class="section-title">Conversation History</h3>
+                        <div class="section-header">
+                            <h3 class="section-title">Update History</h3>
+                            <span class="update-status-badge" [ngClass]="'status-' + getStatusClass(concern.status)">
+                                {{ getStatusLabel(concern.status).toUpperCase() }}
+                            </span>
+                        </div>
                         <div class="history-divider"></div>
-                        <div class="history-container">
+                        <div class="history-container" #historyContainer>
                             <div *ngIf="isLoadingUpdates" class="history-loading">
                                 Loading updates...
                             </div>
@@ -67,14 +94,14 @@
                             <div *ngIf="!isLoadingUpdates && !updateLoadError && concernUpdates.length === 0" class="history-empty">
                                 No messages yet. Start the conversation below.
                             </div>
-                            <div *ngFor="let update of concernUpdates" class="update-item" [ngClass]="{ 'youth-message': isYouthMessage(update), 'admin-message': !isYouthMessage(update) }">
+                            <div *ngFor="let update of concernUpdates" class="update-item"
+                                 [ngClass]="{ 'youth-message': isYouthMessage(update), 'admin-message': !isYouthMessage(update) }">
                                 <div class="update-header">
                                     <div class="update-sender">
-                                        <span class="sender-label" [ngClass]="{ 'sender-youth': isYouthMessage(update), 'sender-admin': !isYouthMessage(update) }">
-                                            {{ getSenderLabel(update) }}
-                                        </span>
-                                        <span class="update-status-badge" [ngClass]="'status-' + getStatusClass(update.status)">
-                                            {{ getStatusLabel(update.status).toUpperCase() }}
+                                        <span class="sender-label"
+                                              [ngClass]="{ 'sender-youth': isYouthMessage(update), 'sender-admin': !isYouthMessage(update) }">
+                                            <ng-container *ngIf="isYouthMessage(update); else adminLabel">YOU</ng-container>
+                                            <ng-template #adminLabel>SK OFFICIAL</ng-template>
                                         </span>
                                     </div>
                                     <span class="update-date">{{ formatDateShort(update.createdAt) }}</span>
@@ -84,6 +111,7 @@
                         </div>
                     </div>
 
+                    <!-- Reply Form Section -->
                     <div class="form-section">
                         <div class="form-divider"></div>
                         <form [formGroup]="replyForm">
@@ -92,9 +120,8 @@
                                     <input
                                         type="text"
                                         class="form-input"
-                                        placeholder="Write a reply to the SK Official..."
-                                        formControlName="reply"
-                                        [disabled]="isSendingReply || concern.status === 'CLOSED'" />
+                                        placeholder="Write a message here..."
+                                        formControlName="reply" />
                                     <button
                                         type="button"
                                         class="btn-update"

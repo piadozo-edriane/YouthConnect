@@ -34,11 +34,11 @@
             <div class="filter-group">
                 <select class="filter-select" [value]="selectedStatusFilter"
                     (change)="onStatusFilterChange($any($event.target).value)">
-                    <option *ngFor="let filter of statusFilters" [value]="filter.value">{{ filter.label }}</option>
+                    <option *ngFor="let filter of statusFilters" [value]="filter.value" [selected]="filter.value === selectedStatusFilter">{{ filter.label }}</option>
                 </select>
                 <select class="filter-select" [value]="selectedTypeFilter"
                     (change)="onTypeFilterChange($any($event.target).value)">
-                    <option *ngFor="let filter of typeFilters" [value]="filter.value">{{ filter.label }}</option>
+                    <option *ngFor="let filter of typeFilters" [value]="filter.value" [selected]="filter.value === selectedTypeFilter">{{ filter.label }}</option>
                 </select>
             </div>
             <button class="add-concern-btn" (click)="openModal()" [disabled]="isLoading">
