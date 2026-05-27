@@ -46,9 +46,6 @@
                 
                 <div class="concern-badges">
                     <span class="badge badge-type">{{ getConcernTypeDisplay(concern.typeOfConcern) }}</span>
-                    <span class="badge badge-status" [ngClass]="'status-' + getStatusClass(concern.status)">
-                        {{ getStatusLabel(concern.status) }}
-                    </span>
                 </div>
 
                 <div class="concern-info-grid">
@@ -80,8 +77,13 @@
                     
                     <!-- Update History Section -->
                     <div class="history-section">
-                        <h3 class="section-title">Update History</h3>
-                        <div class="history-divider"></div>
+                        <div class="section-header">
+                            <h3 class="section-title">Update History</h3>
+                            <span class="update-status-badge" [ngClass]="'status-' + getStatusClass(concern.status)">
+                                {{ getStatusLabel(concern.status).toUpperCase() }}
+                            </span>
+                        </div>
+                            <div class="history-divider"></div>
                         <div class="history-container" #historyContainer>
                             <div *ngIf="isLoadingUpdates" class="history-loading">
                                 Loading updates...
@@ -101,11 +103,7 @@
                                             </ng-container>
                                             <ng-template #adminOnly>SK OFFICIAL</ng-template>
                                         </span>
-                                        <ng-container *ngIf="!isYouthMessage(update)">
-                                            <span class="update-status-badge" [ngClass]="'status-' + getStatusClass(update.status)">
-                                                {{ getStatusLabel(update.status).toUpperCase() }}
-                                            </span>
-                                        </ng-container>
+                                        <!-- status badge intentionally omitted per design; header shows concern status -->
                                     </div>
                                     <span class="update-date">{{ formatDateShort(update.createdAt) }}</span>
                                 </div>
@@ -141,7 +139,7 @@
                                         class="btn-update" 
                                         (click)="sendResponse()" 
                                         [disabled]="responseForm.invalid || isLoading || isSendingUpdate || concern.status === 'CLOSED'">
-                                        Update
+                                        Send
                                     </button>
                                 </div>
                             </div>

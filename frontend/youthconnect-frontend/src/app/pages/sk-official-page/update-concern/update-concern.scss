@@ -251,6 +251,31 @@
         color: #41464b;
       }
     }
+
+    /* Ensure header and other badges can reuse the same status colors */
+    .update-status-badge.status-open,
+    .badge.status-open {
+      background: #f4be67;
+      color: #1f1f1f;
+    }
+
+    .update-status-badge.status-in-progress,
+    .badge.status-in-progress {
+      background: #9bc6ff;
+      color: #0f2f67;
+    }
+
+    .update-status-badge.status-resolved,
+    .badge.status-resolved {
+      background: #bfe4c4;
+      color: #1b4f26;
+    }
+
+    .update-status-badge.status-closed,
+    .badge.status-closed {
+      background: #e2e3e5;
+      color: #41464b;
+    }
   }
 
   .concern-info-grid {
@@ -326,15 +351,54 @@
   overflow: hidden;
   flex: 1;
 
-  .section-title {
-    font-size: 20px;
-    font-weight: 600;
-    color: #1a1a1a;
-    line-height: 1.2;
-    margin-bottom: 16px;
-  }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
 
-  .history-divider {
+      .section-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1a1a1a;
+        line-height: 1.2;
+        margin: 0;
+      }
+
+      .update-status-badge {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0;
+        line-height: 1;
+        text-transform: uppercase;
+
+        &.status-open {
+          background: #f4be67;
+          color: #1f1f1f;
+        }
+
+        &.status-in-progress {
+          background: #9bc6ff;
+          color: #0f2f67;
+        }
+
+        &.status-resolved {
+          background: #bfe4c4;
+          color: #1b4f26;
+        }
+
+        &.status-closed {
+          background: #e2e3e5;
+          color: #41464b;
+        }
+      }
+    }
+
+    .history-divider {
     height: 1px;
     background: #e0e0e0;
     margin-bottom: 20px;
