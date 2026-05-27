@@ -63,8 +63,7 @@ export class EventDetailsPage implements OnInit, OnDestroy {
   // Post-Event Attendance Panel
   isAttendancePanelOpen = false;
   attendanceSearchQuery = '';
-  attendanceCurrentPage = 1;
-  attendanceItemsPerPage = 10;
+  visibleAttendanceCount = 15; // Initial load: 15 attendees
   markingAttendanceId: number | null = null;
   attendancePanelMessage = '';
   attendancePanelError = '';
@@ -469,7 +468,7 @@ export class EventDetailsPage implements OnInit, OnDestroy {
   openAttendancePanel(): void {
     this.isAttendancePanelOpen = true;
     this.attendanceSearchQuery = '';
-    this.attendanceCurrentPage = 1;
+    this.visibleAttendanceCount = 15;
     this.attendancePanelMessage = '';
     this.attendancePanelError = '';
     this.attendanceStatFilter = null;
@@ -486,7 +485,14 @@ export class EventDetailsPage implements OnInit, OnDestroy {
   setAttendanceStatFilter(filter: 'present' | 'absent' | 'approved'): void {
     this.attendanceStatFilter = this.attendanceStatFilter === filter ? null : filter;
     this.attendanceSearchQuery = '';
-    this.attendanceCurrentPage = 1;
+  }
+
+  resetAttendanceVisibleCount(): void {
+    this.visibleAttendanceCount = 15;
+  }
+
+  showMoreAttendance(): void {
+    this.visibleAttendanceCount += 15;
   }
 
   get filteredAttendancePanelAttendees(): AttendeeRecord[] {
@@ -510,31 +516,8 @@ export class EventDetailsPage implements OnInit, OnDestroy {
     return list;
   }
 
-  get paginatedAttendancePanelAttendees(): AttendeeRecord[] {
-    const start = (this.attendanceCurrentPage - 1) * this.attendanceItemsPerPage;
-    return this.filteredAttendancePanelAttendees.slice(start, start + this.attendanceItemsPerPage);
-  }
-
-  get attendanceTotalPages(): number {
-    return Math.max(1, Math.ceil(this.filteredAttendancePanelAttendees.length / this.attendanceItemsPerPage));
-  }
-
-  get attendancePageNumbers(): number[] {
-    return Array.from({ length: this.attendanceTotalPages }, (_, i) => i + 1);
-  }
-
-  goToAttendancePage(page: number): void {
-    if (page >= 1 && page <= this.attendanceTotalPages) {
-      this.attendanceCurrentPage = page;
-    }
-  }
-
-  nextAttendancePage(): void {
-    if (this.attendanceCurrentPage < this.attendanceTotalPages) this.attendanceCurrentPage++;
-  }
-
-  previousAttendancePage(): void {
-    if (this.attendanceCurrentPage > 1) this.attendanceCurrentPage--;
+  get displayedAttendancePanelAttendees(): AttendeeRecord[] {
+    return this.filteredAttendancePanelAttendees.slice(0, this.visibleAttendanceCount);
   }
 
   toggleAttendance(attendee: AttendeeRecord): void {
