@@ -247,15 +247,17 @@
             <button type="button" class="filter-chip" [class.active]="approvalFilter === 'pending'"
                 (click)="setApprovalFilter('pending')">
                 Pending
-                <span class="filter-count" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
+                <span class="filter-count">{{ pendingCount }}</span>
             </button>
             <button type="button" class="filter-chip" [class.active]="approvalFilter === 'approved'"
                 (click)="setApprovalFilter('approved')">
                 Approved
+                <span class="filter-count">{{ approvedCount }}</span>
             </button>
             <button type="button" class="filter-chip" [class.active]="approvalFilter === 'rejected'"
                 (click)="setApprovalFilter('rejected')">
                 Rejected
+                <span class="filter-count">{{ rejectedCount }}</span>
             </button>
         </div>
 
