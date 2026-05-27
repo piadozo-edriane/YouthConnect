@@ -1024,6 +1024,35 @@ select.form-input {
   gap: 2px;
 }
 
+/* field-meta: error left, counter absolutely pinned right */
+.field-meta {
+  position: relative;
+  min-height: 18px;
+  margin-top: 4px;
+
+  .form-error {
+    margin-top: 0;
+    padding-right: 52px;
+  }
+}
+
+.char-counter {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 11px;
+  color: #999;
+  font-weight: 500;
+  white-space: nowrap;
+  line-height: 1.4;
+  margin-right: 10px;
+
+  &.char-limit {
+    color: #d32f2f;
+    font-weight: 600;
+  }
+}
+
 .form-input.ng-invalid.ng-touched,
 .form-textarea.ng-invalid.ng-touched,
 select.form-input.ng-invalid.ng-touched {

@@ -33,6 +33,7 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.properties.mail.smtp.from}")
     private String fromEmail;
 
+    @Async
     @Override
     public void sendApprovalEmail(String to, String firstName) {
         try {
@@ -59,6 +60,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Async
     @Override
     public void sendRejectionEmail(String to, String firstName, String reason) {
         try {

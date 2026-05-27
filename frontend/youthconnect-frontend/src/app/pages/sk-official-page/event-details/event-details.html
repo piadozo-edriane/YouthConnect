@@ -247,15 +247,17 @@
             <button type="button" class="filter-chip" [class.active]="approvalFilter === 'pending'"
                 (click)="setApprovalFilter('pending')">
                 Pending
-                <span class="filter-count" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
+                <span class="filter-count">{{ pendingCount }}</span>
             </button>
             <button type="button" class="filter-chip" [class.active]="approvalFilter === 'approved'"
                 (click)="setApprovalFilter('approved')">
                 Approved
+                <span class="filter-count">{{ approvedCount }}</span>
             </button>
             <button type="button" class="filter-chip" [class.active]="approvalFilter === 'rejected'"
                 (click)="setApprovalFilter('rejected')">
                 Rejected
+                <span class="filter-count">{{ rejectedCount }}</span>
             </button>
         </div>
 
@@ -280,6 +282,9 @@
                         {{ attendee.approvalStatus | titlecase }}
                     </span>
                 </div>
+
+                <p class="approval-meta">Email: {{ attendee.email }}</p>
+                <p class="approval-meta">Contact: {{ attendee.contactNumber }}</p>
 
                 <div class="approval-actions">
                     <button type="button" class="btn-see-details" (click)="openAttendeeDetailsModal(attendee)">
@@ -538,60 +543,63 @@
                         <div class="form-group">
                             <label class="form-label">Event Title <span class="required">*</span></label>
                             <input type="text" class="form-input" placeholder="Enter event title"
-                                formControlName="eventTitle" maxlength="200">
-                            <div *ngIf="editForm.get('eventTitle')?.invalid && editForm.get('eventTitle')?.touched"
-                                class="form-error">
-                                <span *ngIf="editForm.get('eventTitle')?.hasError('required')">Event title is
-                                    required</span>
-                                <span *ngIf="editForm.get('eventTitle')?.hasError('maxlength')">Title cannot exceed 200
-                                    characters</span>
+                                formControlName="eventTitle" maxlength="50">
+                            <div class="field-meta">
+                                <div class="form-error" *ngIf="editForm.get('eventTitle')?.invalid && editForm.get('eventTitle')?.touched">
+                                    <span *ngIf="editForm.get('eventTitle')?.hasError('required')">Event title is required</span>
+                                    <span *ngIf="editForm.get('eventTitle')?.hasError('maxlength')">Title cannot exceed 50 characters</span>
+                                </div>
+                                <span class="char-counter" [class.char-limit]="(editForm.get('eventTitle')?.value?.length || 0) >= 50">{{ editForm.get('eventTitle')?.value?.length || 0 }}/50</span>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Event Description <span class="required">*</span></label>
                             <textarea class="form-textarea" placeholder="Enter event description" rows="4"
-                                formControlName="description" maxlength="5000"></textarea>
-                            <div *ngIf="editForm.get('description')?.invalid && editForm.get('description')?.touched"
-                                class="form-error">
-                                <span *ngIf="editForm.get('description')?.hasError('required')">Description is
-                                    required</span>
-                                <span *ngIf="editForm.get('description')?.hasError('maxlength')">Description cannot
-                                    exceed 5000 characters</span>
+                                formControlName="description" maxlength="750"></textarea>
+                            <div class="field-meta">
+                                <div class="form-error" *ngIf="editForm.get('description')?.invalid && editForm.get('description')?.touched">
+                                    <span *ngIf="editForm.get('description')?.hasError('required')">Description is required</span>
+                                    <span *ngIf="editForm.get('description')?.hasError('maxlength')">Description cannot exceed 750 characters</span>
+                                </div>
+                                <span class="char-counter" [class.char-limit]="(editForm.get('description')?.value?.length || 0) >= 750">{{ editForm.get('description')?.value?.length || 0 }}/750</span>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Event Date & Time <span class="required">*</span></label>
                             <input type="datetime-local" class="form-input" formControlName="dateTime">
-                            <div *ngIf="editForm.get('dateTime')?.invalid && editForm.get('dateTime')?.touched"
-                                class="form-error">
-                                <span>Date and time are required</span>
+                            <div class="field-meta">
+                                <div class="form-error" *ngIf="editForm.get('dateTime')?.invalid && editForm.get('dateTime')?.touched">
+                                    <span>Date and time are required</span>
+                                </div>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Event Location <span class="required">*</span></label>
                             <input type="text" class="form-input" placeholder="Enter event location"
-                                formControlName="location" maxlength="255">
-                            <div *ngIf="editForm.get('location')?.invalid && editForm.get('location')?.touched"
-                                class="form-error">
-                                <span *ngIf="editForm.get('location')?.hasError('required')">Location is required</span>
-                                <span *ngIf="editForm.get('location')?.hasError('maxlength')">Location cannot exceed 255
-                                    characters</span>
+                                formControlName="location" maxlength="50">
+                            <div class="field-meta">
+                                <div class="form-error" *ngIf="editForm.get('location')?.invalid && editForm.get('location')?.touched">
+                                    <span *ngIf="editForm.get('location')?.hasError('required')">Location is required</span>
+                                    <span *ngIf="editForm.get('location')?.hasError('maxlength')">Location cannot exceed 50 characters</span>
+                                </div>
+                                <span class="char-counter" [class.char-limit]="(editForm.get('location')?.value?.length || 0) >= 50">{{ editForm.get('location')?.value?.length || 0 }}/50</span>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Number of Attendees <span class="required">*</span></label>
                             <input type="number" class="form-input" placeholder="e.g. 50"
-                                formControlName="attendeeLimit" min="1" max="99999">
-                            <div *ngIf="editForm.get('attendeeLimit')?.invalid && editForm.get('attendeeLimit')?.touched"
-                                class="form-error">
-                                <span *ngIf="editForm.get('attendeeLimit')?.hasError('required')">Number of attendees is
-                                    required</span>
-                                <span *ngIf="editForm.get('attendeeLimit')?.hasError('min')">Must be at least 1</span>
-                                <span *ngIf="editForm.get('attendeeLimit')?.hasError('max')">Cannot exceed 99,999</span>
+                                formControlName="attendeeLimit" min="1" max="1000">
+                            <div class="field-meta">
+                                <div class="form-error" *ngIf="editForm.get('attendeeLimit')?.invalid && editForm.get('attendeeLimit')?.touched">
+                                    <span *ngIf="editForm.get('attendeeLimit')?.hasError('required')">Number of attendees is required</span>
+                                    <span *ngIf="editForm.get('attendeeLimit')?.hasError('min')">Must be at least 1 (cannot be zero)</span>
+                                    <span *ngIf="editForm.get('attendeeLimit')?.hasError('max')">Cannot exceed 1,000 attendees</span>
+                                </div>
+                                <span class="char-counter">max 1,000</span>
                             </div>
                         </div>
                     </div>

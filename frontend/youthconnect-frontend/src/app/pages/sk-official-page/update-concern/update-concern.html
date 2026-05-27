@@ -141,7 +141,8 @@
                                         type="text"
                                         class="form-input" 
                                         placeholder="Write a response message..." 
-                                        formControlName="response" />
+                                        formControlName="response"
+                                        maxlength="150" />
                                     <button 
                                         type="button" 
                                         class="btn-update" 
@@ -150,6 +151,9 @@
                                         Send
                                     </button>
                                 </div>
+                                <span class="char-counter" [class.char-limit]="(responseForm.get('response')?.value?.length || 0) >= 150">
+                                    {{ responseForm.get('response')?.value?.length || 0 }}/150
+                                </span>
                             </div>
                         </form>
                     </div>

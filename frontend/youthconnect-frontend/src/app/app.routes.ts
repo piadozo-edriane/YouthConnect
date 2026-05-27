@@ -172,7 +172,7 @@ export const routes: Routes = [
             {
                 path: 'events',
                 loadComponent: () =>
-                    import('./pages/sk-official-page/events/events.component').then(m => m.EventsComponent),
+                    import('./pages/sk-official-page/event-details/events/events.component').then(m => m.EventsComponent),
                 title: 'SK Official Events - YouthConnect'
             },
             {

@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EventService, EventResponse } from '../../../services/event.service';
-import { AuthService } from '../../../services/auth.service';
-import { SkOfficialManagementService } from '../../../services/sk-official-management.service';
+import { EventService, EventResponse } from '../../../../services/event.service';
+import { AuthService } from '../../../../services/auth.service';
+import { SkOfficialManagementService } from '../../../../services/sk-official-management.service';
 import { interval, Subscription, switchMap } from 'rxjs';
 
 @Component({
@@ -219,11 +219,11 @@ export class EventsComponent implements OnInit, OnDestroy {
 
   initForm() {
     this.eventForm = this.fb.group({
-      eventTitle: ['', [Validators.required, Validators.maxLength(200)]],
-      description: ['', [Validators.required, Validators.maxLength(5000)]],
-      dateTime: ['', Validators.required],
-      location: ['', [Validators.required, Validators.maxLength(255)]],
-      attendeeLimit: [null, [Validators.required, Validators.min(1), Validators.max(99999)]]
+      eventTitle:    ['', [Validators.required, Validators.maxLength(50)]],
+      description:   ['', [Validators.required, Validators.maxLength(750)]],
+      dateTime:      ['', Validators.required],
+      location:      ['', [Validators.required, Validators.maxLength(50)]],
+      attendeeLimit: [null, [Validators.required, Validators.min(1), Validators.max(1000)]]
     });
   }
 
@@ -464,11 +464,11 @@ export class EventsComponent implements OnInit, OnDestroy {
         
         // Show specific validation error
         if (this.eventForm.get('eventTitle')?.hasError('maxlength')) {
-          this.errorMessage = 'Event title cannot exceed 200 characters';
+          this.errorMessage = 'Event title cannot exceed 50 characters';
         } else if (this.eventForm.get('description')?.hasError('maxlength')) {
-          this.errorMessage = 'Event description cannot exceed 5000 characters';
+          this.errorMessage = 'Event description cannot exceed 750 characters';
         } else if (this.eventForm.get('location')?.hasError('maxlength')) {
-          this.errorMessage = 'Event location cannot exceed 255 characters';
+          this.errorMessage = 'Event location cannot exceed 50 characters';
         } else {
           this.errorMessage = 'Please fill in all required fields correctly';
         }
@@ -588,11 +588,11 @@ export class EventsComponent implements OnInit, OnDestroy {
       
       // Show specific validation error
       if (this.eventForm.get('eventTitle')?.hasError('maxlength')) {
-        this.errorMessage = 'Event title cannot exceed 200 characters';
+        this.errorMessage = 'Event title cannot exceed 50 characters';
       } else if (this.eventForm.get('description')?.hasError('maxlength')) {
-        this.errorMessage = 'Event description cannot exceed 5000 characters';
+        this.errorMessage = 'Event description cannot exceed 750 characters';
       } else if (this.eventForm.get('location')?.hasError('maxlength')) {
-        this.errorMessage = 'Event location cannot exceed 255 characters';
+        this.errorMessage = 'Event location cannot exceed 50 characters';
       } else {
         this.errorMessage = 'Please fill in all required fields correctly';
       }

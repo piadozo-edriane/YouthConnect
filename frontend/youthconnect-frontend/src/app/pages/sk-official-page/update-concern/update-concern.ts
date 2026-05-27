@@ -89,7 +89,7 @@ export class UpdateConcern implements OnInit, AfterViewChecked, OnDestroy {
 
   initForm() {
     this.responseForm = this.fb.group({
-      response: ['', [Validators.required, Validators.minLength(10)]],
+      response: ['', [Validators.required, Validators.maxLength(150)]],
       status: ['OPEN', Validators.required]
     });
   }
