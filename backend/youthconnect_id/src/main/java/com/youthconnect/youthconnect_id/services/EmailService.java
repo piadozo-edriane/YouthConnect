@@ -23,7 +23,7 @@ public interface EmailService {
     void sendTaskAssignmentNotificationAsync(String toEmail, String skOfficialName, String taskTitle, 
                                             String taskDescription, String dueDate, String assignedBy);
     
-    // Attendee approval/rejection notifications
+    // Attendee approval/rejection notifications (async — fire-and-forget)
     void sendAttendeeApprovalEmail(String toEmail, String userName, String eventTitle, String eventDate, String eventLocation);
     void sendAttendeeRejectionEmail(String toEmail, String userName, String eventTitle, String rejectionReason);
 }

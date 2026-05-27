@@ -881,6 +881,7 @@ public class EmailServiceImpl implements EmailService {
         """.formatted(skOfficialName, assignedBy, taskTitle, taskDescription, dueDate, assignedBy, tasksUrl);
     }
 
+    @Async
     @Override
     public void sendAttendeeApprovalEmail(String toEmail, String userName, String eventTitle, String eventDate, String eventLocation) {
         try {
@@ -907,6 +908,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Async
     @Override
     public void sendAttendeeRejectionEmail(String toEmail, String userName, String eventTitle, String rejectionReason) {
         try {
