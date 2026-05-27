@@ -1847,6 +1847,41 @@
   border-radius: 10px;
 }
 
+// ─── See More Button (Attendance Panel) ───────────────────────────────────────
+
+.attendance-panel .see-more-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 16px 20px 22px;
+  background: transparent;
+}
+
+.attendance-panel .see-more-btn {
+  border: 1px solid #4a90e2;
+  background: #e8f4fd;
+  color: #2c5aa0;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', Arial, Helvetica, sans-serif;
+  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.12);
+
+  &:hover {
+    background: #d0e9fc;
+    border-color: #357abd;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(74, 144, 226, 0.18);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(74, 144, 226, 0.12);
+  }
+}
+
 // ─── Responsive tweaks for attendance panel ───────────────────────────────────
 
 @media (max-width: 600px) {
@@ -1857,6 +1892,15 @@
   .btn-attendance-panel {
     font-size: 12px;
     padding: 7px 12px;
+  }
+
+  .attendance-panel .see-more-wrapper {
+    padding: 14px 16px 18px;
+  }
+
+  .attendance-panel .see-more-btn {
+    font-size: 12px;
+    padding: 7px 18px;
   }
 }
 
