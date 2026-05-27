@@ -152,7 +152,7 @@
 
         <div class="form-buttons">
           <button type="button" (click)="cancel()" class="btn-secondary">Cancel</button>
-          <button type="button" (click)="nextStep()" class="btn-primary">Next</button>
+          <button type="button" (click)="nextStep()" class="btn-primary" [disabled]="isCurrentStepInvalid">Next</button>
         </div>
       }
 
@@ -263,7 +263,7 @@
 
         <div class="form-buttons">
           <button type="button" (click)="prevStep()" class="btn-secondary">Previous</button>
-          <button type="button" (click)="nextStep()" class="btn-primary">Next</button>
+          <button type="button" (click)="nextStep()" class="btn-primary" [disabled]="isCurrentStepInvalid">Next</button>
         </div>
       }
 
@@ -382,7 +382,7 @@
 
         <div class="form-buttons">
           <button type="button" (click)="prevStep()" class="btn-secondary">Previous</button>
-          <button type="submit" [disabled]="isLoading()" class="btn-primary">
+          <button type="submit" [disabled]="isLoading() || isCurrentStepInvalid || !!registrationForm.errors?.['passwordMismatch']" class="btn-primary">
             {{ isLoading() ? 'Registering...' : 'Register' }}
           </button>
         </div>

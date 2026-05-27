@@ -153,6 +153,15 @@ export class SignUpPage {
     );
   }
 
+  /** True when all required fields for the current step are valid */
+  get isCurrentStepInvalid(): boolean {
+    const fields = STEP_FIELDS[this.currentStep] ?? [];
+    return fields.some(field => {
+      const control = this.registrationForm.get(field);
+      return control ? control.invalid : false;
+    });
+  }
+
   /**
    * Move to next step with validation
    */
