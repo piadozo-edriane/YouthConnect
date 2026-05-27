@@ -48,13 +48,16 @@ html, body, :host, .dashboard-container {
   font-size: 16px;
   color: #777;
   margin: 5px 0 0 0;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .user-profile {
   display: flex;
   align-items: center;
   gap: 15px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 
 .profile-badge {
@@ -68,6 +71,8 @@ html, body, :host, .dashboard-container {
   font-weight: 700;
   color: white;
   font-size: 18px;
+  flex-shrink: 0;
+  transition: box-shadow 0.2s ease;
 }
 
 .profile-info p {

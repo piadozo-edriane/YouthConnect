@@ -11,10 +11,10 @@
 
         <div *ngIf="!isLoading && !errorMessage" class="header-section">
             <div class="greeting-area">
-                <h1>Welcome, {{ userName }}!</h1>
+                <h1>Welcome, SK Youth!</h1>
                 <p>{{ todayLabel }} &nbsp;·&nbsp; {{ currentTime }}</p>
             </div>
-            <div class="user-profile">
+            <div class="user-profile" (click)="openProfileModal()" title="View my profile">
                 <div class="profile-badge">
                     <span class="initials">{{ getInitials() }}</span>
                 </div>
@@ -29,12 +29,12 @@
         <div *ngIf="!isLoading && !errorMessage" class="stats-section">
             <div class="stat-card blue-border" *ngFor="let stat of stats; let i = index"
                  [ngClass]="getStatClass(i)"
-                 [class.clickable]="i === 0 || i === 1 || i === 3"
-                 [attr.role]="i === 0 || i === 1 || i === 3 ? 'button' : null"
-                 [attr.tabindex]="i === 0 || i === 1 || i === 3 ? 0 : null"
-                 (click)="i === 0 ? navigateToEventsWithFilter('Upcoming') : i === 1 ? navigateToEventsWithFilter('Joined') : i === 3 ? navigateToResolvedConcerns() : null"
-                 (keydown.enter)="i === 0 ? navigateToEventsWithFilter('Upcoming') : i === 1 ? navigateToEventsWithFilter('Joined') : i === 3 ? navigateToResolvedConcerns() : null"
-                 (keydown.space)="i === 0 ? navigateToEventsWithFilter('Upcoming') : i === 1 ? navigateToEventsWithFilter('Joined') : i === 3 ? navigateToResolvedConcerns() : null">
+                 [class.clickable]="i === 0 || i === 1 || i === 2 || i === 3"
+                 [attr.role]="i === 0 || i === 1 || i === 2 || i === 3 ? 'button' : null"
+                 [attr.tabindex]="i === 0 || i === 1 || i === 2 || i === 3 ? 0 : null"
+                 (click)="i === 0 ? navigateToEventsWithFilter('Upcoming') : i === 1 ? navigateToEventsWithFilter('Joined') : i === 2 ? navigateToConcerns() : i === 3 ? navigateToResolvedConcerns() : null"
+                 (keydown.enter)="i === 0 ? navigateToEventsWithFilter('Upcoming') : i === 1 ? navigateToEventsWithFilter('Joined') : i === 2 ? navigateToConcerns() : i === 3 ? navigateToResolvedConcerns() : null"
+                 (keydown.space)="i === 0 ? navigateToEventsWithFilter('Upcoming') : i === 1 ? navigateToEventsWithFilter('Joined') : i === 2 ? navigateToConcerns() : i === 3 ? navigateToResolvedConcerns() : null">
                 <p class="stat-label">{{ stat.label }}</p>
                 <p class="stat-number">{{ stat.value }}</p>
             </div>
@@ -98,6 +98,161 @@
                         <button class="see-more-btn" type="button" (click)="showMoreNotifications()">See More</button>
                     </div>
                 </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- User Profile Modal -->
+<div class="modal-overlay" *ngIf="showProfileModal" (click)="closeProfileModal()">
+    <div class="modal-content modal-details" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title">My Profile</h2>
+                <p class="modal-subtitle">Your personal information and account details</p>
+            </div>
+            <button class="close-btn" (click)="closeProfileModal()">✕</button>
+        </div>
+
+        <div class="modal-body-wrapper">
+
+            <!-- Loading -->
+            <div *ngIf="isLoadingProfile" class="modal-body" style="padding: 40px 24px; text-align: center; color: #666;">
+                Loading profile...
+            </div>
+
+            <!-- Profile not found -->
+            <div *ngIf="!isLoadingProfile && !userProfile" class="modal-body" style="padding: 40px 24px; text-align: center; color: #999;">
+                Profile information not available.
+            </div>
+
+            <div *ngIf="!isLoadingProfile && userProfile" class="modal-body">
+
+                <!-- Avatar + name banner -->
+                <div class="profile-modal-banner">
+                    <div class="profile-modal-avatar">{{ getInitials() }}</div>
+                    <div class="profile-modal-name">
+                        <h3>{{ userProfile.firstName }} {{ userProfile.middleName || '' }} {{ userProfile.lastName }}{{ userProfile.suffix ? ' ' + userProfile.suffix : '' }}</h3>
+                        <p>{{ userEmail }}</p>
+                    </div>
+                </div>
+
+                <!-- Personal Information -->
+                <div class="details-section">
+                    <h3 class="section-title">Personal Information</h3>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Full Name</span>
+                            <span class="detail-value">{{ userProfile.firstName }} {{ userProfile.middleName || '' }} {{ userProfile.lastName }}{{ userProfile.suffix ? ' ' + userProfile.suffix : '' }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Gender</span>
+                            <span class="detail-value">{{ getGenderLabel(userProfile.gender) }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Birthday</span>
+                            <span class="detail-value">{{ formatBirthday(userProfile.birthday) }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Age</span>
+                            <span class="detail-value">{{ getAge(userProfile.birthday) }} years old</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Civil Status</span>
+                            <span class="detail-value">{{ getCivilStatusLabel(userProfile.civilStatus) }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="details-section">
+                    <h3 class="section-title">Contact Information</h3>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value">{{ userEmail }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Contact Number</span>
+                            <span class="detail-value">{{ userProfile.contactNumber || 'N/A' }}</span>
+                        </div>
+                        <div class="detail-item full-width">
+                            <span class="detail-label">Complete Address</span>
+                            <span class="detail-value">{{ userProfile.completeAddress || 'N/A' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Information -->
+                <div class="details-section">
+                    <h3 class="section-title">Account Information</h3>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Member Since</span>
+                            <span class="detail-value">{{ formatProfileDate(userProfile.createdAt) }}</span>
+                        </div>
+                        <div class="detail-item" *ngIf="userProfile.updatedAt">
+                            <span class="detail-label">Last Updated</span>
+                            <span class="detail-value">{{ formatProfileDate(userProfile.updatedAt) }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Youth Classification -->
+                <div class="details-section">
+                    <h3 class="section-title">Youth Classification</h3>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Classification</span>
+                            <span class="detail-value">{{ getYouthClassificationLabel(userProfile.youthClassification?.youthClassification) }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Education Background</span>
+                            <span class="detail-value">{{ getEducationLabel(userProfile.youthClassification?.educationBackground) }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Work Status</span>
+                            <span class="detail-value">{{ getWorkStatusLabel(userProfile.youthClassification?.workStatus) }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voter Information -->
+                <div class="details-section">
+                    <h3 class="section-title">Voter Information</h3>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">SK Voter</span>
+                            <span class="detail-value">{{ userProfile.youthClassification?.skVoter ? 'Yes' : 'No' }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">National Voter</span>
+                            <span class="detail-value">{{ userProfile.youthClassification?.nationalVoter ? 'Yes' : 'No' }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Past Voter</span>
+                            <span class="detail-value">{{ userProfile.youthClassification?.pastVoter ? 'Yes' : 'No' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assembly Participation -->
+                <div class="details-section">
+                    <h3 class="section-title">Assembly Participation</h3>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Assemblies Attended</span>
+                            <span class="detail-value">{{ userProfile.youthClassification?.numAttended ?? 0 }}</span>
+                        </div>
+                        <div class="detail-item full-width">
+                            <span class="detail-label">Non-Attendance Reason</span>
+                            <span class="detail-value">{{ userProfile.youthClassification?.nonAttendedReason || 'N/A' }}</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 

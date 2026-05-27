@@ -74,7 +74,7 @@ body,
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   padding: 0;
 
   .header-content {
@@ -112,7 +112,7 @@ body,
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 400px;
+  width: 500px;
   flex-shrink: 0;
   background: #fff;
   border: 1.5px solid #e0e0e0;
@@ -151,6 +151,7 @@ body,
   display: flex;
   gap: 8px;
   align-items: center;
+  margin-left: auto;
 }
 
 .filter-btn {
@@ -417,6 +418,30 @@ body,
   p {
     font-weight: 600;
     color: #999;
+  }
+}
+
+// ─── Floating Empty State (no card background) ────────────────────────────────
+
+.empty-state-floating {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 80px 20px;
+
+  svg {
+    opacity: 0.25;
+    color: #666;
+  }
+
+  p {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #999;
+    font-family: 'Poppins', Arial, Helvetica, sans-serif;
   }
 }
 

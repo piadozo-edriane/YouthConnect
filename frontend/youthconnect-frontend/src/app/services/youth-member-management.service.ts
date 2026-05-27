@@ -30,6 +30,16 @@ export interface YouthProfileAccount {
   age?: number;
   createdAt: string;
   updatedAt?: string;
+  youthClassification?: {
+    youthClassification?: string;
+    educationBackground?: string;
+    workStatus?: string;
+    skVoter?: boolean;
+    nationalVoter?: boolean;
+    pastVoter?: boolean;
+    numAttended?: number;
+    nonAttendedReason?: string;
+  };
 }
 
 export interface YouthMemberListItem {
@@ -102,6 +112,10 @@ export class YouthMemberManagementService {
 
   getYouthProfiles(): Observable<YouthProfileAccount[]> {
     return this.http.get<YouthProfileAccount[]>('/api/administrator/youth-profiles');
+  }
+
+  getYouthProfileById(youthId: number): Observable<YouthProfileAccount> {
+    return this.http.get<YouthProfileAccount>(`/api/youth/profile/${youthId}`);
   }
 
   updateUser(userId: number, payload: UpdateYouthUserPayload): Observable<YouthUserAccount> {
