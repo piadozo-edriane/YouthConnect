@@ -1,90 +1,94 @@
 <div class="dashboard-root">
     <div class="dashboard-container">
 
-        <!-- Error Message -->
-        <div class="error-banner" *ngIf="errorMessage">
+        <div *ngIf="errorMessage" class="loading-indicator error-indicator">
             <p>{{ errorMessage }}</p>
         </div>
 
-        <!-- Loading State -->
-        <div class="loading-state" *ngIf="isLoading">
+        <div *ngIf="isLoading" class="loading-indicator">
             <p>Loading dashboard...</p>
         </div>
 
-        <!-- Header Section -->
-        <div class="dashboard-header" *ngIf="!isLoading">
+        <div *ngIf="!isLoading && !errorMessage" class="header-section">
             <div class="greeting-area">
                 <h1>Welcome, {{ userName }}!</h1>
-                <p>{{ userEmail }}</p>
+                <p>{{ todayLabel }} &nbsp;·&nbsp; {{ currentTime }}</p>
             </div>
-            <div class="user-profile-badge">
-                <div class="profile-circle">
+            <div class="user-profile">
+                <div class="profile-badge">
                     <span class="initials">{{ getInitials() }}</span>
                 </div>
-                <div class="profile-details">
-                    <p class="profile-name">{{ userName }}</p>
-                    <p class="profile-email">{{ userEmail }}</p>
-                    <p class="profile-role">Youth Member</p>
+                <div class="profile-info">
+                    <p class="name">{{ userName }}</p>
+                    <p class="email">{{ userEmail }}</p>
+                    <p class="position">Youth Member</p>
                 </div>
             </div>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="stats-section" *ngIf="!isLoading">
-            <div class="stat-card" *ngFor="let stat of stats; let i = index"
+        <div *ngIf="!isLoading && !errorMessage" class="stats-section">
+            <div class="stat-card blue-border" *ngFor="let stat of stats; let i = index"
                  [ngClass]="getStatClass(i)">
                 <p class="stat-label">{{ stat.label }}</p>
                 <p class="stat-number">{{ stat.value }}</p>
             </div>
         </div>
 
-        <!-- Content Grid -->
-        <div class="content-section" *ngIf="!isLoading">
-            <!-- Upcoming Events -->
+        <div *ngIf="!isLoading && !errorMessage" class="content-section">
             <div class="content-card">
-                <div class="card-header">
-                    <h2>Upcoming Events</h2>
-                    <span class="view-all" (click)="browseEvents()">{{ upcomingEvents.length }} ➜</span>
+                <div class="card-header" (click)="browseEvents()" style="cursor: pointer;">
+                    <div class="card-header-title">
+                        <h2>Upcoming Events</h2>
+                        <span class="count-badge">{{ upcomingEvents.length }}</span>
+                    </div>
+                    <span class="view-all">View All</span>
                 </div>
                 <div class="card-content">
-                    <div class="item-card" *ngFor="let event of displayedEvents; trackBy: trackByEventId"
+                    <div class="item-card"
+                         *ngFor="let event of displayedEvents; let i = index; trackBy: trackByEventId"
+                         [ngClass]="'item-border-' + getItemColor(i)"
                          (click)="viewEvent(event)">
                         <div class="item-header">
-                            <h3>{{ event.title }}</h3>
+                            <h3 class="item-title-fade">{{ event.title }}</h3>
                             <span class="item-date">{{ formatEventDate(event.eventDate) }}</span>
                         </div>
-                        <p class="item-description">{{ event.description }}</p>
-                        <p class="item-location">{{ event.location }}</p>
+                        <div class="item-meta">
+                            <p class="item-location">{{ event.location }}</p>
+                        </div>
                     </div>
-                    <div *ngIf="upcomingEvents.length === 0" class="no-data-message">
-                        <p>No upcoming events</p>
-                    </div>
-                    <div class="see-more-wrapper" *ngIf="visibleEventsCount < upcomingEvents.length">
+                    <div *ngIf="upcomingEvents.length === 0" class="no-data-message">No upcoming events</div>
+                    <div class="see-more-wrapper" *ngIf="upcomingEvents.length > visibleEventsCount">
                         <button class="see-more-btn" type="button" (click)="showMoreEvents()">See More</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Notifications -->
             <div class="content-card">
                 <div class="card-header">
-                    <h2>Notifications</h2>
-                    <span class="view-all">{{ filteredNotifications.length }} ➜</span>
+                    <div class="card-header-title">
+                        <h2>Notifications</h2>
+                        <span class="count-badge">{{ filteredNotifications.length }}</span>
+                    </div>
+                    <span class="view-all">View All</span>
                 </div>
                 <div class="card-content">
-                    <div class="notification-item clickable-notification" *ngFor="let notification of displayedNotifications; trackBy: trackByNotificationId"
+                    <div class="item-card notification-card"
+                         *ngFor="let notification of displayedNotifications; let i = index; trackBy: trackByNotificationId"
+                         [ngClass]="'item-border-' + getItemColor(i)"
                          (click)="onNotificationClick(notification)">
-                        <div class="notification-header">
-                            <span class="notification-title">{{ notification.title || notification.updatedByAdminName || 'Notification' }}</span>
-                            <span class="notification-time">Due: {{ getTimeAgo(notification.createdAt) }}</span>
+                        <div class="item-header">
+                            <h3 class="item-title-fade">{{ notification.title || notification.updatedByAdminName || 'Notification' }}</h3>
+                            <span class="item-date">{{ getTimeAgo(notification.createdAt) }}</span>
                         </div>
-                        <div class="notification-message">{{ notification.message || notification.updateText }}</div>
-                        <span class="unread-badge" *ngIf="!isNotificationRead(notification)">UNREAD</span>
+                        <div class="item-meta">
+                            <p class="item-location">{{ notification.message || notification.updateText }}</p>
+                        </div>
+                        <div class="item-footer">
+                            <span class="item-status status-unread" *ngIf="!isNotificationRead(notification)">Unread</span>
+                        </div>
                     </div>
-                    <div *ngIf="filteredNotifications.length === 0" class="no-data-message">
-                        <p>No notifications yet</p>
-                    </div>
-                    <div class="see-more-wrapper" *ngIf="visibleNotificationsCount < filteredNotifications.length">
+                    <div *ngIf="filteredNotifications.length === 0" class="no-data-message">No notifications yet</div>
+                    <div class="see-more-wrapper" *ngIf="filteredNotifications.length > visibleNotificationsCount">
                         <button class="see-more-btn" type="button" (click)="showMoreNotifications()">See More</button>
                     </div>
                 </div>

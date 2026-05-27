@@ -21,9 +21,12 @@ export class Dashboard implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   private readonly refreshIntervalMs = 30000;
+  private clockInterval: any;
 
   userName = 'John Doe';
   userEmail = 'johndoe@gmail.com';
+  todayLabel = '';
+  currentTime = '';
   youthId: number = 0;
   userId: number = 0;
   isLoading = false;
@@ -61,14 +64,34 @@ export class Dashboard implements OnInit, OnDestroy {
         .map(part => part.charAt(0).toUpperCase() + part.slice(1))
         .join(' ');
 
+      this.updateClock();
+      this.clockInterval = setInterval(() => this.updateClock(), 1000);
       this.loadDashboardData();
       this.setupAutoRefresh();
     }
   }
 
   ngOnDestroy(): void {
+    if (this.clockInterval) {
+      clearInterval(this.clockInterval);
+    }
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  updateClock(): void {
+    const now = new Date();
+    this.todayLabel = now.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    this.currentTime = now.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
   }
 
   loadDashboardData(): void {
@@ -246,7 +269,7 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   getItemColor(index: number): string {
-    const colors = ['red', 'red', 'red', 'red'];
+    const colors = ['red', 'blue', 'yellow', 'gray', 'green'];
     return colors[index % colors.length];
   }
 
