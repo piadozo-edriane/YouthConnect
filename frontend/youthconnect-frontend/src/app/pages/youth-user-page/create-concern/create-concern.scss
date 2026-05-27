@@ -29,6 +29,8 @@ body,
   .notification-stack {
     position: fixed;
     top: 16px;
+  max-width: 100%;
+  min-width: 0;
     right: 16px;
     z-index: 1200;
     display: flex;
@@ -385,6 +387,64 @@ body,
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.meta-item {
+  flex-wrap: wrap;
+}
+
+.meta-label,
+.status-pill {
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .action-bar {
+    align-items: stretch;
+  }
+
+  .search-group {
+    width: 100%;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-select {
+    width: 100%;
+  }
+
+  .concerns-list {
+    grid-template-columns: 1fr;
+  }
+
+  .card-header .card-title-group h3 {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .description {
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-header {
+    padding: 14px 16px;
+  }
+
+  .card-body {
+    padding: 16px;
+  }
 }
 
 .concern-meta {
