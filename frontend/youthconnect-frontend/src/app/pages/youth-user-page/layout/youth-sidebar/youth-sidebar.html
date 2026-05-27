@@ -27,19 +27,19 @@
             <li>
                 <a routerLink="/youth/create-concern" routerLinkActive="active" (click)="closeMobileMenu()">
                     <img src="assets/youth-sidebar/attention.png" alt="Concern Icon" class="sidebar-icon">
-                    Concern
+                    Concerns
                 </a>
             </li>
             <li>
                 <a routerLink="/youth/events" routerLinkActive="active" (click)="closeMobileMenu()">
                     <img src="assets/youth-sidebar/event.png" alt="Event Icon" class="sidebar-icon">
-                    Event
+                    Events
                 </a>
             </li>
             <li class="notification-menu-item">
                 <a routerLink="/youth/notifications" routerLinkActive="active" (click)="closeMobileMenu()">
                     <img src="assets/youth-sidebar/notification.png" alt="Notification Icon" class="sidebar-icon">
-                    Notification
+                    Notifications
                     <span class="notification-badge" *ngIf="unreadNotificationCount > 0">
                         {{ unreadNotificationCount > 99 ? '99+' : unreadNotificationCount }}
                     </span>

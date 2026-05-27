@@ -253,7 +253,7 @@ export class NotificationPage implements OnInit, OnDestroy {
       case 'EVENT_JOIN_REQUEST_REJECTED':
         return 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z';
       case 'EVENT_STATUS':
-        return 'M13 10V3L4 14h7v7l9-11h-7z';
+        return 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z';
       case 'CONCERN_UPDATE':
         return 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z';
       default:
@@ -262,10 +262,25 @@ export class NotificationPage implements OnInit, OnDestroy {
   }
 
   /**
-   * Get notification title
+   * Get optional second SVG path for notification icon (e.g. calendar minus line)
+   */
+  getNotificationIconSecondPath(notification: NotificationResponse): string | null {
+    switch (notification.type) {
+      case 'EVENT_STATUS':
+        return 'M9 14h6';
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * Get notification title — converted to title case so backend uppercase strings display properly
    */
   getNotificationTitle(notification: NotificationResponse): string {
-    return notification.title || 'Notification';
+    const raw = notification.title || 'Notification';
+    return raw
+      .toLowerCase()
+      .replace(/(?:^|\s|:)\S/g, (char) => char.toUpperCase());
   }
 
   /**

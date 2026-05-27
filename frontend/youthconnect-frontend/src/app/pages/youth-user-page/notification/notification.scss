@@ -252,28 +252,6 @@ body,
   }
 }
 
-// ─── Type Bar ─────────────────────────────────────────────────────────────────
-
-.type-bar {
-  flex-shrink: 0;
-  width: 4px;
-  align-self: stretch;
-  border-radius: 2px;
-  min-height: 40px;
-
-  &.type-bar-red {
-    background-color: #a4151a;
-  }
-
-  &.type-bar-blue {
-    background-color: #0052cc;
-  }
-
-  &.type-bar-yellow {
-    background-color: #d4a000;
-  }
-}
-
 // ─── Notification Icon ────────────────────────────────────────────────────────
 
 .notif-icon {
@@ -328,6 +306,7 @@ body,
     color: #111;
     line-height: 1.3;
     word-break: break-word;
+    text-transform: none;
   }
 }
 
@@ -346,6 +325,7 @@ body,
   color: #888;
   font-style: italic;
   word-break: break-word;
+  text-transform: none;
 }
 
 .notif-message {
@@ -354,6 +334,7 @@ body,
   color: #444;
   line-height: 1.55;
   word-break: break-word;
+  text-transform: none;
 }
 
 // ─── Unread Dot ───────────────────────────────────────────────────────────────

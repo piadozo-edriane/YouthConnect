@@ -10,7 +10,7 @@
         <!-- Header Section -->
         <div class="header-section">
             <div class="header-content">
-                <h1>NOTIFICATIONS</h1>
+                <h1>Notifications</h1>
             </div>
         </div>
 
@@ -59,14 +59,12 @@
                 [class.unread]="!notification.isRead"
                 (click)="markAsRead(notification)">
 
-                <!-- Type indicator bar -->
-                <div class="type-bar" [ngClass]="'type-bar-' + getNotificationColor(notification)"></div>
-
                 <!-- Icon -->
                 <div class="notif-icon" [ngClass]="'notif-icon-' + getNotificationColor(notification)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2">
                         <path [attr.d]="getNotificationIcon(notification)"></path>
+                        <path *ngIf="getNotificationIconSecondPath(notification)" [attr.d]="getNotificationIconSecondPath(notification)"></path>
                     </svg>
                 </div>
 
