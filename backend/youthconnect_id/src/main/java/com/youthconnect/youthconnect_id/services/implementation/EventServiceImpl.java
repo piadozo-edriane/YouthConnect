@@ -242,9 +242,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public void deleteEvent(int eventId) {
         Event event = eventRepo.findById(eventId)
                 .orElseThrow(() -> new RuntimeException("Event not found"));
+        notificationService.deleteNotificationsByEventId(eventId);
         eventRepo.delete(event);
     }
 
