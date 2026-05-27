@@ -1,4 +1,4 @@
-import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -14,7 +14,7 @@ import { ToastService } from '../../../services/toast.service';
   templateUrl: './update-concern.html',
   styleUrls: ['./update-concern.scss']
 })
-export class UpdateConcern implements OnInit, AfterViewChecked {
+export class UpdateConcern implements OnInit, AfterViewChecked, OnDestroy {
   @ViewChild('historyContainer') historyContainer?: ElementRef<HTMLDivElement>;
   responseForm!: FormGroup;
   concern: Concern | null = null;
@@ -33,6 +33,8 @@ export class UpdateConcern implements OnInit, AfterViewChecked {
   toasts: Array<{ message: string; type: string; id: number }> = [];
   private pendingScrollToBottom = false;
   private pendingScrollSmooth = false;
+  private pollingIntervalId: any = null;
+  private readonly POLL_INTERVAL_MS = 2000; // poll every 2 seconds
 
   constructor(
     private adminConcernService: AdminConcernService,
@@ -75,6 +77,10 @@ export class UpdateConcern implements OnInit, AfterViewChecked {
 
     this.scrollHistoryToBottomInternal(this.pendingScrollSmooth);
     this.pendingScrollToBottom = false;
+  }
+
+  ngOnDestroy(): void {
+    this.stopPollingUpdates();
   }
 
   initForm() {
@@ -314,6 +320,8 @@ export class UpdateConcern implements OnInit, AfterViewChecked {
         this.isLoadingUpdates = false;
 
         this.scheduleScrollHistoryToBottom(false);
+        // start polling for new updates once initial load completes
+        this.startPollingUpdates();
       },
       error: (error) => {
         console.error('Error loading concern updates:', error);
@@ -367,6 +375,66 @@ export class UpdateConcern implements OnInit, AfterViewChecked {
     container.scrollTo({
       top: container.scrollHeight,
       behavior
+    });
+  }
+
+  private startPollingUpdates(): void {
+    if (this.pollingIntervalId) {
+      return; // already polling
+    }
+
+    this.pollingIntervalId = setInterval(() => {
+      this.fetchUpdatesSilently();
+    }, this.POLL_INTERVAL_MS);
+  }
+
+  private stopPollingUpdates(): void {
+    if (this.pollingIntervalId) {
+      clearInterval(this.pollingIntervalId);
+      this.pollingIntervalId = null;
+    }
+  }
+
+  private fetchUpdatesSilently(): void {
+    if (!this.concernId) {
+      return;
+    }
+
+    this.adminConcernService.getConcernUpdates(this.concernId).subscribe({
+      next: (updates) => {
+        const sorted = [...updates].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        const newOnes = sorted.filter(u => !this.concernUpdates.some(existing => existing.updateId === u.updateId));
+        if (newOnes.length > 0) {
+          // Remove any optimistic local entries that match server updates to avoid duplicates
+          newOnes.forEach(serverUpdate => {
+            this.concernUpdates = this.concernUpdates.filter(local => {
+              try {
+                const localIsOptimistic = !local.updateId || typeof local.updateId !== 'number' || local.updateId > Date.now();
+                // also consider entries we created locally: match by senderType and updateText and time proximity
+                const sameSender = local.senderType === serverUpdate.senderType;
+                const sameText = local.updateText && serverUpdate.updateText && local.updateText.trim() === serverUpdate.updateText.trim();
+                const localTime = new Date(local.createdAt).getTime();
+                const serverTime = new Date(serverUpdate.createdAt).getTime();
+                const timeDiff = Math.abs(localTime - serverTime);
+                const closeEnough = timeDiff <= 5000; // 5 seconds
+
+                if (sameSender && sameText && closeEnough) {
+                  return false; // drop the local optimistic entry
+                }
+                return true;
+              } catch (e) {
+                return true;
+              }
+            });
+          });
+
+          this.concernUpdates = [...this.concernUpdates, ...newOnes].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+          this.scheduleScrollHistoryToBottom(true);
+        }
+      },
+      error: () => {
+        // silent fail for polling
+      }
     });
   }
 
