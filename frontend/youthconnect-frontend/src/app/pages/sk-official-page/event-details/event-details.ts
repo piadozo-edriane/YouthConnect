@@ -1040,7 +1040,7 @@ export class EventDetailsPage implements OnInit, OnDestroy {
     y += 8;
 
     // ── Section: Attendance Summary ──────────────────────────────────────────
-    checkPage(45);
+    checkPage(80);
     doc.setFillColor(...lightBg);
     doc.rect(margin, y, contentW, 8, 'F');
     doc.setFont('helvetica', 'bold');
@@ -1049,15 +1049,17 @@ export class EventDetailsPage implements OnInit, OnDestroy {
     doc.text('ATTENDANCE SUMMARY', margin + 4, y + 5.5);
     y += 12;
 
-    const totalRsvp = this.allAttendees.length;
-    const approved = this.approvedCount;
-    const capacity = event.attendeeLimit || 0;
-    const rate = capacity > 0 ? Math.round((approved / capacity) * 100) : 0;
+    const approved  = this.approvedCount;
+    const capacity  = event.attendeeLimit || 0;
+    const attended  = this.attendedCount;
+    const rate      = capacity > 0 ? Math.round((attended / capacity) * 100) : 0;
+    const remaining = Math.max(0, capacity - attended);
 
+    // ── Stat boxes (3 columns: Approved Attendees | Participant Limit | Attendance Rate) ──
     const summaryItems = [
-      { label: 'Total Registered (RSVPs)', value: String(totalRsvp) },
       { label: 'Approved Attendees', value: String(approved) },
-      { label: 'Attendance Rate', value: `${rate}% (${approved} / ${capacity || '—'})` },
+      { label: 'Participant Limit',  value: capacity > 0 ? String(capacity) : '—' },
+      { label: 'Attendance Rate',    value: `${rate}%` },
     ];
 
     const colW = contentW / 3;
@@ -1086,6 +1088,101 @@ export class EventDetailsPage implements OnInit, OnDestroy {
       });
     });
     y += 30;
+
+    // ── Donut chart: Attended vs Remaining capacity ───────────────────────────
+    // Two segments: attended (blue) + remaining (light grey)
+    const donutR = 22;
+    const holeR  = 12;
+    const cx     = margin + donutR + 6;
+    const cy     = y + donutR + 4;
+    const chartH = donutR * 2 + 10;
+
+    const drawPieSegment = (
+      centerX: number, centerY: number, r: number,
+      startAngle: number, endAngle: number,
+      color: [number, number, number]
+    ) => {
+      if (Math.abs(endAngle - startAngle) < 0.001) return;
+      const steps = Math.max(6, Math.ceil(Math.abs(endAngle - startAngle) / (Math.PI / 24)));
+      const step  = (endAngle - startAngle) / steps;
+      doc.setFillColor(...color);
+      doc.setDrawColor(...color);
+      for (let i = 0; i < steps; i++) {
+        const a1 = startAngle + i * step;
+        const a2 = a1 + step;
+        const x1 = centerX + r * Math.cos(a1);
+        const y1 = centerY + r * Math.sin(a1);
+        const x2 = centerX + r * Math.cos(a2);
+        const y2 = centerY + r * Math.sin(a2);
+        doc.triangle(centerX, centerY, x1, y1, x2, y2, 'F');
+      }
+    };
+
+    const attendedColor:  [number, number, number] = [0, 82, 204];   // blue
+    const remainingColor: [number, number, number] = [220, 230, 245]; // light blue-grey
+
+    if (capacity > 0) {
+      const attendedSweep  = (attended  / capacity) * 2 * Math.PI;
+      const remainingSweep = (remaining / capacity) * 2 * Math.PI;
+      const startAngle = -Math.PI / 2; // 12 o'clock
+
+      // Draw remaining first (background), then attended on top
+      if (remaining > 0) {
+        drawPieSegment(cx, cy, donutR, startAngle + attendedSweep, startAngle + attendedSweep + remainingSweep, remainingColor);
+      }
+      if (attended > 0) {
+        drawPieSegment(cx, cy, donutR, startAngle, startAngle + attendedSweep, attendedColor);
+      }
+      // If both zero, draw full grey
+      if (attended === 0 && remaining === 0) {
+        drawPieSegment(cx, cy, donutR, -Math.PI / 2, 3 * Math.PI / 2, [200, 200, 200]);
+      }
+    } else {
+      // No capacity set — full grey
+      drawPieSegment(cx, cy, donutR, -Math.PI / 2, 3 * Math.PI / 2, [200, 200, 200]);
+    }
+
+    // Punch hole
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(255, 255, 255);
+    doc.circle(cx, cy, holeR, 'F');
+
+    // Centre label
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(...primaryColor);
+    doc.text(`${rate}%`, cx, cy - 1, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...mutedText);
+    doc.text('attended', cx, cy + 4.5, { align: 'center' });
+
+    // Legend (right of donut)
+    const legendX = cx + donutR + 10;
+    let legendY   = cy - 8;
+    const legendItems: { label: string; value: string; color: [number, number, number] }[] = [
+      { label: 'Attended',        value: String(attended),  color: attendedColor  },
+      { label: 'Remaining Slots', value: String(remaining), color: remainingColor },
+    ];
+
+    for (const item of legendItems) {
+      // Colour swatch
+      doc.setFillColor(...item.color);
+      doc.setDrawColor(...borderColor);
+      doc.rect(legendX, legendY - 3.2, 4, 4, 'FD');
+      // Label
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(...mutedText);
+      doc.text(item.label, legendX + 6, legendY);
+      // Value (bold, right-aligned within legend area)
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...darkText);
+      doc.text(item.value, legendX + 70, legendY, { align: 'right' });
+      legendY += 9;
+    }
+
+    y += chartH + 6;
 
     // ── Section: Attendee List ───────────────────────────────────────────────
     checkPage(25);
