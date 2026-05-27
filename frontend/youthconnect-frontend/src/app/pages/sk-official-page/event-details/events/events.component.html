@@ -55,14 +55,14 @@
             
             <div *ngFor="let event of paginatedEvents; trackBy: trackByEventId" class="event-card" (click)="viewEvent(event)">
                 <div class="card-header">
-                    <h3>{{ event.title }}</h3>
+                    <h3 class="event-title-fade">{{ event.title }}</h3>
                 </div>
                 <div class="card-body">
                     <p class="description">{{ event.description }}</p>
                     <div class="event-meta">
                         <div class="meta-item">
                             <span class="icon"><img src="../../assets/sk-official-events-icons/location.svg" alt="Location" width="16" height="16"></span>
-                            <span>{{ event.location }}</span>
+                            <span class="meta-fade">{{ event.location }}</span>
                         </div>
                         <div class="meta-item">
                             <span class="icon"><img src="../../assets/sk-official-events-icons/time.svg" alt="Time" width="16" height="16"></span>
