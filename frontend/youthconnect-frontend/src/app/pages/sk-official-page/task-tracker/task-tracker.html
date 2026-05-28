@@ -205,8 +205,10 @@
                         <div class="form-group">
                             <label for="taskingType" class="form-label">Tasking/Committee<span
                                     class="required">*</span></label>
-                            <select id="taskingType" class="form-input" formControlName="taskingType">
-                                <option value="" disabled selected>Select a tasking/committee</option>
+                            <select id="taskingType" class="form-input"
+                                [class.select-placeholder]="!taskForm.get('taskingType')?.value"
+                                formControlName="taskingType">
+                                <option [ngValue]="null" disabled hidden>Select a tasking/committee</option>
                                 <option *ngFor="let tasking of taskingOptions" [value]="tasking">
                                     {{ getTaskingDisplayName(tasking) }}
                                 </option>
@@ -252,8 +254,10 @@
                         <div class="form-group">
                             <label for="skIncharge" class="form-label">SK Incharge<span
                                     class="required">*</span></label>
-                            <select id="skIncharge" class="form-input" formControlName="skIncharge">
-                                <option value="" disabled selected>Select SK Official</option>
+                            <select id="skIncharge" class="form-input"
+                                [class.select-placeholder]="!taskForm.get('skIncharge')?.value"
+                                formControlName="skIncharge">
+                                <option [ngValue]="null" disabled hidden>Select SK Official</option>
                                 <option *ngFor="let official of skOfficials" [value]="official.fullName">
                                     {{ official.fullName }} - {{ official.position }}
                                 </option>
@@ -273,8 +277,10 @@
 
                         <div class="form-group">
                             <label for="status" class="form-label">Status<span class="required">*</span></label>
-                            <select id="status" class="form-input" formControlName="status">
-                                <option value="" disabled selected>Select status</option>
+                            <select id="status" class="form-input"
+                                [class.select-placeholder]="!taskForm.get('status')?.value"
+                                formControlName="status">
+                                <option [ngValue]="null" disabled hidden>Select status</option>
                                 <option value="PRIO">PRIO</option>
                                 <option value="TODO">TO DO</option>
                                 <option value="IN_PROGRESS">IN PROGRESS</option>
@@ -302,7 +308,7 @@
                         <div class="form-group">
                             <label for="dueDate" class="form-label">Due Date<span class="required">*</span></label>
                             <input type="datetime-local" id="dueDate" class="form-input"
-                                placeholder="mm/dd/yyyy --:-- --" formControlName="dueDate">
+                                placeholder="Select due date and time" formControlName="dueDate">
                             <div *ngIf="taskForm.get('dueDate')?.invalid && taskForm.get('dueDate')?.touched"
                                 class="form-error">
                                 <span *ngIf="taskForm.get('dueDate')?.hasError('required')">Due date is required</span>

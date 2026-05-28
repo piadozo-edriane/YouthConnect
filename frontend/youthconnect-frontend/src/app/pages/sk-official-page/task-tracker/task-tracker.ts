@@ -96,12 +96,12 @@ export class TaskTracker implements OnInit {
 
   initForm() {
     this.taskForm = this.fb.group({
-      taskingType: ['', Validators.required],
+      taskingType: [null, Validators.required],
       customTasking: ['', [Validators.maxLength(50)]],
       taskDescription: ['', [Validators.required, Validators.maxLength(500)]],
-      skIncharge: ['', [Validators.required]],
+      skIncharge: [null, [Validators.required]],
       hyperlink: [''],
-      status: ['', Validators.required],
+      status: [null, Validators.required],
       dueDate: ['', Validators.required],
       customStatus: ['']
     });
@@ -619,13 +619,13 @@ export class TaskTracker implements OnInit {
   getResolvedTasking(formValue: any): string {
     return formValue.taskingType === 'CUSTOM'
       ? (formValue.customTasking || '').trim()
-      : formValue.taskingType;
+      : (formValue.taskingType || '');
   }
 
   getResolvedStatus(formValue: any): string {
     return formValue.status === 'CUSTOM'
       ? (formValue.customStatus || '').trim()
-      : formValue.status;
+      : (formValue.status || '');
   }
 
   formatStatusLabel(status: string): string {

@@ -906,6 +906,10 @@ select.form-input {
   color: #aaa;
 }
 
+.select-placeholder {
+  color: #aaa;
+}
+
 .form-input:focus,
 .form-textarea:focus,
 select.form-input:focus {
@@ -928,16 +932,11 @@ select.form-input {
   background-position: right 12px center;
   padding-right: 36px;
 
-  &:invalid,
-  &[value=""] {
-    color: #aaa;
-  }
-
   option {
     color: #333;
   }
 
-  option[value=""] {
+  option:disabled {
     color: #aaa;
   }
 }
