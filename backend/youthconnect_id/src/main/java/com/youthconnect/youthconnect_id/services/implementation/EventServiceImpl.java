@@ -118,8 +118,8 @@ public class EventServiceImpl implements EventService {
     
     private void notifyYouthUsersAboutNewEvent(Event event) {
         try {
-            // Get all approved users
-            List<com.youthconnect.youthconnect_id.models.User> approvedUsers = userRepo.findByStatus("approved");
+            // Get all approved AND active users only
+            List<com.youthconnect.youthconnect_id.models.User> approvedUsers = userRepo.findByStatusAndIsActive("approved", true);
             
             if (approvedUsers.isEmpty()) {
                 System.out.println("⚠️ No approved users to notify about new event");

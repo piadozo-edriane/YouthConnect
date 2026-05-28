@@ -14,6 +14,7 @@ public interface UserRepo extends JpaRepository<User, Integer> {
     boolean existsByEmail(String email);
     Optional<User> findByYouthId(int youthId);
     List<User> findByStatus(String status);
+    List<User> findByStatusAndIsActive(String status, boolean isActive);
     List<User> findByStatusOrderByCreatedAtDesc(String status);
     Optional<User> findByResetToken(String resetToken);
     long countByIsActiveTrue();
