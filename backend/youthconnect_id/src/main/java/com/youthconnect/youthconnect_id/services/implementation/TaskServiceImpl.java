@@ -57,7 +57,9 @@ public class TaskServiceImpl implements TaskService {
         task.setSkIncharge(request.getSkIncharge());
         task.setHyperlink(request.getHyperlink());
         task.setDueDate(request.getDueDate());
-        task.setStatus(request.getStatus() != null ? request.getStatus() : TaskStatus.PRIO);
+        task.setStatus(request.getStatus() != null && !request.getStatus().isBlank()
+                ? request.getStatus()
+                : TaskStatus.PRIO.name());
         task.setCreatedAt(LocalDateTime.now());
         
         Task savedTask = taskRepo.save(task);
@@ -137,7 +139,7 @@ public class TaskServiceImpl implements TaskService {
         task.setSkIncharge(request.getSkIncharge());
         task.setHyperlink(request.getHyperlink());
         task.setDueDate(request.getDueDate());
-        if (request.getStatus() != null) {
+        if (request.getStatus() != null && !request.getStatus().isBlank()) {
             task.setStatus(request.getStatus());
         }
         return toResponse(taskRepo.save(task));
@@ -163,7 +165,7 @@ public class TaskServiceImpl implements TaskService {
     public TaskResponse updateTaskStatus(int taskId, TaskStatus status) {
         Task task = taskRepo.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
-        task.setStatus(status);
+        task.setStatus(status.name());
         return toResponse(taskRepo.save(task));
     }
 

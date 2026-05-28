@@ -99,7 +99,7 @@ export class SignUpPage {
           updateOn: 'change'
         }],
         completeAddress: ['', {
-          validators: [Validators.required, Validators.maxLength(200)],
+          validators: [Validators.required, Validators.maxLength(100)],
           updateOn: 'change'
         }],
         civilStatus: ['', {
@@ -125,11 +125,11 @@ export class SignUpPage {
           updateOn: 'change'
         }],
         numberOfAttendedAssemblies: ['', {
-          validators: [Validators.required],
+          validators: [Validators.required, Validators.min(0), Validators.max(1000)],
           updateOn: 'change'
         }],
         reason: ['', {
-          validators: [Validators.required],
+          validators: [Validators.required, Validators.maxLength(200)],
           updateOn: 'change'
         }],
 
