@@ -27,7 +27,7 @@ import { UserApprovalService } from '../../../services/user-approval.service';
 export class ManageYouthMember implements OnInit {
   private youthMemberManagementService = inject(YouthMemberManagementService);
   private userApprovalService = inject(UserApprovalService);
-  readonly itemsPerPage = 11;
+  readonly itemsPerPage = 9;
 
   youthMembers: YouthMemberListItem[] = [];
   searchTerm = '';
@@ -63,6 +63,20 @@ export class ManageYouthMember implements OnInit {
   rejectYouthMemberErrorMessage: string | null = null;
   showRejectSuccessModal = false;
   rejectSuccessMessage = '';
+
+  showActivateModal = false;
+  activatingYouthMember: YouthMemberListItem | null = null;
+  isActivatingYouthMember = false;
+  activateYouthMemberErrorMessage: string | null = null;
+  showActivateSuccessModal = false;
+  activateSuccessMessage = '';
+
+  showDeactivateModal = false;
+  deactivatingYouthMember: YouthMemberListItem | null = null;
+  isDeactivatingYouthMember = false;
+  deactivateYouthMemberErrorMessage: string | null = null;
+  showDeactivateSuccessModal = false;
+  deactivateSuccessMessage = '';
 
   ngOnInit(): void {
     this.loadYouthMembers();
@@ -418,6 +432,122 @@ export class ManageYouthMember implements OnInit {
   closeRejectSuccessModal(): void {
     this.showRejectSuccessModal = false;
     this.rejectSuccessMessage = '';
+  }
+
+  openActivateYouthMemberModal(youthMember: YouthMemberListItem): void {
+    this.activatingYouthMember = youthMember;
+    this.showActivateModal = true;
+    this.activateYouthMemberErrorMessage = null;
+  }
+
+  closeActivateYouthMemberModal(): void {
+    if (this.isActivatingYouthMember) {
+      return;
+    }
+
+    this.showActivateModal = false;
+    this.activatingYouthMember = null;
+    this.activateYouthMemberErrorMessage = null;
+  }
+
+  confirmActivateYouthMember(): void {
+    if (!this.activatingYouthMember) {
+      return;
+    }
+
+    this.isActivatingYouthMember = true;
+    this.activateYouthMemberErrorMessage = null;
+
+    const userId = this.activatingYouthMember.userId;
+    const youthName = this.getFullName(this.activatingYouthMember) || 'Youth member';
+
+    this.youthMemberManagementService.reactivateUser(userId).subscribe({
+      next: (updatedUser) => {
+        this.youthMembers = this.youthMembers.map((item) =>
+          item.userId === userId ? { ...item, isActive: updatedUser.isActive } : item
+        );
+
+        this.showActivateModal = false;
+        this.activatingYouthMember = null;
+        this.isActivatingYouthMember = false;
+        this.activateSuccessMessage = `${youthName} has been activated successfully.`;
+        this.showActivateSuccessModal = true;
+      },
+      error: (error: HttpErrorResponse) => {
+        this.activateYouthMemberErrorMessage = this.extractActivateDeactivateErrorMessage(error);
+        this.isActivatingYouthMember = false;
+      }
+    });
+  }
+
+  closeActivateSuccessModal(): void {
+    this.showActivateSuccessModal = false;
+    this.activateSuccessMessage = '';
+  }
+
+  openDeactivateYouthMemberModal(youthMember: YouthMemberListItem): void {
+    this.deactivatingYouthMember = youthMember;
+    this.showDeactivateModal = true;
+    this.deactivateYouthMemberErrorMessage = null;
+  }
+
+  closeDeactivateYouthMemberModal(): void {
+    if (this.isDeactivatingYouthMember) {
+      return;
+    }
+
+    this.showDeactivateModal = false;
+    this.deactivatingYouthMember = null;
+    this.deactivateYouthMemberErrorMessage = null;
+  }
+
+  confirmDeactivateYouthMember(): void {
+    if (!this.deactivatingYouthMember) {
+      return;
+    }
+
+    this.isDeactivatingYouthMember = true;
+    this.deactivateYouthMemberErrorMessage = null;
+
+    const userId = this.deactivatingYouthMember.userId;
+    const youthName = this.getFullName(this.deactivatingYouthMember) || 'Youth member';
+
+    this.youthMemberManagementService.deactivateUser(userId).subscribe({
+      next: (updatedUser) => {
+        this.youthMembers = this.youthMembers.map((item) =>
+          item.userId === userId ? { ...item, isActive: updatedUser.isActive } : item
+        );
+
+        this.showDeactivateModal = false;
+        this.deactivatingYouthMember = null;
+        this.isDeactivatingYouthMember = false;
+        this.deactivateSuccessMessage = `${youthName} has been deactivated successfully.`;
+        this.showDeactivateSuccessModal = true;
+      },
+      error: (error: HttpErrorResponse) => {
+        this.deactivateYouthMemberErrorMessage = this.extractActivateDeactivateErrorMessage(error);
+        this.isDeactivatingYouthMember = false;
+      }
+    });
+  }
+
+  closeDeactivateSuccessModal(): void {
+    this.showDeactivateSuccessModal = false;
+    this.deactivateSuccessMessage = '';
+  }
+
+  private extractActivateDeactivateErrorMessage(error: HttpErrorResponse): string {
+    const responseBody = error?.error;
+
+    if (typeof responseBody === 'string' && responseBody.trim() !== '') {
+      return responseBody;
+    }
+
+    if (responseBody && typeof responseBody === 'object' && typeof responseBody.message === 'string') {
+      return responseBody.message;
+    }
+
+    return 'Unable to process request right now.';
   }
 
   private extractApprovalErrorMessage(error: HttpErrorResponse): string {

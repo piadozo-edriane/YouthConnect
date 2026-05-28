@@ -43,4 +43,6 @@ public interface AdminManagementService {
     SkOfficialsUser createSkOfficial(AdminSkOfficialRequest request);
     SkOfficialsUser updateSkOfficial(int adminId, AdminSkOfficialRequest request);
     void deleteSkOfficial(int adminId);
+    SkOfficialsUser deactivateSkOfficial(int adminId);
+    SkOfficialsUser activateSkOfficial(int adminId);
 }

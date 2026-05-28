@@ -375,4 +375,22 @@ public class AdminManagementServiceImpl implements AdminManagementService {
                 .orElseThrow(() -> new RuntimeException("SK Official not found"));
         skOfficialsRepo.delete(official);
     }
+
+    @Override
+    @Transactional
+    public SkOfficialsUser deactivateSkOfficial(int adminId) {
+        SkOfficialsUser official = skOfficialsRepo.findById(adminId)
+                .orElseThrow(() -> new RuntimeException("SK Official not found"));
+        official.setActive(false);
+        return skOfficialsRepo.save(official);
+    }
+
+    @Override
+    @Transactional
+    public SkOfficialsUser activateSkOfficial(int adminId) {
+        SkOfficialsUser official = skOfficialsRepo.findById(adminId)
+                .orElseThrow(() -> new RuntimeException("SK Official not found"));
+        official.setActive(true);
+        return skOfficialsRepo.save(official);
+    }
 }

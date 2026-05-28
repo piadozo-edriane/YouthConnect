@@ -22,7 +22,7 @@ import { EditAdministratorFeature } from '../feature/edit-administrator-feature/
 })
 export class ManageAdministrator implements OnInit {
   private administratorManagementService = inject(AdministratorManagementService);
-  readonly itemsPerPage = 11;
+  readonly itemsPerPage = 9;
   administrators: AdministratorAccount[] = [];
   searchTerm = '';
   currentPage = 1;

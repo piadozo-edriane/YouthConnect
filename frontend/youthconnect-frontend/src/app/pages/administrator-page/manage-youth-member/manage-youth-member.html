@@ -21,7 +21,8 @@
 						<th>ID</th>
 						<th>Full Name</th>
 						<th>Email</th>
-						<th>Status</th>
+						<th>Account Status</th>
+						<th>Approval Status</th>
 						<th>Created At</th>
 						<th>Actions</th>
 					</tr>
@@ -35,6 +36,12 @@
 						<td>
 							<span class="email-text" [attr.title]="youthMember.email || null">
 								{{ youthMember.email }}
+							</span>
+						</td>
+						<td class="status-cell">
+							<span class="status-badge" [class.status-active]="youthMember.isActive"
+								[class.status-inactive]="!youthMember.isActive">
+								{{ getStatusLabel(youthMember.isActive) }}
 							</span>
 						</td>
 						<td class="status-cell">
@@ -54,6 +61,15 @@
 								<button class="action-button reject" type="button"
 									(click)="openRejectYouthMemberModal(youthMember)">Reject</button>
 								}
+								@if (youthMember.status === 'approved') {
+									@if (youthMember.isActive) {
+									<button class="action-button deactivate" type="button"
+										(click)="openDeactivateYouthMemberModal(youthMember)">Deactivate</button>
+									} @else {
+									<button class="action-button activate" type="button"
+										(click)="openActivateYouthMemberModal(youthMember)">Activate</button>
+									}
+								}
 								<button class="action-button edit" type="button"
 									(click)="editYouthMember(youthMember)">Edit</button>
 								<button class="action-button delete" type="button"
@@ -63,7 +79,7 @@
 					</tr>
 					} @empty {
 					<tr>
-						<td class="empty-state" colspan="6">
+						<td class="empty-state" colspan="7">
 							{{ isLoading ? 'Loading youth member accounts...' : 'No youth members found.' }}
 						</td>
 					</tr>
@@ -228,6 +244,96 @@
 
 		<div class="modal-footer success-footer">
 			<button type="button" class="btn-ok" (click)="closeRejectSuccessModal()">OK</button>
+		</div>
+	</div>
+</div>
+}
+
+<!-- Activate Modal -->
+@if (showActivateModal) {
+<div class="modal-backdrop" (click)="closeActivateYouthMemberModal()">
+	<div class="modal" (click)="$event.stopPropagation()">
+		<div class="modal-header">
+			<h3>Activate Account</h3>
+		</div>
+
+		<div class="modal-body">
+			@if (activatingYouthMember) {
+			<p>Are you sure you want to activate <strong>{{ getFullName(activatingYouthMember) }}</strong>'s account?</p>
+			<p class="info-text">The user will be able to login and access the system.</p>
+			}
+
+			@if (activateYouthMemberErrorMessage) {
+			<p class="error-message">{{ activateYouthMemberErrorMessage }}</p>
+			}
+		</div>
+
+		<div class="modal-footer">
+			<button type="button" class="btn-cancel" (click)="closeActivateYouthMemberModal()"
+				[disabled]="isActivatingYouthMember">Cancel</button>
+			<button type="button" class="btn-activate" (click)="confirmActivateYouthMember()"
+				[disabled]="isActivatingYouthMember">
+				{{ isActivatingYouthMember ? 'Activating...' : 'Activate' }}
+			</button>
+		</div>
+	</div>
+</div>
+}
+
+@if (showActivateSuccessModal) {
+<div class="modal-backdrop success-backdrop" (click)="closeActivateSuccessModal()">
+	<div class="modal success-modal" (click)="$event.stopPropagation()">
+		<div class="modal-body success-body">
+			<p>{{ activateSuccessMessage }}</p>
+		</div>
+
+		<div class="modal-footer success-footer">
+			<button type="button" class="btn-ok" (click)="closeActivateSuccessModal()">OK</button>
+		</div>
+	</div>
+</div>
+}
+
+<!-- Deactivate Modal -->
+@if (showDeactivateModal) {
+<div class="modal-backdrop" (click)="closeDeactivateYouthMemberModal()">
+	<div class="modal" (click)="$event.stopPropagation()">
+		<div class="modal-header">
+			<h3>Deactivate Account</h3>
+		</div>
+
+		<div class="modal-body">
+			@if (deactivatingYouthMember) {
+			<p>Are you sure you want to deactivate <strong>{{ getFullName(deactivatingYouthMember) }}</strong>'s account?</p>
+			<p class="info-text">The user will not be able to login until the account is reactivated.</p>
+			}
+
+			@if (deactivateYouthMemberErrorMessage) {
+			<p class="error-message">{{ deactivateYouthMemberErrorMessage }}</p>
+			}
+		</div>
+
+		<div class="modal-footer">
+			<button type="button" class="btn-cancel" (click)="closeDeactivateYouthMemberModal()"
+				[disabled]="isDeactivatingYouthMember">Cancel</button>
+			<button type="button" class="btn-deactivate" (click)="confirmDeactivateYouthMember()"
+				[disabled]="isDeactivatingYouthMember">
+				{{ isDeactivatingYouthMember ? 'Deactivating...' : 'Deactivate' }}
+			</button>
+		</div>
+	</div>
+</div>
+}
+
+@if (showDeactivateSuccessModal) {
+<div class="modal-backdrop success-backdrop" (click)="closeDeactivateSuccessModal()">
+	<div class="modal success-modal" (click)="$event.stopPropagation()">
+		<div class="modal-body success-body">
+			<p>{{ deactivateSuccessMessage }}</p>
+		</div>
+
+		<div class="modal-footer success-footer">
+			<button type="button" class="btn-ok" (click)="closeDeactivateSuccessModal()">OK</button>
 		</div>
 	</div>
 </div>

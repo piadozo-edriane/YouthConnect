@@ -22,7 +22,7 @@ import { EditSkOfficialFeature } from '../feature/edit-sk-official-feature/edit-
 })
 export class ManageSkOfficials implements OnInit {
   private skOfficialManagementService = inject(SkOfficialManagementService);
-  readonly itemsPerPage = 11;
+  readonly itemsPerPage = 9;
 
   skOfficials: SkOfficialAccount[] = [];
   searchTerm = '';
@@ -47,6 +47,20 @@ export class ManageSkOfficials implements OnInit {
   deleteSkOfficialErrorMessage: string | null = null;
   showDeleteSuccessModal = false;
   deleteSuccessMessage = '';
+
+  showActivateModal = false;
+  activatingSkOfficial: SkOfficialAccount | null = null;
+  isActivatingSkOfficial = false;
+  activateSkOfficialErrorMessage: string | null = null;
+  showActivateSuccessModal = false;
+  activateSuccessMessage = '';
+
+  showDeactivateModal = false;
+  deactivatingSkOfficial: SkOfficialAccount | null = null;
+  isDeactivatingSkOfficial = false;
+  deactivateSkOfficialErrorMessage: string | null = null;
+  showDeactivateSuccessModal = false;
+  deactivateSuccessMessage = '';
 
   ngOnInit(): void {
     this.loadSkOfficials();
@@ -301,6 +315,108 @@ export class ManageSkOfficials implements OnInit {
     this.deleteSuccessMessage = '';
   }
 
+  openActivateSkOfficialModal(skOfficial: SkOfficialAccount): void {
+    this.activatingSkOfficial = skOfficial;
+    this.showActivateModal = true;
+    this.activateSkOfficialErrorMessage = null;
+  }
+
+  closeActivateSkOfficialModal(): void {
+    if (this.isActivatingSkOfficial) {
+      return;
+    }
+
+    this.showActivateModal = false;
+    this.activatingSkOfficial = null;
+    this.activateSkOfficialErrorMessage = null;
+  }
+
+  confirmActivateSkOfficial(): void {
+    if (!this.activatingSkOfficial) {
+      return;
+    }
+
+    this.isActivatingSkOfficial = true;
+    this.activateSkOfficialErrorMessage = null;
+
+    const adminId = this.activatingSkOfficial.adminId;
+    const officialName = this.getFullName(this.activatingSkOfficial) || 'SK Official';
+
+    this.skOfficialManagementService.activateSkOfficial(adminId).subscribe({
+      next: (updatedOfficial) => {
+        this.skOfficials = this.skOfficials.map((item) =>
+          item.adminId === adminId ? { ...item, isActive: updatedOfficial.isActive, active: updatedOfficial.isActive } : item
+        );
+
+        this.showActivateModal = false;
+        this.activatingSkOfficial = null;
+        this.isActivatingSkOfficial = false;
+        this.activateSuccessMessage = `${officialName} has been activated successfully.`;
+        this.showActivateSuccessModal = true;
+      },
+      error: (error: HttpErrorResponse) => {
+        this.activateSkOfficialErrorMessage = this.extractActivateDeactivateErrorMessage(error);
+        this.isActivatingSkOfficial = false;
+      }
+    });
+  }
+
+  closeActivateSuccessModal(): void {
+    this.showActivateSuccessModal = false;
+    this.activateSuccessMessage = '';
+  }
+
+  openDeactivateSkOfficialModal(skOfficial: SkOfficialAccount): void {
+    this.deactivatingSkOfficial = skOfficial;
+    this.showDeactivateModal = true;
+    this.deactivateSkOfficialErrorMessage = null;
+  }
+
+  closeDeactivateSkOfficialModal(): void {
+    if (this.isDeactivatingSkOfficial) {
+      return;
+    }
+
+    this.showDeactivateModal = false;
+    this.deactivatingSkOfficial = null;
+    this.deactivateSkOfficialErrorMessage = null;
+  }
+
+  confirmDeactivateSkOfficial(): void {
+    if (!this.deactivatingSkOfficial) {
+      return;
+    }
+
+    this.isDeactivatingSkOfficial = true;
+    this.deactivateSkOfficialErrorMessage = null;
+
+    const adminId = this.deactivatingSkOfficial.adminId;
+    const officialName = this.getFullName(this.deactivatingSkOfficial) || 'SK Official';
+
+    this.skOfficialManagementService.deactivateSkOfficial(adminId).subscribe({
+      next: (updatedOfficial) => {
+        this.skOfficials = this.skOfficials.map((item) =>
+          item.adminId === adminId ? { ...item, isActive: updatedOfficial.isActive, active: updatedOfficial.isActive } : item
+        );
+
+        this.showDeactivateModal = false;
+        this.deactivatingSkOfficial = null;
+        this.isDeactivatingSkOfficial = false;
+        this.deactivateSuccessMessage = `${officialName} has been deactivated successfully.`;
+        this.showDeactivateSuccessModal = true;
+      },
+      error: (error: HttpErrorResponse) => {
+        this.deactivateSkOfficialErrorMessage = this.extractActivateDeactivateErrorMessage(error);
+        this.isDeactivatingSkOfficial = false;
+      }
+    });
+  }
+
+  closeDeactivateSuccessModal(): void {
+    this.showDeactivateSuccessModal = false;
+    this.deactivateSuccessMessage = '';
+  }
+
   private getIsActive(skOfficial: SkOfficialAccount): boolean {
     return Boolean(skOfficial.active ?? skOfficial.isActive ?? true);
   }
@@ -381,6 +497,20 @@ export class ManageSkOfficials implements OnInit {
     }
 
     return 'Unable to delete SK Official right now.';
+  }
+
+  private extractActivateDeactivateErrorMessage(error: HttpErrorResponse): string {
+    const responseBody = error?.error;
+
+    if (typeof responseBody === 'string' && responseBody.trim() !== '') {
+      return responseBody;
+    }
+
+    if (responseBody && typeof responseBody === 'object' && typeof responseBody.message === 'string') {
+      return responseBody.message;
+    }
+
+    return 'Unable to process request right now.';
   }
 
   private loadSkOfficials(): void {
