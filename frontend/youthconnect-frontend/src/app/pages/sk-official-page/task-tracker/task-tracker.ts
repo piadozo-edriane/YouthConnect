@@ -305,6 +305,18 @@ export class TaskTracker implements OnInit {
       );
     }
 
+    // Sort: DONE tasks go to the bottom, then by nearest due date; no due date goes last within each group
+    filtered.sort((a, b) => {
+      const aDone = a.status === 'DONE' ? 1 : 0;
+      const bDone = b.status === 'DONE' ? 1 : 0;
+      if (aDone !== bDone) return aDone - bDone;
+
+      if (!a.dueDate && !b.dueDate) return 0;
+      if (!a.dueDate) return 1;
+      if (!b.dueDate) return -1;
+      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+    });
+
     this.filteredTasks = filtered;
 
     if (resetPage) {

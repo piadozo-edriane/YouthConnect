@@ -893,6 +893,18 @@ body,
   background-position: right 16px center;
   background-color: white;
   padding-right: 40px;
+
+  option[value=""] {
+    color: #aaa;
+  }
+
+  option:not([value=""]) {
+    color: #333;
+  }
+}
+
+.select-placeholder {
+  color: #aaa;
 }
 
 .form-textarea {
@@ -907,22 +919,37 @@ body,
   box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.1);
 }
 
-.form-hint {
-  color: #666;
+.field-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 5px;
+  min-height: 18px;
+}
+
+.char-counter {
   font-size: 11px;
-  margin-top: 4px;
-  text-align: right;
-  font-weight: 400;
+  color: #999;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: auto;
+  margin-right: 10px;
+
+  &.char-limit {
+    color: #d32f2f;
+    font-weight: 700;
+  }
 }
 
 .form-error {
   color: #d32f2f;
   font-size: 12px;
-  margin-top: 4px;
   font-weight: 500;
   display: flex;
   flex-direction: column;
   gap: 2px;
+  flex: 1;
 }
 
 // ─── Modal Alert ──────────────────────────────────────────────────────────────

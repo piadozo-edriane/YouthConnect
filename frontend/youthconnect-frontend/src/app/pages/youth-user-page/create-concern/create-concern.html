@@ -161,13 +161,15 @@
                             class="form-input"
                             placeholder="Enter concern title"
                             formControlName="title"
-                            maxlength="200"
+                            maxlength="50"
                             [class.ng-invalid]="concernForm.get('title')?.invalid && concernForm.get('title')?.touched"
                             [class.ng-touched]="concernForm.get('title')?.touched">
-                        <div class="form-hint">{{ concernForm.get('title')?.value?.length || 0 }}/200 characters</div>
-                        <div *ngIf="concernForm.get('title')?.invalid && concernForm.get('title')?.touched" class="form-error">
-                            <span *ngIf="concernForm.get('title')?.errors?.['required']">Title is required</span>
-                            <span *ngIf="concernForm.get('title')?.errors?.['maxlength']">Title must be less than 200 characters</span>
+                        <div class="field-meta">
+                            <div class="form-error" *ngIf="concernForm.get('title')?.invalid && concernForm.get('title')?.touched">
+                                <span *ngIf="concernForm.get('title')?.errors?.['required']">Title is required</span>
+                                <span *ngIf="concernForm.get('title')?.errors?.['maxlength']">Title cannot exceed 50 characters</span>
+                            </div>
+                            <span class="char-counter" [class.char-limit]="(concernForm.get('title')?.value?.length || 0) >= 50">{{ concernForm.get('title')?.value?.length || 0 }}/50</span>
                         </div>
                     </div>
 
@@ -177,13 +179,16 @@
                             id="typeOfConcern"
                             class="form-input form-select"
                             formControlName="typeOfConcern"
+                            [class.select-placeholder]="concernForm.get('typeOfConcern')?.value === null"
                             [class.ng-invalid]="concernForm.get('typeOfConcern')?.invalid && concernForm.get('typeOfConcern')?.touched"
                             [class.ng-touched]="concernForm.get('typeOfConcern')?.touched">
-                            <option value="">Select concern type</option>
+                            <option [ngValue]="null" disabled>Select concern type</option>
                             <option *ngFor="let type of concernTypes" [value]="type.value">{{ type.label }}</option>
                         </select>
-                        <div *ngIf="concernForm.get('typeOfConcern')?.invalid && concernForm.get('typeOfConcern')?.touched" class="form-error">
-                            <span>Type of concern is required</span>
+                        <div class="field-meta">
+                            <div class="form-error" *ngIf="concernForm.get('typeOfConcern')?.invalid && concernForm.get('typeOfConcern')?.touched">
+                                <span>Type of concern is required</span>
+                            </div>
                         </div>
                     </div>
 
@@ -195,13 +200,15 @@
                             placeholder="Describe your concern in detail"
                             rows="5"
                             formControlName="description"
-                            maxlength="1000"
+                            maxlength="500"
                             [class.ng-invalid]="concernForm.get('description')?.invalid && concernForm.get('description')?.touched"
                             [class.ng-touched]="concernForm.get('description')?.touched"></textarea>
-                        <div class="form-hint">{{ concernForm.get('description')?.value?.length || 0 }}/1000 characters</div>
-                        <div *ngIf="concernForm.get('description')?.invalid && concernForm.get('description')?.touched" class="form-error">
-                            <span *ngIf="concernForm.get('description')?.errors?.['required']">Description is required</span>
-                            <span *ngIf="concernForm.get('description')?.errors?.['maxlength']">Description must be less than 1000 characters</span>
+                        <div class="field-meta">
+                            <div class="form-error" *ngIf="concernForm.get('description')?.invalid && concernForm.get('description')?.touched">
+                                <span *ngIf="concernForm.get('description')?.errors?.['required']">Description is required</span>
+                                <span *ngIf="concernForm.get('description')?.errors?.['maxlength']">Description cannot exceed 500 characters</span>
+                            </div>
+                            <span class="char-counter" [class.char-limit]="(concernForm.get('description')?.value?.length || 0) >= 500">{{ concernForm.get('description')?.value?.length || 0 }}/500</span>
                         </div>
                     </div>
                 </div>
