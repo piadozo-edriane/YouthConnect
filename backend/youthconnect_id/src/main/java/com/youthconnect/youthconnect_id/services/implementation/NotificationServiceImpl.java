@@ -115,9 +115,9 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public void createNewEventNotification(int eventId, String eventTitle) {
         try {
-            // Get all approved users
+            // Get all approved AND active users only
             List<com.youthconnect.youthconnect_id.models.User> approvedUsers = 
-                userRepo.findByStatus("approved");
+                userRepo.findByStatusAndIsActive("approved", true);
             
             if (approvedUsers.isEmpty()) {
                 System.out.println("⚠️ No approved users to create new event notifications");
