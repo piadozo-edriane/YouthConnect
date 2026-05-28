@@ -628,6 +628,16 @@ export class TaskTracker implements OnInit {
       : formValue.status;
   }
 
+  getStatusClass(status: string): string {
+    const known: Record<string, string> = {
+      'PRIO':        'status-prio',
+      'TODO':        'status-todo',
+      'IN_PROGRESS': 'status-in_progress',
+      'DONE':        'status-done',
+    };
+    return known[status?.toUpperCase()] ?? 'status-custom';
+  }
+
   getTaskingDisplayName(tasking: string): string {
     return tasking.replace(/_/g, ' ');
   }

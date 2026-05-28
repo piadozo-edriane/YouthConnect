@@ -97,8 +97,8 @@
                         </td>
                         <td class="sk-incharge-col">{{ task.skIncharge || getSkOfficialName(task.adminId) }}</td>
                         <td>
-                            <span class="status-badge" [ngClass]="'status-' + task.status.toLowerCase()">
-                                {{ task.status }}
+                            <span class="status-badge" [ngClass]="getStatusClass(task.status)">
+                                {{ task.status.toUpperCase() }}
                             </span>
                         </td>
                         <td>{{ task.dueDate ? formatDate(task.dueDate) : '—' }}</td>
@@ -420,8 +420,8 @@
 
                     <div class="detail-info-row">
                         <span class="detail-info-label">STATUS:</span>
-                        <span class="status-badge" [ngClass]="'status-' + selectedTask.status.toLowerCase()">
-                            {{ selectedTask.status }}
+                        <span class="status-badge" [ngClass]="getStatusClass(selectedTask.status)">
+                            {{ selectedTask.status.toUpperCase() }}
                         </span>
                     </div>
 
