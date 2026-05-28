@@ -22,38 +22,53 @@
         <div class="form-grid">
           <div class="form-group">
             <label>First Name</label>
-            <input formControlName="firstName" placeholder="Enter your first name" class="form-input" />
-            @if (firstNameControl?.touched) {
-              @if (firstNameControl?.errors?.['required']) {
-                <span class="error-text">First name is required</span>
-              } @else if (firstNameControl?.errors?.['maxlength']) {
-                <span class="error-text">First name can only contain up to 50 characters</span>
+            <input formControlName="firstName" placeholder="Enter your first name" class="form-input" maxlength="50" />
+            <div class="field-meta">
+              @if (firstNameControl?.touched && firstNameControl?.invalid) {
+                <div class="form-error">
+                  @if (firstNameControl?.errors?.['required']) {
+                    <span>First name is required</span>
+                  } @else if (firstNameControl?.errors?.['maxlength']) {
+                    <span>First name can only contain up to 50 characters</span>
+                  }
+                </div>
               }
-            }
+              <span class="char-counter" [class.char-limit]="(firstNameControl?.value?.length || 0) >= 50">{{ firstNameControl?.value?.length || 0 }}/50</span>
+            </div>
           </div>
 
           <div class="form-group">
             <label>Middle Name</label>
-            <input formControlName="middleName" placeholder="Enter your middle name" class="form-input" />
-            @if (middleNameControl?.touched) {
-              @if (middleNameControl?.errors?.['required']) {
-                <span class="error-text">Middle name is required</span>
-              } @else if (middleNameControl?.errors?.['maxlength']) {
-                <span class="error-text">Middle name can only contain up to 50 characters</span>
+            <input formControlName="middleName" placeholder="Enter your middle name" class="form-input" maxlength="50" />
+            <div class="field-meta">
+              @if (middleNameControl?.touched && middleNameControl?.invalid) {
+                <div class="form-error">
+                  @if (middleNameControl?.errors?.['required']) {
+                    <span>Middle name is required</span>
+                  } @else if (middleNameControl?.errors?.['maxlength']) {
+                    <span>Middle name can only contain up to 50 characters</span>
+                  }
+                </div>
               }
-            }
+              <span class="char-counter" [class.char-limit]="(middleNameControl?.value?.length || 0) >= 50">{{ middleNameControl?.value?.length || 0 }}/50</span>
+            </div>
           </div>
 
           <div class="form-group">
             <label>Last Name</label>
-            <input formControlName="lastName" placeholder="Enter your last name" class="form-input" />
-            @if (lastNameControl?.touched) {
-              @if (lastNameControl?.errors?.['required']) {
-                <span class="error-text">Last name is required</span>
-              } @else if (lastNameControl?.errors?.['maxlength']) {
-                <span class="error-text">Last name can only contain up to 50 characters</span>
+            <input formControlName="lastName" placeholder="Enter your last name" class="form-input" maxlength="50" />
+            <div class="field-meta">
+              @if (lastNameControl?.touched && lastNameControl?.invalid) {
+                <div class="form-error">
+                  @if (lastNameControl?.errors?.['required']) {
+                    <span>Last name is required</span>
+                  } @else if (lastNameControl?.errors?.['maxlength']) {
+                    <span>Last name can only contain up to 50 characters</span>
+                  }
+                </div>
               }
-            }
+              <span class="char-counter" [class.char-limit]="(lastNameControl?.value?.length || 0) >= 50">{{ lastNameControl?.value?.length || 0 }}/50</span>
+            </div>
           </div>
 
           <div class="form-group">
@@ -139,14 +154,19 @@
 
           <div class="form-group form-group-full">
             <label>Complete Address Included your Specific Zone</label>
-            <input formControlName="completeAddress" placeholder="Zone 1 - 17th - 16th St" class="form-input" />
-            @if (completeAddressControl?.touched) {
-              @if (completeAddressControl?.errors?.['required']) {
-                <span class="error-text">Complete address is required</span>
-              } @else if (completeAddressControl?.errors?.['maxlength']) {
-                <span class="error-text">Address can only contain up to 200 characters</span>
+            <input formControlName="completeAddress" placeholder="Zone 1 - 17th - 16th St" class="form-input" maxlength="100" />
+            <div class="field-meta">
+              @if (completeAddressControl?.touched && completeAddressControl?.invalid) {
+                <div class="form-error">
+                  @if (completeAddressControl?.errors?.['required']) {
+                    <span>Complete address is required</span>
+                  } @else if (completeAddressControl?.errors?.['maxlength']) {
+                    <span>Address can only contain up to 100 characters</span>
+                  }
+                </div>
               }
-            }
+              <span class="char-counter" [class.char-limit]="(completeAddressControl?.value?.length || 0) >= 100">{{ completeAddressControl?.value?.length || 0 }}/100</span>
+            </div>
           </div>
         </div>
 
@@ -243,22 +263,33 @@
 
         <div class="form-group">
           <label>Number of KK Assemblies Attended</label>
-          <input type="number" formControlName="numberOfAttendedAssemblies" placeholder="Enter number" class="form-input" />
+          <input type="number" formControlName="numberOfAttendedAssemblies" placeholder="Enter number" class="form-input" min="0" max="1000" />
           @if (numberOfAttendedAssembliesControl?.touched) {
             @if (numberOfAttendedAssembliesControl?.errors?.['required']) {
               <span class="error-text">Number of attended assemblies is required</span>
+            } @else if (numberOfAttendedAssembliesControl?.errors?.['max']) {
+              <span class="error-text">Number of attended assemblies cannot exceed 1000</span>
+            } @else if (numberOfAttendedAssembliesControl?.errors?.['min']) {
+              <span class="error-text">Number of attended assemblies cannot be negative</span>
             }
           }
         </div>
 
         <div class="form-group">
           <label>Reason for not Attending on KK Assembly</label>
-          <input type="text" formControlName="reason" placeholder="Enter your reason" class="form-input" />
-          @if (reasonControl?.touched) {
-            @if (reasonControl?.errors?.['required']) {
-              <span class="error-text">Reason is required</span>
+          <input type="text" formControlName="reason" placeholder="Enter your reason" class="form-input" maxlength="200" />
+          <div class="field-meta">
+            @if (reasonControl?.touched && reasonControl?.invalid) {
+              <div class="form-error">
+                @if (reasonControl?.errors?.['required']) {
+                  <span>Reason is required</span>
+                } @else if (reasonControl?.errors?.['maxlength']) {
+                  <span>Reason can only contain up to 200 characters</span>
+                }
+              </div>
             }
-          }
+            <span class="char-counter" [class.char-limit]="(reasonControl?.value?.length || 0) >= 200">{{ reasonControl?.value?.length || 0 }}/200</span>
+          </div>
         </div>
 
         <div class="form-buttons">
