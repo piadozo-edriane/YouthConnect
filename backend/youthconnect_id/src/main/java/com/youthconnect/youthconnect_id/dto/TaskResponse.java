@@ -2,8 +2,6 @@ package com.youthconnect.youthconnect_id.dto;
 
 import java.time.LocalDateTime;
 
-import com.youthconnect.youthconnect_id.enums.TaskStatus;
-
 public class TaskResponse {
 
     private int taskId;
@@ -12,7 +10,7 @@ public class TaskResponse {
     private String taskDescription;
     private String skIncharge;
     private String hyperlink;
-    private TaskStatus status;
+    private String status;
     private LocalDateTime dueDate;
     private LocalDateTime createdAt;
 
@@ -64,11 +62,11 @@ public class TaskResponse {
         this.hyperlink = hyperlink;
     }
 
-    public TaskStatus getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(TaskStatus status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 

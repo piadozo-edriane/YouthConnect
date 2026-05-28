@@ -6,8 +6,6 @@ import com.youthconnect.youthconnect_id.enums.TaskStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,9 +35,8 @@ public class Task {
     @Column(name = "hyperlink", length = 50)
     private String hyperlink;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private TaskStatus status = TaskStatus.PRIO;
+    @Column(name = "status", nullable = false, length = 100)
+    private String status = TaskStatus.PRIO.name();
 
     @Column(name = "due_date")
     private LocalDateTime dueDate;
@@ -97,11 +94,11 @@ public class Task {
         this.hyperlink = hyperlink;
     }
 
-    public TaskStatus getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(TaskStatus status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 

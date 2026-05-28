@@ -362,15 +362,20 @@ export class TaskTracker implements OnInit {
     const taskingType = isKnownTasking ? task.tasking : 'CUSTOM';
     const customTasking = isKnownTasking ? '' : task.tasking;
 
+    const knownStatuses = ['PRIO', 'TODO', 'IN_PROGRESS', 'DONE'];
+    const isKnownStatus = knownStatuses.includes(task.status);
+    const statusValue = isKnownStatus ? task.status : 'CUSTOM';
+    const customStatusValue = isKnownStatus ? '' : task.status;
+
     this.taskForm.patchValue({
       taskingType,
       customTasking,
       taskDescription: task.taskDescription || '',
       skIncharge: task.skIncharge || '',
       hyperlink: task.hyperlink || '',
-      status: task.status,
+      status: statusValue,
       dueDate: task.dueDate ? this.formatDateForInput(task.dueDate) : '',
-      customStatus: task.status === 'CUSTOM' ? task.status : ''
+      customStatus: customStatusValue
     });
     this.isModalOpen = true;
     setTimeout(() => this.setupScrollIndicators(), 100);
@@ -412,7 +417,7 @@ export class TaskTracker implements OnInit {
       skIncharge: formValue.skIncharge,
       hyperlink: formValue.hyperlink || undefined,
       dueDate: formValue.dueDate || undefined,
-      status: formValue.status as TaskStatus,
+      status: this.getResolvedStatus(formValue) as TaskStatus,
     };
 
     this.isLoading = true;
@@ -557,7 +562,7 @@ export class TaskTracker implements OnInit {
         skIncharge: formValue.skIncharge,
         hyperlink: formValue.hyperlink || undefined,
         dueDate: formValue.dueDate || undefined,
-        status: formValue.status as TaskStatus,
+        status: this.getResolvedStatus(formValue) as TaskStatus,
       };
 
       this.pendingEditPayload = request;
@@ -615,6 +620,12 @@ export class TaskTracker implements OnInit {
     return formValue.taskingType === 'CUSTOM'
       ? (formValue.customTasking || '').trim()
       : formValue.taskingType;
+  }
+
+  getResolvedStatus(formValue: any): string {
+    return formValue.status === 'CUSTOM'
+      ? (formValue.customStatus || '').trim()
+      : formValue.status;
   }
 
   getTaskingDisplayName(tasking: string): string {

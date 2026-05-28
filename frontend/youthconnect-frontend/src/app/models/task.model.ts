@@ -7,7 +7,7 @@ export interface TaskRequest {
   skIncharge?: string;
   hyperlink?: string;
   dueDate?: string;
-  status?: TaskStatus;
+  status?: string;
 }
 
 export interface TaskEditRequest {
@@ -16,7 +16,7 @@ export interface TaskEditRequest {
   skIncharge?: string;
   hyperlink?: string;
   dueDate?: string;
-  status?: TaskStatus;
+  status?: string;
 }
 
 export interface TaskHyperlinkRequest {
@@ -30,7 +30,7 @@ export interface TaskResponse {
   taskDescription?: string;
   skIncharge?: string;
   hyperlink?: string;
-  status: TaskStatus;
+  status: string;
   dueDate?: string;
   createdAt: string;
 }
