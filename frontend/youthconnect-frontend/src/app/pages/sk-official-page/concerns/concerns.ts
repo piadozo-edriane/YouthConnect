@@ -120,7 +120,9 @@ export class Concerns implements OnInit {
     
     this.adminConcernService.getAllConcerns().subscribe({
       next: (data) => {
-        this.concerns = data;
+        this.concerns = data.sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
         this.searchTerm = '';
         this.selectedTypeFilter = 'ALL';
         this.selectedStatusFilter = this.pendingStatusFilter || 'ALL';
