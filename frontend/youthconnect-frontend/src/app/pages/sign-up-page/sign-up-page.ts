@@ -75,7 +75,7 @@ export class SignUpPage {
           updateOn: 'change'
         }],
         middleName: ['', {
-          validators: [Validators.required, Validators.maxLength(50)],
+          validators: [Validators.maxLength(50)],
           updateOn: 'change'
         }],
         lastName: ['', {
@@ -292,7 +292,7 @@ export class SignUpPage {
 
     const registrationData: RegistrationRequest = {
       firstName: this.capitalizeName(formValue.firstName),
-      middleName: this.capitalizeName(formValue.middleName),
+      middleName: this.capitalizeName(formValue.middleName) || undefined,
       lastName: this.capitalizeName(formValue.lastName),
       suffix: formValue.suffix || undefined,
       gender: formValue.gender,
