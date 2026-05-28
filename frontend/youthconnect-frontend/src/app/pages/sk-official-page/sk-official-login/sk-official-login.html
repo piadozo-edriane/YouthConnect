@@ -67,7 +67,7 @@
                     <a routerLink="/sk-official/forgot-password">forgot password?</a>
                 </div>
 
-                <button type="submit" [disabled]="isLoading" class="btn-login">
+                <button type="submit" [disabled]="isLoading || loginForm.invalid" class="btn-login">
                     {{ isLoading ? 'Logging in...' : 'Login' }}
                 </button>
             </form>

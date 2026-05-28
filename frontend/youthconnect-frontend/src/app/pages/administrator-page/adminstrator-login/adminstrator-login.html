@@ -1,73 +1,91 @@
-<div class="parent">
-    <div class="left">
-        <div class="content-container">
-           <div class="child-1">
-            <img src="../../../assets/sk-logo.png"
-                alt="Sangguniang Kabataan"
-                class="sk-logo">
-            <img src="../../../assets/yc-logo.png"
-                alt="YouthConnect Logo"
-                class="youthconnect-logo">
-           </div>
-           <div class="child-2">YouthConnect</div>
-           <div class="child-3">
-                a centralized digital platform for the SK officials of Barangay 183.
-            </div>
+<div class="login-container">
+    <div class="login-modal">
+        <!-- Header with Logos -->
+        <div class="login-header">
+            <img src="assets/login page/sk-logo.svg" alt="SK Logo" class="logo sk-logo">
+            <img src="assets/login page/youthconnect-logo.svg" alt="YouthConnect Logo" class="logo youthconnect-logo">
         </div>
-    </div>
-    
-    <div class="right">
-        <form class="login-container" [formGroup]="loginForm" (ngSubmit)="login()">
-            <div class="mobile-logo-row">
-                <img src="../../../assets/sk-logo.png" alt="Sangguniang Kabataan" class="mobile-logo sk-logo-mobile">
-                <img src="../../../assets/yc-logo.png" alt="YouthConnect Logo" class="mobile-logo youthconnect-logo-mobile">
-            </div>
-            <img
-                src="../../../assets/yc-logo.png"
-                alt="YouthConnect Logo"
-                class="login-logo">
 
+        <!-- Title -->
+        <h2 class="login-title">Welcome Administrator!</h2>
+
+        <!-- Admin Login Form -->
+        <form [formGroup]="loginForm" (ngSubmit)="login()" class="login-form">
 
             @if (errorMessage) {
                 <div class="error-message">{{ errorMessage }}</div>
             }
 
-            <label for="email">Email:</label>
-            <input
-                id="email"
-                formControlName="email"
-                type="email"
-                placeholder="Enter your email"
-                class="email-input">
-            
-            @if (emailControl?.touched) {
-                @if (emailControl?.errors?.['required']) {
-                    <span class="field-error">Email is required</span>
-                } @else if (emailControl?.errors?.['email']) {
-                    <span class="field-error">Please enter a valid email</span>
-                }
-            }
+            <div class="form-group">
+                <label>Email</label>
+                <input
+                    formControlName="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    class="form-input">
 
-            <label for="password">Password:</label>
-            <input
-                id="password"
-                formControlName="password"
-                type="password"
-                placeholder="Enter your password"
-                class="password-input">
-            
-            @if (passwordControl?.touched) {
-                @if (passwordControl?.errors?.['required']) {
-                    <span class="field-error">Password is required</span>
+                @if (emailControl?.touched && emailControl?.errors) {
+                    <span class="error-text">
+                        @if (emailControl?.errors?.['required']) {
+                            Email is required
+                        } @else if (emailControl?.errors?.['email']) {
+                            Invalid Email format
+                        } @else if (emailControl?.errors?.['maxlength']) {
+                            Email is too long
+                        }
+                    </span>
                 }
-            }
+            </div>
 
-            <button 
-                type="submit" 
-                [disabled]="!isFormValid() || isLoading"
-                class="submit-button">
-                {{ isLoading ? 'Logging in...' : 'Log in' }}
+            <div class="form-group">
+                <label>Password</label>
+                <div class="password-input-wrapper">
+                    <input
+                        formControlName="password"
+                        [type]="showPassword ? 'text' : 'password'"
+                        placeholder="Enter your password"
+                        class="form-input">
+                    <button
+                        type="button"
+                        (click)="togglePasswordVisibility()"
+                        [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+                        class="password-toggle">
+                        @if (showPassword) {
+                            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+                                <path d="M3 4.3 4.3 3 21 19.7 19.7 21l-3.1-3.1A11.6 11.6 0 0 1 12 19c-5.5 0-9.7-4.3-11-7 0 0 1.8-3.7 5.1-5.8L3 4.3Zm7.4 7.4 3 3a2 2 0 0 1-3-3Zm6.2 6.2-1.8-1.8A4.9 4.9 0 0 1 7.9 9.2L6.1 7.4A11 11 0 0 0 2.7 12c1.3 2.2 4.7 5.2 9.3 5.2 1.6 0 3.1-.3 4.6-.9Zm5.1-5.9s-1.8 3.7-5.1 5.8l-1.2-1.2a10 10 0 0 0 3.8-4.6c-1.3-2.2-4.7-5.2-9.2-5.2-1.2 0-2.3.2-3.3.5L5.1 5.8A12 12 0 0 1 12 4.8c5.5 0 9.7 4.3 11 7.2Z" fill="currentColor" />
+                            </svg>
+                        } @else {
+                            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+                                <path d="M12 5c5.5 0 9.7 4.3 11 7-1.3 2.7-5.5 7-11 7S2.3 14.7 1 12c1.3-2.7 5.5-7 11-7Zm0 2.2c-4.5 0-7.9 3-9.2 4.8 1.3 1.8 4.7 4.8 9.2 4.8s7.9-3 9.2-4.8c-1.3-1.8-4.7-4.8-9.2-4.8Zm0 1.6a3.2 3.2 0 1 1 0 6.4 3.2 3.2 0 0 1 0-6.4Zm0 2a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z" fill="currentColor" />
+                            </svg>
+                        }
+                    </button>
+                </div>
+
+                @if (passwordControl?.touched && passwordControl?.errors) {
+                    <span class="error-text">
+                        @if (passwordControl?.errors?.['required']) {
+                            Password is required
+                        }
+                    </span>
+                }
+            </div>
+
+            <button
+                type="submit"
+                [disabled]="isLoading || loginForm.invalid"
+                class="btn-login">
+                {{ isLoading ? 'Logging in...' : 'Login' }}
             </button>
         </form>
     </div>
+
+    @if (isLoading) {
+        <div class="modal-overlay">
+            <div class="modal-content">
+                <div class="spinner"></div>
+                <h3 class="modal-title">Logging in...</h3>
+            </div>
+        </div>
+    }
 </div>

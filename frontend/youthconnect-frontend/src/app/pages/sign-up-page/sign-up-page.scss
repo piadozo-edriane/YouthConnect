@@ -289,6 +289,13 @@ body {
     margin-bottom: 8px;
     letter-spacing: 0.3px;
     font-family: 'Poppins', sans-serif;
+
+    .optional-label {
+      font-size: 12px;
+      font-weight: 400;
+      color: $text-light;
+      margin-left: 4px;
+    }
   }
 
   .form-input {
