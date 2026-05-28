@@ -110,10 +110,14 @@
                                     Set as In Progress
                                 </button>
                                 <button class="btn-task-action btn-mark-done"
-                                    *ngIf="task.status === 'IN_PROGRESS' || task.status === 'CUSTOM'"
+                                    *ngIf="task.status === 'IN_PROGRESS'"
                                     (click)="updateTaskStatus(task.taskId, 'DONE')" title="Mark as Done">
                                     Mark as Done
                                 </button>
+                                <span class="task-done-badge task-custom-badge"
+                                    *ngIf="isCustomStatus(task.status)">
+                                    {{ task.status.toUpperCase() }}
+                                </span>
                                 <span *ngIf="task.status === 'DONE'" class="task-done-badge">Done</span>
                                 <button class="btn-icon btn-edit" (click)="openEditModal(task)" title="Edit task">
                                     <img src="assets/sk-official-events-icons/edit.svg" alt="Edit" width="16" height="16">

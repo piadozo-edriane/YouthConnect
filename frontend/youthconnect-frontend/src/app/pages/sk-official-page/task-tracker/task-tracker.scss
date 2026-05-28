@@ -584,6 +584,13 @@ body,
   &.btn-mark-done {
     background-color: #0b6d38;
   }
+
+  &.btn-custom-status {
+    background-color: #0c5460;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .task-done-badge {
@@ -597,6 +604,26 @@ body,
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;
+  flex-shrink: 0;
+  text-align: center;
+  cursor: default;
+  pointer-events: none;
+}
+
+.task-custom-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 135px;
+  max-width: 140px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   flex-shrink: 0;
   text-align: center;
   cursor: default;

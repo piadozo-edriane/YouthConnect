@@ -638,6 +638,11 @@ export class TaskTracker implements OnInit {
     return known[status?.toUpperCase()] ?? 'status-custom';
   }
 
+  isCustomStatus(status: string): boolean {
+    const known = ['PRIO', 'TODO', 'IN_PROGRESS', 'DONE'];
+    return !known.includes(status?.toUpperCase());
+  }
+
   getTaskingDisplayName(tasking: string): string {
     return tasking.replace(/_/g, ' ');
   }
