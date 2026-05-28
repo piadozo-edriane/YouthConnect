@@ -628,6 +628,10 @@ export class TaskTracker implements OnInit {
       : formValue.status;
   }
 
+  formatStatusLabel(status: string): string {
+    return (status || '').toUpperCase().replace(/_/g, ' ');
+  }
+
   getStatusClass(status: string): string {
     const known: Record<string, string> = {
       'PRIO':        'status-prio',
