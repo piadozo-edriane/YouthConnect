@@ -33,7 +33,7 @@
 						<th>ID</th>
 						<th>Full Name</th>
 						<th>Email</th>
-						<th>Status</th>
+						<th>Account Status</th>
 						<th>Created At</th>
 						<th>Actions</th>
 					</tr>
@@ -49,10 +49,21 @@
 									{{ skOfficial.email }}
 								</span>
 							</td>
-							<td class="status-cell">{{ getStatusLabel(skOfficial.active ?? skOfficial.isActive ?? true) }}</td>
+							<td class="status-cell">
+								<span class="status-badge" 
+									[class.status-active]="skOfficial.active ?? skOfficial.isActive ?? true"
+									[class.status-inactive]="!(skOfficial.active ?? skOfficial.isActive ?? true)">
+									{{ getStatusLabel(skOfficial.active ?? skOfficial.isActive ?? true) }}
+								</span>
+							</td>
 							<td class="created-at-cell">{{ skOfficial.createdAt | date: 'M/d/yy, h:mm a' }}</td>
 							<td>
 								<div class="action-buttons">
+									@if (skOfficial.active ?? skOfficial.isActive ?? true) {
+									<button class="action-button deactivate" type="button" (click)="openDeactivateSkOfficialModal(skOfficial)">Deactivate</button>
+									} @else {
+									<button class="action-button activate" type="button" (click)="openActivateSkOfficialModal(skOfficial)">Activate</button>
+									}
 									<button class="action-button edit" type="button" (click)="editSkOfficial(skOfficial)">Edit</button>
 									<button class="action-button delete" type="button" (click)="openDeleteSkOfficialModal(skOfficial)">Delete</button>
 								</div>
@@ -144,6 +155,96 @@
 
 				<div class="modal-footer success-footer">
 					<button type="button" class="btn-ok" (click)="closeDeleteSuccessModal()">OK</button>
+				</div>
+			</div>
+		</div>
+	}
+
+	<!-- Activate Modal -->
+	@if (showActivateModal) {
+		<div class="modal-backdrop" (click)="closeActivateSkOfficialModal()">
+			<div class="modal" (click)="$event.stopPropagation()">
+				<div class="modal-header">
+					<h3>Activate Account</h3>
+				</div>
+
+				<div class="modal-body">
+					@if (activatingSkOfficial) {
+					<p>Are you sure you want to activate <strong>{{ getFullName(activatingSkOfficial) }}</strong>'s account?</p>
+					<p class="info-text">The SK Official will be able to login and access the system.</p>
+					}
+
+					@if (activateSkOfficialErrorMessage) {
+					<p class="error-message">{{ activateSkOfficialErrorMessage }}</p>
+					}
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn-cancel" (click)="closeActivateSkOfficialModal()"
+						[disabled]="isActivatingSkOfficial">Cancel</button>
+					<button type="button" class="btn-activate" (click)="confirmActivateSkOfficial()"
+						[disabled]="isActivatingSkOfficial">
+						{{ isActivatingSkOfficial ? 'Activating...' : 'Activate' }}
+					</button>
+				</div>
+			</div>
+		</div>
+	}
+
+	@if (showActivateSuccessModal) {
+		<div class="modal-backdrop success-backdrop" (click)="closeActivateSuccessModal()">
+			<div class="modal success-modal" (click)="$event.stopPropagation()">
+				<div class="modal-body success-body">
+					<p>{{ activateSuccessMessage }}</p>
+				</div>
+
+				<div class="modal-footer success-footer">
+					<button type="button" class="btn-ok" (click)="closeActivateSuccessModal()">OK</button>
+				</div>
+			</div>
+		</div>
+	}
+
+	<!-- Deactivate Modal -->
+	@if (showDeactivateModal) {
+		<div class="modal-backdrop" (click)="closeDeactivateSkOfficialModal()">
+			<div class="modal" (click)="$event.stopPropagation()">
+				<div class="modal-header">
+					<h3>Deactivate Account</h3>
+				</div>
+
+				<div class="modal-body">
+					@if (deactivatingSkOfficial) {
+					<p>Are you sure you want to deactivate <strong>{{ getFullName(deactivatingSkOfficial) }}</strong>'s account?</p>
+					<p class="info-text">The SK Official will not be able to login until the account is reactivated.</p>
+					}
+
+					@if (deactivateSkOfficialErrorMessage) {
+					<p class="error-message">{{ deactivateSkOfficialErrorMessage }}</p>
+					}
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn-cancel" (click)="closeDeactivateSkOfficialModal()"
+						[disabled]="isDeactivatingSkOfficial">Cancel</button>
+					<button type="button" class="btn-deactivate" (click)="confirmDeactivateSkOfficial()"
+						[disabled]="isDeactivatingSkOfficial">
+						{{ isDeactivatingSkOfficial ? 'Deactivating...' : 'Deactivate' }}
+					</button>
+				</div>
+			</div>
+		</div>
+	}
+
+	@if (showDeactivateSuccessModal) {
+		<div class="modal-backdrop success-backdrop" (click)="closeDeactivateSuccessModal()">
+			<div class="modal success-modal" (click)="$event.stopPropagation()">
+				<div class="modal-body success-body">
+					<p>{{ deactivateSuccessMessage }}</p>
+				</div>
+
+				<div class="modal-footer success-footer">
+					<button type="button" class="btn-ok" (click)="closeDeactivateSuccessModal()">OK</button>
 				</div>
 			</div>
 		</div>

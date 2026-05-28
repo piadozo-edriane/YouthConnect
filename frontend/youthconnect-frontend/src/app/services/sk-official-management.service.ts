@@ -62,4 +62,12 @@ export class SkOfficialManagementService {
   deleteSkOfficial(adminId: number): Observable<{ message: string } | string> {
     return this.http.delete<{ message: string } | string>(`/api/administrator/sk-officials/${adminId}`);
   }
+
+  deactivateSkOfficial(adminId: number): Observable<SkOfficialAccount> {
+    return this.http.put<SkOfficialAccount>(`/api/administrator/sk-officials/${adminId}/deactivate`, {});
+  }
+
+  activateSkOfficial(adminId: number): Observable<SkOfficialAccount> {
+    return this.http.put<SkOfficialAccount>(`/api/administrator/sk-officials/${adminId}/activate`, {});
+  }
 }

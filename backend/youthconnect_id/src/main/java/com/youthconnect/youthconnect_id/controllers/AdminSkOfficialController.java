@@ -73,4 +73,24 @@ public class AdminSkOfficialController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed: " + e.getMessage());
         }
     }
+
+    @PutMapping("/{adminId}/deactivate")
+    public ResponseEntity<?> deactivateSkOfficial(@PathVariable int adminId) {
+        try {
+            return ResponseEntity.ok(adminManagementService.deactivateSkOfficial(adminId));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/{adminId}/activate")
+    public ResponseEntity<?> activateSkOfficial(@PathVariable int adminId) {
+        try {
+            return ResponseEntity.ok(adminManagementService.activateSkOfficial(adminId));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed: " + e.getMessage());
+        }
+    }
 }
