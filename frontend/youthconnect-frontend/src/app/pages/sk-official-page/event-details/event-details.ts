@@ -227,7 +227,368 @@ export class EventDetailsPage implements OnInit, OnDestroy {
       return;
     }
 
-    this.showNotification('Export is not available yet. Please try again later.', 'error');
+    try {
+      // Dynamically import jsPDF to keep the bundle lean
+      import('jspdf').then(({ jsPDF }) => {
+        const event = this.selectedEvent!;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+        const pageW = doc.internal.pageSize.getWidth();
+        const pageH = doc.internal.pageSize.getHeight();
+        const margin = 18;
+        const contentW = pageW - margin * 2;
+        let y = 0;
+
+        // ── Helper: add a new page if content would overflow ──────────────
+        const checkPage = (neededHeight: number) => {
+          if (y + neededHeight > pageH - margin) {
+            doc.addPage();
+            y = margin;
+          }
+        };
+
+        // ── Header banner ─────────────────────────────────────────────────
+        doc.setFillColor(0, 82, 204); // #0052cc
+        doc.rect(0, 0, pageW, 28, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.text('YouthConnect — Event Report', margin, 12);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.text('Sangguniang Kabataan, Barangay 183', margin, 19);
+
+        const generatedOn = new Date().toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        });
+        doc.text(`Generated: ${generatedOn}`, pageW - margin, 19, { align: 'right' });
+
+        y = 42;
+
+        // ── Event title ───────────────────────────────────────────────────
+        doc.setTextColor(30, 30, 30);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(18);
+        doc.text(event.title, margin, y);
+        y += 8;
+
+        // Status pill (text only)
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.setTextColor(0, 82, 204);
+        doc.text(`Status: ${event.status || 'Completed'}`, margin, y);
+        y += 10;
+
+        // ── Divider ───────────────────────────────────────────────────────
+        doc.setDrawColor(220, 220, 220);
+        doc.setLineWidth(0.4);
+        doc.line(margin, y, pageW - margin, y);
+        y += 7;
+
+        // ── Event details section ─────────────────────────────────────────
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(30, 30, 30);
+        doc.text('Event Details', margin, y);
+        y += 6;
+
+        const details: [string, string][] = [
+          ['Date & Time', this.formatDate(event.eventDate)],
+          ['Location',    event.location || 'N/A'],
+          ['Description', event.description || 'N/A'],
+        ];
+
+        doc.setFontSize(10);
+        for (const [label, value] of details) {
+          checkPage(14);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(80, 80, 80);
+          doc.text(`${label}:`, margin, y);
+
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(30, 30, 30);
+          const lines = doc.splitTextToSize(value, contentW - 38);
+          doc.text(lines, margin + 38, y);
+          y += lines.length * 5.5 + 2;
+        }
+
+        y += 4;
+
+        // ── Attendance summary ────────────────────────────────────────────
+        doc.setDrawColor(220, 220, 220);
+        doc.line(margin, y, pageW - margin, y);
+        y += 7;
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(30, 30, 30);
+        doc.text('Attendance Summary', margin, y);
+        y += 7;
+
+        // ── Donut chart (approved / attended / absent) ────────────────────
+        const chartR   = 22;   // outer radius (mm)
+        const holeR    = 13;   // inner hole radius (mm)
+        const total    = this.approvedCount;
+
+        // Calculate group width: chart diameter + gap + legend block
+        const legendBlockW = 50; // colour box + count + label
+        const groupGap     = 10;
+        const groupW       = chartR * 2 + groupGap + legendBlockW;
+        const groupStartX  = pageW / 2 - groupW / 2;
+
+        const chartCX  = groupStartX + chartR;
+        const chartCY  = y + chartR + 2;
+
+        // Draw donut segments using filled wedges + white centre hole
+        const drawSegment = (
+          cx: number, cy: number, r: number,
+          startAngle: number, endAngle: number,
+          rgb: [number, number, number]
+        ) => {
+          if (endAngle <= startAngle) return;
+          const steps = Math.max(2, Math.round((endAngle - startAngle) / (Math.PI / 36)));
+          const pts: number[][] = [[cx, cy]];
+          for (let s = 0; s <= steps; s++) {
+            const a = startAngle + (endAngle - startAngle) * (s / steps);
+            pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+          }
+          pts.push([cx, cy]);
+          doc.setFillColor(...rgb);
+          doc.setDrawColor(...rgb);
+          // draw as filled polygon
+          (doc as any).polygon(
+            pts.map(p => ({ x: p[0], y: p[1] })),
+            'F'
+          );
+        };
+
+        // Fallback polygon via lines if .polygon not available
+        const drawPie = (
+          cx: number, cy: number, r: number,
+          startDeg: number, endDeg: number,
+          rgb: [number, number, number]
+        ) => {
+          const toRad = (d: number) => (d * Math.PI) / 180;
+          const steps = Math.max(4, Math.round(Math.abs(endDeg - startDeg) / 5));
+          doc.setFillColor(rgb[0], rgb[1], rgb[2]);
+          doc.setDrawColor(rgb[0], rgb[1], rgb[2]);
+          const startR = toRad(startDeg);
+          const endR   = toRad(endDeg);
+          // Build path manually using moveTo + lines
+          const pts: [number, number][] = [];
+          pts.push([cx, cy]);
+          for (let s = 0; s <= steps; s++) {
+            const a = startR + (endR - startR) * (s / steps);
+            pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+          }
+          // Use jsPDF internal drawing
+          const first = pts[0];
+          (doc as any).internal.write(
+            `${(doc as any).internal.getCoordinateString(first[0])} ${(doc as any).internal.getVerticalCoordinateString(first[1])} m`
+          );
+          for (let i = 1; i < pts.length; i++) {
+            (doc as any).internal.write(
+              `${(doc as any).internal.getCoordinateString(pts[i][0])} ${(doc as any).internal.getVerticalCoordinateString(pts[i][1])} l`
+            );
+          }
+          (doc as any).internal.write('f');
+        };
+
+        if (total > 0) {
+          const attendedAngle  = (this.attendedCount  / total) * 360;
+          const absentAngle    = (this.absentCount    / total) * 360;
+
+          // Segment 1: Attended — blue #0052cc
+          drawPie(chartCX, chartCY, chartR, -90, -90 + attendedAngle, [0, 82, 204]);
+          // Segment 2: Absent — red #e53935
+          drawPie(chartCX, chartCY, chartR, -90 + attendedAngle, -90 + attendedAngle + absentAngle, [229, 57, 53]);
+          // Segment 3: Remaining (approved but not yet marked) — grey
+          if (attendedAngle + absentAngle < 360) {
+            drawPie(chartCX, chartCY, chartR, -90 + attendedAngle + absentAngle, 270, [200, 200, 200]);
+          }
+        } else {
+          // Empty state — full grey circle
+          doc.setFillColor(220, 220, 220);
+          doc.circle(chartCX, chartCY, chartR, 'F');
+        }
+
+        // White hole (donut effect)
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(255, 255, 255);
+        doc.circle(chartCX, chartCY, holeR, 'FD');
+
+        // Centre label
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(30, 30, 30);
+        const pct = total > 0 ? Math.round((this.attendedCount / total) * 100) : 0;
+        doc.text(`${pct}%`, chartCX, chartCY - 1.5, { align: 'center' });
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7);
+        doc.setTextColor(100, 100, 100);
+        doc.text('Attended', chartCX, chartCY + 4, { align: 'center' });
+
+        // Legend (right of chart, centered with chart as a group)
+        const legendX  = groupStartX + chartR * 2 + groupGap;
+        const legendY  = chartCY - 10;
+        const legendItems: [string, [number, number, number], number][] = [
+          ['Attended',  [0, 82, 204],   this.attendedCount],
+          ['Absent',    [229, 57, 53],  this.absentCount],
+          ['Approved',  [200, 200, 200], this.approvedCount],
+        ];
+
+        legendItems.forEach(([label, rgb, count], i) => {
+          const lY = legendY + i * 9;
+          doc.setFillColor(rgb[0], rgb[1], rgb[2]);
+          doc.roundedRect(legendX, lY - 3, 5, 5, 1, 1, 'F');
+
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(9);
+          doc.setTextColor(30, 30, 30);
+          doc.text(String(count), legendX + 8, lY + 1);
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(100, 100, 100);
+          doc.text(label, legendX + 18, lY + 1);
+        });
+
+        y = chartCY + chartR + 8;
+
+        // ── Stat boxes ────────────────────────────────────────────────────
+        const summaryItems: [string, string | number][] = [
+          ['Participant Limit',  event.attendeeLimit ?? 'N/A'],
+          ['Approved Attendees', this.approvedCount],
+          ['Attended (Present)', this.attendedCount],
+          ['Absent',             this.absentCount],
+          ['Pending Requests',   this.pendingCount],
+          ['Rejected Requests',  this.rejectedCount],
+        ];
+
+        const colW = contentW / 3;
+        let col = 0;
+
+        doc.setFontSize(10);
+        for (const [label, value] of summaryItems) {
+          const x = margin + col * colW;
+          checkPage(16);
+
+          doc.setFillColor(248, 248, 248);
+          doc.roundedRect(x, y - 4, colW - 4, 14, 2, 2, 'F');
+
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(13);
+          doc.setTextColor(0, 82, 204);
+          doc.text(String(value), x + (colW - 4) / 2, y + 4, { align: 'center' });
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(100, 100, 100);
+          doc.text(label, x + (colW - 4) / 2, y + 10, { align: 'center' });
+
+          col++;
+          if (col === 3) {
+            col = 0;
+            y += 18;
+          }
+        }
+        if (col !== 0) y += 18;
+
+        y += 4;
+
+        // ── Attendee list ─────────────────────────────────────────────────
+        doc.setDrawColor(220, 220, 220);
+        doc.line(margin, y, pageW - margin, y);
+        y += 7;
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(30, 30, 30);
+        doc.text(`Approved Attendees (${this.approvedCount})`, margin, y);
+        y += 7;
+
+        if (this.approvedAttendees.length === 0) {
+          doc.setFont('helvetica', 'italic');
+          doc.setFontSize(10);
+          doc.setTextColor(150, 150, 150);
+          doc.text('No approved attendees.', margin, y);
+          y += 8;
+        } else {
+          // Table header
+          const colWidths = [10, 62, 58, 32, 24];
+          const colX = [margin, margin + 10, margin + 72, margin + 130, margin + 162];
+          const headers = ['#', 'Name', 'Email', 'Contact', 'Attended'];
+
+          doc.setFillColor(240, 240, 240);
+          doc.rect(margin, y - 4, contentW, 8, 'F');
+
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(8.5);
+          doc.setTextColor(60, 60, 60);
+          headers.forEach((h, i) => doc.text(h, colX[i], y));
+          y += 6;
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8.5);
+
+          this.approvedAttendees.forEach((attendee, index) => {
+            checkPage(8);
+
+            if (index % 2 === 0) {
+              doc.setFillColor(252, 252, 252);
+              doc.rect(margin, y - 4, contentW, 7, 'F');
+            }
+
+            doc.setTextColor(30, 30, 30);
+            doc.text(String(index + 1), colX[0], y);
+            doc.text(doc.splitTextToSize(attendee.name, colWidths[1])[0], colX[1], y);
+            doc.text(doc.splitTextToSize(attendee.email, colWidths[2])[0], colX[2], y);
+            doc.text(attendee.contactNumber || 'N/A', colX[3], y);
+
+            // Attended badge
+            if (attendee.isAttended) {
+              doc.setTextColor(0, 128, 0);
+              doc.setFont('helvetica', 'bold');
+              doc.text('Present', colX[4], y);
+            } else {
+              doc.setTextColor(180, 0, 0);
+              doc.setFont('helvetica', 'normal');
+              doc.text('Absent', colX[4], y);
+            }
+            doc.setTextColor(30, 30, 30);
+            doc.setFont('helvetica', 'normal');
+
+            y += 7;
+          });
+        }
+
+        // ── Footer on every page ──────────────────────────────────────────
+        const totalPages = (doc.internal as any).getNumberOfPages();
+        for (let p = 1; p <= totalPages; p++) {
+          doc.setPage(p);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(160, 160, 160);
+          doc.text(
+            `YouthConnect — Barangay 183 | Page ${p} of ${totalPages}`,
+            pageW / 2,
+            pageH - 8,
+            { align: 'center' }
+          );
+        }
+
+        // ── Save ──────────────────────────────────────────────────────────
+        const safeName = event.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        doc.save(`event_report_${safeName}.pdf`);
+        this.showNotification('PDF report exported successfully!', 'success');
+      });
+    } catch (err) {
+      console.error('PDF export error:', err);
+      this.showNotification('Failed to export PDF. Please try again.', 'error');
+    }
   }
 
   editEvent(event: EventResponse): void {
