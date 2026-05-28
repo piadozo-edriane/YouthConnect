@@ -3,10 +3,12 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AdminAuthService, AdminInfoService } from '../../../services/admin-auth.service';
 import { AuthService } from '../../../services/auth.service';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-adminstrator-login',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, CommonModule, RouterModule],
   templateUrl: './adminstrator-login.html',
   styleUrl: './adminstrator-login.scss',
 })
@@ -20,6 +22,7 @@ export class AdminstratorLogin {
   loginForm: FormGroup;
   isLoading = false;
   errorMessage: string | null = null;
+  showPassword = false;
 
   constructor() {
     this.loginForm = this.formBuilder.group({
@@ -44,6 +47,10 @@ export class AdminstratorLogin {
 
   isFormValid(): boolean {
     return this.loginForm.valid && this.emailControl?.value && this.passwordControl?.value;
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   login(): void {

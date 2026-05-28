@@ -1,299 +1,372 @@
-.parent {
-  display: flex;
-  width: 100vw;
+@use 'sass:color';
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+$primary-purple: #8224b1;
+$dark-purple: #7825ca;
+$light-gray: #f5f5f5;
+$border-gray: #e0e0e0;
+$text-dark: #333333;
+$text-light: #666666;
+$error-color: #d32f2f;
+
+// Prevent scrolling on body and html
+:host {
+  display: block;
   height: 100vh;
+  width: 100vw;
   overflow: hidden;
 }
 
-.element {
+html,
+body {
   height: 100vh;
-}
-
-.left, .right {
-  flex: 1;
-}
-
-.left {
-  background-color: #FADA51;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-.right {
-  background-color: #6A1992;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: clamp(1rem, 2vw, 2rem);
+  width: 100vw;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 .login-container {
-  width: min(580px, 100%);
-  background: #ffffff;
-  border-radius: 16px;
-  padding: clamp(1.25rem, 2vw, 1.8rem);
+  height: 100vh;
+  width: 100vw;
+  background-image: url('/assets/login page/pasay-sk-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  background-attachment: fixed;
+  overflow: hidden;
 
-  .mobile-logo-row {
-    display: none;
-  }
-
-  .login-logo {
-    width: 90px;
+  .login-modal {
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    width: 450px;
+    padding: 40px 30px;
+    position: relative;
     height: auto;
-    margin: 0 auto 0.8rem;
-    display: block;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+
+    @media (max-width: 600px) {
+      width: 90vw;
+      max-width: 450px;
+      padding: 30px 20px;
+      border-radius: 15px;
+      height: auto;
+      max-height: 90vh;
+    }
   }
+}
+
+.login-header {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 30px;
+  align-items: center;
+
+  .logo {
+    height: 80px;
+    width: 80px;
+    display: block;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+
+    @media (max-width: 600px) {
+      height: 60px;
+      width: 60px;
+    }
+  }
+
+  .sk-logo {
+    background-color: rgb(255, 255, 255);
+    border-radius: 50%;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+}
+
+.login-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  color: $dark-purple;
+  margin-bottom: 30px;
+  letter-spacing: 0.5px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.login-form {
+  animation: fadeIn 0.3s ease-in;
+
+  .error-message {
+    background-color: #ffebee;
+    color: $error-color;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    border-left: 4px solid $error-color;
+    font-family: 'Poppins', sans-serif;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-group {
+  margin-bottom: 20px;
 
   label {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #300659;
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: $text-dark;
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+    font-family: 'Poppins', sans-serif;
   }
 
-  input {
-    border: 1px solid #d2c6df;
-    border-radius: 10px;
-    padding: 0.75rem 0.85rem;
-    font-size: 0.95rem;
-    margin-bottom: 0.45rem;
-    outline: none;
+  .form-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid $border-gray;
+    border-radius: 8px;
+    font-size: 14px;
+    color: $text-dark;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+
+    &::placeholder {
+      color: #cccccc;
+    }
 
     &:focus {
-      border-color: #6A1992;
+      outline: none;
+      border-color: $primary-purple;
       box-shadow: 0 0 0 3px rgba(106, 25, 146, 0.15);
     }
-  }
 
-  button {
-    margin-top: 0.75rem;
-    border: none;
-    border-radius: 10px;
-    padding: 0.8rem 1rem;
-    background-color: #300659;
-    color: #ffffff;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-
-    &:hover {
-      filter: brightness(0.95);
+    &:disabled {
+      background-color: #f0f0f0;
+      color: #999999;
     }
   }
-}
 
-.content-container {
-  color: #300659;
-  padding: clamp(1.25rem, 2.5vw, 2rem);
-  text-align: center;
-  max-width: 560px;
-
-  .child-1 {
+  .password-input-wrapper {
+    position: relative;
     display: flex;
-    justify-content: center;
     align-items: center;
-    gap: 0;
-    margin-left: -50px;
 
-    .youthconnect-logo {
-      width: clamp(200px, 50vw,430px);
-        height: auto;
-        margin: 0 -1.5rem 0 0;
-        flex-shrink: 0;
-        display: block;
+    .form-input {
+      padding-right: 45px;
     }
 
-    .sk-logo {
-      width: clamp(110px, 15vw, 200px);
-        margin: 0;
-        flex-shrink: 0;
-      transform: translateX(-2rem);
-        display: block;
-    }
-  }  
-
-  .child-2{
-    font-size: clamp(2.9rem, 5.3vw, 4.4rem);
-    font-weight: bold;
-    font-family: Arial, Helvetica, sans-serif;
-    line-height: 1;
-    margin-top: 0.7rem;
-  }
-
-  .child-3 {
-    font-size: clamp(0.95rem, 1.28vw, 1.35rem);
-    font-family: Arial, Helvetica, sans-serif;
-    max-width: 90%;
-    margin: 0.45rem auto 0;
-    line-height: 1.28;
-  }
-}
-
-@media (min-width: 961px) {
-  .content-container {
-    max-width: 520px;
-  }
-
-  .content-container .child-1 {
-    gap: 24px;
-    margin-left: 0;
-  }
-
-  .content-container .child-1 .sk-logo {
-    width: clamp(150px, 16vw, 220px);
-    transform: none;
-  }
-
-  .content-container .child-1 .youthconnect-logo {
-    width: clamp(200px, 22vw, 260px);
-    margin: 0;
-  }
-
-  .content-container .child-2 {
-    font-size: clamp(2.8rem, 4.8vw, 3.8rem);
-  }
-
-  .content-container .child-3 {
-    max-width: 75%;
-  }
-
-  .login-container {
-    width: min(360px, 90%);
-    padding: 1.1rem 1.2rem 1.3rem;
-    border-radius: 14px;
-    gap: 0.55rem;
-  }
-
-  .login-container .login-logo {
-    width: 70px;
-    margin-bottom: 0.5rem;
-  }
-}
-
-.login-heading {
-  text-align: center;
-  color: #300659;
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-
-.error-message {
-  background-color: #fee;
-  border: 1px solid #ff6b6b;
-  color: #c92a2a;
-  padding: 0.75rem 0.85rem;
-  border-radius: 10px;
-  margin-bottom: 0.8rem;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-.field-error {
-  color: #c92a2a;
-  font-size: 0.85rem;
-  margin-top: -0.3rem;
-  margin-bottom: 0.5rem;
-  display: block;
-}
-
-input.email-input.ng-invalid.ng-touched,
-input.password-input.ng-invalid.ng-touched {
-  border-color: #c92a2a;
-  background-color: #fff5f5;
-}
-
-.submit-button:disabled {
-  background-color: #b0a0b8;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.submit-button:disabled:hover {
-  filter: none;
-  cursor: not-allowed;
-}
-
-@media (max-width: 960px) {
-
-  .parent {
-    flex-direction: column;
-    height: 100dvh;
-    min-height: 100dvh;
-    overflow: hidden;
-    background: linear-gradient(180deg, #6A1992 0 50%, #FADA51 50% 100%);
-  }
-
-  .left,
-  .right {
-    min-height: 0;
-  }
-
-  .left {
-    display: none;
-  }
-
-  .right {
-    min-height: 100dvh;
-    background: transparent;
-  }
-
-  .login-container {
-    .login-logo {
-      display: none;
-    }
-
-    .mobile-logo-row {
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.75rem;
-      margin-bottom: 0.5rem;
-    }
+      color: $text-light;
+      transition: color 0.2s ease;
 
-    .mobile-logo {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: #f1e9f7;
-      padding: 7px;
-      object-fit: contain;
-      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
-    }
+      svg {
+        display: block;
+      }
 
-    .youthconnect-logo-mobile {
-      padding: 6px;
-    }
-
-    .sk-logo-mobile {
-      padding: 6px;
+      &:hover {
+        color: $text-dark;
+      }
     }
   }
 
-  .content-container .child-1 {
-    gap: 0;
-  }
-
-  .content-container .child-1 .youthconnect-logo {
-    margin-right: -1rem;
-  }
-
-  .content-container .child-1 .sk-logo {
-    transform: translateX(-1.5rem);
-  }
-
-  .content-container .child-2 {
-    font-size: clamp(2.4rem, 11vw, 3.5rem);
-  }
-
-  .content-container .child-3 {
-    max-width: 90%;
+  .error-text {
+    display: block;
+    color: $error-color;
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
   }
 }
-/*# sourceMappingURL=adminstrator-login.css.map */
+
+.btn-login {
+  width: 100%;
+  padding: 13px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+  background-color: $dark-purple;
+  letter-spacing: 0.5px;
+  margin-bottom: 20px;
+  font-family: 'Poppins', sans-serif;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background-color: color.adjust($dark-purple, $lightness: 5%);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+// Responsive design adjustments
+@media (max-width: 768px) {
+  .login-header {
+    gap: 20px;
+
+    .logo {
+      height: 50px;
+    }
+  }
+
+  .login-title {
+    font-size: 16px;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+
+    label {
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+  }
+
+  .btn-login {
+    padding: 12px 15px;
+    font-size: 14px;
+    margin-bottom: 15px;
+  }
+}
+
+@media (max-width: 600px) {
+  .login-container {
+    padding: 15px;
+  }
+
+  .login-header {
+    gap: 15px;
+    margin-bottom: 20px;
+
+    .logo {
+      height: 50px;
+      width: 50px;
+    }
+  }
+
+  .login-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .btn-login {
+    padding: 11px 15px;
+    font-size: 14px;
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 14px;
+  padding: 24px 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  text-align: center;
+  width: 320px;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e0e0e0;
+  border-top-color: $primary-purple;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 24px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: $text-dark;
+  margin: 0 0 8px 0;
+  font-family: 'Poppins', sans-serif;
+}
