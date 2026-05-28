@@ -305,6 +305,14 @@ export class TaskTracker implements OnInit {
       );
     }
 
+    // Sort by nearest due date first; tasks with no due date go to the bottom
+    filtered.sort((a, b) => {
+      if (!a.dueDate && !b.dueDate) return 0;
+      if (!a.dueDate) return 1;
+      if (!b.dueDate) return -1;
+      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+    });
+
     this.filteredTasks = filtered;
 
     if (resetPage) {
