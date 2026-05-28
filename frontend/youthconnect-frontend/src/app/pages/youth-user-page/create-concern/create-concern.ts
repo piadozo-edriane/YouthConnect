@@ -70,9 +70,9 @@ export class CreateConcern implements OnInit, AfterViewInit {
 
   constructor() {
     this.concernForm = this.fb.group({
-      title: ['', [Validators.required, Validators.maxLength(200)]],
-      typeOfConcern: ['', Validators.required],
-      description: ['', [Validators.required, Validators.maxLength(1000)]]
+      title: ['', [Validators.required, Validators.maxLength(50)]],
+      typeOfConcern: [null, Validators.required],
+      description: ['', [Validators.required, Validators.maxLength(500)]]
     });
   }
 
