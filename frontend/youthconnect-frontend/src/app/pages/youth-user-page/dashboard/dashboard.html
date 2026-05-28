@@ -85,12 +85,10 @@
                         <div class="item-header">
                             <h3 class="item-title-fade">{{ toTitleCase(notification.title || notification.updatedByAdminName || 'Notification') }}</h3>
                             <span class="item-date">{{ getTimeAgo(notification.createdAt) }}</span>
+                            <div class="unread-dot" *ngIf="!isNotificationRead(notification)"></div>
                         </div>
                         <div class="item-meta">
                             <p class="item-location">{{ notification.message || notification.updateText }}</p>
-                        </div>
-                        <div class="item-footer">
-                            <span class="item-status status-unread" *ngIf="!isNotificationRead(notification)">Unread</span>
                         </div>
                     </div>
                     <div *ngIf="filteredNotifications.length === 0" class="no-data-message">No notifications yet</div>
